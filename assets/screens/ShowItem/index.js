@@ -56,7 +56,7 @@ export default class ShowItem extends Component {
               <Icon
                 name="launch"
                 size={20}
-                color='#00b5ec'
+                color='#002f6c'
               />
             </TouchableOpacity>
             {
@@ -87,7 +87,7 @@ export default class ShowItem extends Component {
                   <Icon
                     name="edit"
                     size={20}
-                    color='#00b5ec'
+                    color='#002f6c'
                   />
                 </TouchableOpacity>
               : <View></View>
@@ -187,10 +187,10 @@ const styles = StyleSheet.create({
         height: 60, 
     },
     inputs:{
-        marginLeft:15,
-        borderBottomColor: '#00b5ec',
-        flex:1,
-        color: "#00b5ec",
+      marginLeft:15,
+      borderBottomColor: '#002f6c',
+      flex:1,
+      color: "#002f6c",
     },
     buttonContainer: {
         alignItems: 'center',
@@ -198,7 +198,7 @@ const styles = StyleSheet.create({
         marginBottom:5,
     },
     loginButton: {
-        backgroundColor: "#00b5ec",
+        backgroundColor: "#002f6c",
     },
     loginText: {
         color: 'white',

@@ -133,7 +133,7 @@ export default class EditItem extends Component {
               <Icon
                 name="delete"
                 size={20}
-                color='#00b5ec'
+                color='#002f6c'
               />
             </TouchableOpacity>
             <TouchableOpacity style={{
@@ -222,7 +222,7 @@ export default class EditItem extends Component {
               <Icon
                 name="check-circle"
                 size={20}
-                color='#00b5ec'
+                color='#002f6c'
               />
             </TouchableOpacity>
         </View>
@@ -272,7 +272,7 @@ export default class EditItem extends Component {
         <SafeAreaView style={styles.container}>
         {this.state.loading ? 
           <View style={styles.buttonContainer}>
-              <ActivityIndicator size="large" color="#00b5ec" />
+              <ActivityIndicator size="large" color="#002f6c" />
               <Text> Please wait... </Text>
           </View>
           : <ScrollView 
@@ -288,11 +288,12 @@ export default class EditItem extends Component {
                 inputStyle={styles.inputs}
                 maxLength={40}
                 placeholder='Title'
+                placeholderTextColor="#bdbdbd"
                 leftIcon={
                   <Icon
                     name='title'
                     size={24}
-                    color='#00b5ec'
+                    color='#002f6c'
                   />
                 }
               />
@@ -388,11 +389,12 @@ export default class EditItem extends Component {
                 inputStyle={styles.inputs}
                 maxLength={140}
                 placeholder='Subtitle'
+                placeholderTextColor="#bdbdbd"
                 leftIcon={
                   <Icon
                     name='subtitles'
                     size={24}
-                    color='#00b5ec'
+                    color='#002f6c'
                   />
                 }
               />
@@ -427,36 +429,36 @@ export default class EditItem extends Component {
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
-        backgroundColor: "#fff",
-        justifyContent: 'space-between',
+      flex: 1,
+      backgroundColor: "#fff",
+      justifyContent: 'space-between',
     },
     viewContainer: {
-        flexGrow: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
+      flexGrow: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
     },
     cell: { width: "80%", height: 50 },
     cellView: { 
-        width: "84%",
-        height: 60, 
+      width: "84%",
+      height: 60, 
     },
     inputs:{
-        marginLeft:15,
-        borderBottomColor: '#00b5ec',
-        flex:1,
-        color: "#00b5ec",
+      marginLeft:15,
+      borderBottomColor: '#002f6c',
+      flex:1,
+      color: "#002f6c",
     },
     buttonContainer: {
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginBottom:5,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginBottom:5,
     },
     loginButton: {
-        backgroundColor: "#00b5ec",
+      backgroundColor: "#002f6c",
     },
     loginText: {
-        color: 'white',
+      color: 'white',
     },
     titleText: {
       fontSize: 24,

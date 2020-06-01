@@ -71,12 +71,12 @@ function Main() {
             return <Icon
               name={iconName}
               size={size}
-              color='#00b5ec'
+              color='#002f6c'
             />;
         },
         })}
         tabBarOptions={{
-          activeTintColor: '#00b5ec',
+          activeTintColor: '#002f6c',
           inactiveTintColor: 'gray',
         }}
     >

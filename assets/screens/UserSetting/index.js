@@ -17,7 +17,7 @@ import RNIap, {
   purchaseErrorListener,
   purchaseUpdatedListener,
   type ProductPurchase,
-  type PurchaseError
+  type PurchaseError,
 } from 'react-native-iap'; // 확인 필요
 
 const itemSkus = Platform.select({
@@ -109,10 +109,11 @@ export default class UserSetting extends Component {
   alert() {
     Alert.alert(
       'Delete account',
-      'Are you sure you want to delete the account? This process cannot be reversed.',
+      'Are you sure you want to delete the account? This process cannot be reversed.\n' + 
+      '(Undeleted data is stored for up to one year, and if you want to delete it immediately, contact your developer. If the data has not been erased, it will remain on the same email again.)',
       [
-          {text: 'OK', onPress: () => {
-            auth().currentUser.delete()
+          {text: 'OK', onPress: async () => {
+            await auth().currentUser.delete()
               .then(() => {
                 Alert.alert(
                   'Account Deletion Successfully!',
@@ -185,9 +186,9 @@ const styles = StyleSheet.create({
     },
     inputs:{
         marginLeft:15,
-        borderBottomColor: '#00b5ec',
+        borderBottomColor: '#002f6c',
         flex:1,
-        color: "#00b5ec",
+        color: "#002f6c",
     },
     buttonContainer: {
         alignItems: 'center',
@@ -195,17 +196,17 @@ const styles = StyleSheet.create({
         marginBottom:5,
     },
     loginButton: {
-        backgroundColor: "#00b5ec",
+        backgroundColor: "#002f6c",
     },
     signUpButton: {
         backgroundColor: "#fff",
-        borderColor: '#00b5ec',
+        borderColor: '#002f6c',
         borderWidth: 1,
     },
     loginText: {
         color: 'white',
     },
     signUpText: {
-        color: '#00b5ec',
+        color: '#002f6c',
     }
 });

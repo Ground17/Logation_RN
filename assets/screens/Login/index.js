@@ -183,12 +183,13 @@ export default class Login extends Component {
         <View style={styles.cellView}>
             <Input
             placeholder='Email'
+            placeholderTextColor="#bdbdbd"
             onChangeText = {(email) => this.setState({email})}
             leftIcon={
                 <Icon
                 name='email'
                 size={24}
-                color='#00b5ec'
+                color='#002f6c'
                 />
             }
             inputStyle={styles.inputs}
@@ -197,13 +198,14 @@ export default class Login extends Component {
         <View style={styles.cellView}>
             <Input
             placeholder='Password'
+            placeholderTextColor="#bdbdbd"
             secureTextEntry={true}
             onChangeText = {(password) => this.setState({password})}
             leftIcon={
                 <Icon
                 name='lock'
                 size={24}
-                color='#00b5ec'
+                color='#002f6c'
                 />
             }
             inputStyle={styles.inputs}
@@ -260,10 +262,10 @@ const styles = StyleSheet.create({
     height: 60, 
   },
   inputs:{
-      marginLeft:15,
-      borderBottomColor: '#00b5ec',
-      flex:1,
-      color: "#00b5ec",
+    marginLeft:15,
+    borderBottomColor: '#002f6c',
+    flex:1,
+    color: "#002f6c",
   },
   buttonContainer: {
     height:45,
@@ -275,17 +277,17 @@ const styles = StyleSheet.create({
     borderRadius:5,
   },
   loginButton: {
-    backgroundColor: "#00b5ec",
+    backgroundColor: "#002f6c",
   },
   signUpButton: {
     backgroundColor: "#fff",
-    borderColor: '#00b5ec',
+    borderColor: '#002f6c',
     borderWidth: 1,
   },
   loginText: {
     color: 'white',
   },
   signUpText: {
-    color: '#00b5ec',
+    color: '#002f6c',
   }
 });

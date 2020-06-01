@@ -44,7 +44,7 @@ export default class Me extends Component {
         list: [],
         profileURL: '', // 사진 URL
         localProfileURL: '', // 상대 위치 참조 URL
-        ads: true,
+        // ads: true,
     }
 
     async getPurchases () {
@@ -78,14 +78,16 @@ export default class Me extends Component {
             localProfileURL: '', // 상대 위치 참조 URL
         });
 
-        if (!auth().currentUser.displayName) {
+        const user = await firestore().collection("Users").where("email", "==", auth().currentUser.email).get();
+        var storageRef = await storage().ref();
+        if (!auth().currentUser.displayName || user.empty) {
             const update = {
                 displayName: auth().currentUser.email
             };
 
-            auth().currentUser.updateProfile(update);
+            await auth().currentUser.updateProfile(update);
 
-            firestore()
+            await firestore()
                 .collection("Users")
                 .add({
                     follower:[],
@@ -94,19 +96,38 @@ export default class Me extends Component {
                     email: auth().currentUser.email,
                     profile: '',
                     modifyDate: firestore.Timestamp.fromMillis((new Date()).getTime()),
-                    displayName: auth().currentUser.displayName,
+                    displayName: auth().currentUser.email,
+                })
+                .then(async (documentSnapshot) => {
+                    data = documentSnapshot.data();
+                    this.setState({
+                        followers : data.follower,
+                        followings : data.following,
+                        views : data.view,
+                        localProfileURL : data.profile
+                    });
+                    this.setState({profileURL : await storageRef.child(auth().currentUser.email + "/" + data.profile).getDownloadURL()});
                 });
+            
+        } else {
+            user.forEach(async (documentSnapshot) => {
+                data = documentSnapshot.data();
+                this.setState({
+                    followers : data.follower,
+                    followings : data.following,
+                    views : data.view,
+                    localProfileURL : data.profile
+                });
+                this.setState({profileURL : await storageRef.child(auth().currentUser.email + "/" + data.profile).getDownloadURL()});
+            });
         }
 
         if (Platform.OS === 'android') {
+            console.log("asdf");
             Linking.getInitialURL().then(url => {
                 this.navigate(url);
             });
-        } else {
-            Linking.addEventListener('url', this.handleOpenURL);
-        }
-
-        var storageRef = storage().ref();
+        } Linking.addEventListener('url', this.handleOpenURL);
         
         firestore()
             .collection(auth().currentUser.email)
@@ -128,24 +149,6 @@ export default class Me extends Component {
                     });
                 }
             });
-        
-        firestore()
-            .collection("Users")
-            .where("email", "==", auth().currentUser.email)
-            .get()
-            .then(async (querySnapshot) => {
-                querySnapshot.forEach(async (documentSnapshot) => {
-                    data = documentSnapshot.data();
-                    this.setState({
-                        followers : data.follower,
-                        followings : data.following,
-                        views : data.view,
-                        localProfileURL : data.profile
-                    });
-                    this.setState({profileURL : await storageRef.child(auth().currentUser.email + "/" + data.profile).getDownloadURL()});
-                });
-            }
-        );
     }
 
     async componentDidMount() {
@@ -157,21 +160,29 @@ export default class Me extends Component {
         Linking.removeEventListener('url', this.handleOpenURL);
     }
     handleOpenURL = (event) => {
+        console.log(event.url);
         this.navigate(event.url);
     }
 
-    navigate = (url) => { // url scheme settings (ex: logory://logory/hyla981020@naver.com/2EgGSgGMVzHFzq8oErBi/1/)
-        const route = url.replace(/.*?:\/\//g, '');
-        if (route.split('/').length < 4) {
+    navigate = (url) => { // url scheme settings (ex: https://travelog-4e274.web.app/?email=hyla981020@naver.com&&id=2EgGSgGMVzHFzq8oErBi&&viewcode=1)
+        var regex = /[?&]([^=#]+)=([^&#]*)/g,
+            params = {},
+            match;
+        var i = 0;
+        while (match = regex.exec(url)) {
+            params[match[1]] = match[2];
+            i++;
+        }
+        console.log(params)
+        if (!params['email'] || !params['id']) {
             return;
         }
-    
         this.props.navigation.push('ShowScreen', {
-            itemId: route.split('/')[2],
-            userEmail: route.split('/')[1],
-            viewcode: route.split('/')[3] ?? 0,
+            itemId: params['id'],
+            userEmail: params['email'],
+            viewcode: params['viewcode'] ? parseInt(params['viewcode']) : 0,
             onPop: () => this.refresh(),
-        })
+        });
     }
 
 
@@ -201,37 +212,44 @@ export default class Me extends Component {
         return(
             <SafeAreaView style={styles.container}>
                 <View style={styles.buttonContainer, {marginTop:10}}>
-                    <View style={{flexDirection: 'row', justifyContent: 'flex-end'}}>
-                        <TouchableOpacity onPress={() => { this.refresh() }}>
-                            <Icon
-                                name='refresh'
-                                size={36}
-                                color='#00b5ec'
-                            />
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={() => { this.props.navigation.push('Notification') }}>
-                            <Icon
-                                name='notifications'
-                                size={36}
-                                color='#00b5ec'
-                            />
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={() => { this.props.navigation.push('AddList', {
-                            onPop: () => this.refresh(),
-                        }) }}>
-                            <Icon
-                                name='add-circle-outline'
-                                size={36}
-                                color='#00b5ec'
-                            />
-                        </TouchableOpacity>
-                        <TouchableOpacity style={{marginRight:10}} onPress={() => { this.props.navigation.push('Settings') }}>
-                            <Icon
-                                name='settings'
-                                size={36}
-                                color='#00b5ec'
-                            />
-                        </TouchableOpacity>
+                    <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+                        <View style={{justifyContent: 'flex-start'}}>
+                            <Image
+                                style={{flex: 1, width: 120, height: 120,resizeMode: 'contain'}}
+                                source={require('./../../logo/graphicImage1.png')}/>
+                        </View>
+                        <View style={{flexDirection: 'row', justifyContent: 'flex-end'}}>
+                            <TouchableOpacity onPress={() => { this.refresh() }}>
+                                <Icon
+                                    name='refresh'
+                                    size={36}
+                                    color='#002f6c'
+                                />
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => { this.props.navigation.push('Notification') }}>
+                                <Icon
+                                    name='notifications'
+                                    size={36}
+                                    color='#002f6c'
+                                />
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => { this.props.navigation.push('AddList', {
+                                onPop: () => this.refresh(),
+                            }) }}>
+                                <Icon
+                                    name='add-circle-outline'
+                                    size={36}
+                                    color='#002f6c'
+                                />
+                            </TouchableOpacity>
+                            <TouchableOpacity style={{marginRight:10}} onPress={() => { this.props.navigation.push('Settings') }}>
+                                <Icon
+                                    name='settings'
+                                    size={36}
+                                    color='#002f6c'
+                                />
+                            </TouchableOpacity>
+                        </View>
                     </View>
                     <View style={{
                         flexDirection: 'row',
@@ -297,12 +315,12 @@ export default class Me extends Component {
                             <Text> {this.state.views.length} </Text>
                         </View>
                     </View>
-                    {this.state.ads && <View style={{alignItems: 'center',}}>
-                        {this.state.ads && <BannerAd 
+                    <View style={{alignItems: 'center',}}>
+                        <BannerAd 
                             unitId={adBannerUnitId} 
                             size={BannerAdSize.BANNER}
-                        />}
-                    </View>}
+                        />
+                    </View>
                 </View>
                 <FlatList
                     style={{width: "100%"}}
@@ -334,9 +352,9 @@ const styles = StyleSheet.create({
     },
     inputs:{
         marginLeft:15,
-        borderBottomColor: '#00b5ec',
+        borderBottomColor: '#002f6c',
         flex:1,
-        color: "#00b5ec",
+        color: "#002f6c",
     },
     buttonContainer: {
         alignItems: 'center',

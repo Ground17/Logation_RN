@@ -102,12 +102,13 @@ export default class SignUp extends Component {
             <View style={styles.cellView}>
                 <Input
                 placeholder='Email'
+                placeholderTextColor="#bdbdbd"
                 onChangeText = {(email) => this.setState({email})}
                 leftIcon={
                     <Icon
                     name='email'
                     size={24}
-                    color='#00b5ec'
+                    color='#002f6c'
                     />
                 }
                 inputStyle={styles.inputs}
@@ -116,13 +117,14 @@ export default class SignUp extends Component {
             <View style={styles.cellView}>
                 <Input
                 placeholder='Password'
+                placeholderTextColor="#bdbdbd"
                 secureTextEntry={true}
                 onChangeText = {(password) => this.setState({password})}
                 leftIcon={
                     <Icon
                     name='lock'
                     size={24}
-                    color='#00b5ec'
+                    color='#002f6c'
                     />
                 }
                 inputStyle={styles.inputs}
@@ -131,13 +133,14 @@ export default class SignUp extends Component {
             <View style={styles.cellView}>
                 <Input
                 placeholder='Confirm Password'
+                placeholderTextColor="#bdbdbd"
                 secureTextEntry={true}
                 onChangeText = {(passwordConfirm) => this.setState({passwordConfirm})}
                 leftIcon={
                     <Icon
                     name='lock'
                     size={24}
-                    color='#00b5ec'
+                    color='#002f6c'
                     />
                 }
                 inputStyle={styles.inputs}
@@ -154,44 +157,44 @@ export default class SignUp extends Component {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: "#fff",
-  },
-  cell: { width: "80%", height: 50 },
-  cellView: { 
-    width: "84%",
-    height: 60, 
-  },
-  inputs:{
-      marginLeft:15,
-      borderBottomColor: '#00b5ec',
-      flex:1,
-      color: "#00b5ec",
-  },
-  buttonContainer: {
-    height:45,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom:5,
-    width: "80%",
-    borderRadius:5,
-  },
-  loginButton: {
-    backgroundColor: "#00b5ec",
-  },
-  signUpButton: {
-    backgroundColor: "#fff",
-    borderColor: '#00b5ec',
-    borderWidth: 1,
-  },
-  loginText: {
-    color: 'white',
-  },
-  signUpText: {
-    color: '#00b5ec',
-  }
+    container: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: "#fff",
+    },
+    cell: { width: "80%", height: 50 },
+    cellView: { 
+        width: "84%",
+        height: 60, 
+    },
+    inputs:{
+        marginLeft:15,
+        borderBottomColor: '#002f6c',
+        flex:1,
+        color: "#002f6c",
+    },
+    buttonContainer: {
+        height:45,
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom:5,
+        width: "80%",
+        borderRadius:5,
+    },
+    loginButton: {
+        backgroundColor: "#002f6c",
+    },
+    signUpButton: {
+        backgroundColor: "#fff",
+        borderColor: '#002f6c',
+        borderWidth: 1,
+    },
+    loginText: {
+        color: 'white',
+    },
+    signUpText: {
+        color: '#002f6c',
+    }
 });

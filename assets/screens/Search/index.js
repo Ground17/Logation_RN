@@ -28,49 +28,64 @@ export default class Search extends Component {
   };
 
   async search() {
+    if (this.state.search.length < 4) {
+      return;
+    }
+
     this.setState({
       list: [],
     });
+
     var storageRef = await storage().ref();
     await firestore()
       .collection("Users")
-      .orderBy("email")
-      .startAt(this.state.search)
+      .where("email", ">=", this.state.search)
+      .orderBy("email", "asc")
       .limit(3)
       .get()
       .then(async (querySnapshot) => {
         for (var i = 0; i < querySnapshot.docs.length; i++) {
           console.log('data: ', querySnapshot.docs[i].id, querySnapshot.docs[i].data());
           var data = querySnapshot.docs[i].data();
-          var URL = await storageRef.child(data.email + "/" + data.profile).getDownloadURL();
-          this.setState({
-            list: this.state.list.concat({ 
-              email : data.email,
-              displayName : data.displayName,
-              profileURL : URL,
-            })
-          });
+          try {
+            var URL = await storageRef.child(data.email + "/" + data.profile).getDownloadURL();
+          } catch (e) {
+            var URL = '';
+          } finally {
+            this.setState({
+              list: this.state.list.concat({ 
+                email : data.email,
+                displayName : data.displayName,
+                profileURL : URL,
+              })
+            });
+          }
         }
       });
 
     await firestore()
       .collection("Users")
-      .orderBy("displayName")
-      .startAt(this.state.search)
+      .where("displayName", ">=", this.state.search)
+      .orderBy("displayName", "asc")
       .limit(3)
       .get()
       .then(async (querySnapshot) => {
         for (var i = 0; i < querySnapshot.docs.length; i++) {
           console.log('data: ', querySnapshot.docs[i].id, querySnapshot.docs[i].data());
           var data = querySnapshot.docs[i].data();
-          var URL = await storageRef.child(data.email + "/" + data.profile).getDownloadURL();
-          this.setState({
-            list: this.state.list.concat({ 
-              email : data.email,
-              displayName : data.displayName,
-              profileURL : URL,
-            })
-          });
+          try {
+            var URL = await storageRef.child(data.email + "/" + data.profile).getDownloadURL();
+          } catch (e) {
+            var URL = '';
+          } finally {
+            this.setState({
+              list: this.state.list.concat({ 
+                email : data.email,
+                displayName : data.displayName,
+                profileURL : URL,
+              })
+            });
+          }
         }
       });
   }
@@ -79,7 +94,7 @@ export default class Search extends Component {
 
   renderItem = ({ item, index }) => (
     <ListItem
-      title={item.displayName}
+      title={item.displayName ?? ''}
       titleStyle={{ fontWeight: 'bold' }}
       subtitle={item.email}
       leftAvatar={{ source: { uri: item.profileURL ?? '' }, rounded: true}}
@@ -120,7 +135,7 @@ export default class Search extends Component {
                 }}
                 name='search'
                 size={30}
-                color='#00b5ec'
+                color='#002f6c'
               />
             }
           />

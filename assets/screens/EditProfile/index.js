@@ -57,7 +57,7 @@ export default class EditProfile extends Component {
                 alignItems: 'center',
                 justifyContent: 'center',
                 marginBottom:5,}}>
-                <ActivityIndicator size="large" color="#00b5ec" />
+                <ActivityIndicator size="large" color="#002f6c" />
                 <Text> The more pictures you have, the more time it can take to upload. </Text>
             </View>
             : <View style={{
@@ -94,11 +94,12 @@ export default class EditProfile extends Component {
                     maxLength = {40}
                     inputStyle={styles.inputs}
                     placeholder='URL Link'
+                    placeholderTextColor="#bdbdbd"
                     leftIcon={
                         <Icon
                             name='account-circle'
                             size={24}
-                            color='#00b5ec'
+                            color='#002f6c'
                         />
                     }
                 />
@@ -189,9 +190,9 @@ const styles = StyleSheet.create({
     },
     inputs:{
         marginLeft:15,
-        borderBottomColor: '#00b5ec',
+        borderBottomColor: '#002f6c',
         flex:1,
-        color: "#00b5ec",
+        color: "#002f6c",
     },
     buttonContainer: {
         height:45,
@@ -203,9 +204,8 @@ const styles = StyleSheet.create({
         borderRadius:5,
     },
     loginButton: {
-        backgroundColor: "#00b5ec",
+        backgroundColor: "#002f6c",
     },
-
     loginText: {
         color: 'white',
     },

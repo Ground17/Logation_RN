@@ -169,7 +169,7 @@ export default class Other extends Component {
                             <Icon
                                 name='refresh'
                                 size={36}
-                                color='#00b5ec'
+                                color='#002f6c'
                             />
                         </TouchableOpacity>
                         <TouchableOpacity style={[styles.buttonContainer, styles.loginButton, {height:45, width: "30%", borderRadius:5,}]} onPress={async () => { 
@@ -321,9 +321,9 @@ const styles = StyleSheet.create({
     },
     inputs:{
         marginLeft:15,
-        borderBottomColor: '#00b5ec',
+        borderBottomColor: '#002f6c',
         flex:1,
-        color: "#00b5ec",
+        color: "#002f6c",
     },
     buttonContainer: {
         alignItems: 'center',
@@ -331,7 +331,7 @@ const styles = StyleSheet.create({
         marginBottom:5,
     },
     loginButton: {
-        backgroundColor: "#00b5ec",
+        backgroundColor: "#002f6c",
     },
     loginText: {
         color: 'white',

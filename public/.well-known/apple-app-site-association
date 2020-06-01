@@ -1,0 +1,11 @@
+{ "applinks": 
+    { 
+        "apps": [], 
+        "details": [ 
+            { 
+                "appID": "N5G63K4SQC.com.hyla981020.logory", 
+                "paths": ["*"] 
+            }
+        ] 
+    } 
+}

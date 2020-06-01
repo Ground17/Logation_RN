@@ -83,7 +83,7 @@ export default class AddList extends Component {
             <SafeAreaView style={styles.container}>
                 {this.state.loading ? 
                 <View style={styles.buttonContainer}>
-                    <ActivityIndicator size="large" color="#00b5ec" />
+                    <ActivityIndicator size="large" color="#002f6c" />
                     <Text> The more pictures you have, the more time it can take to upload. </Text>
                 </View>
                 : <ScrollView 
@@ -165,11 +165,12 @@ export default class AddList extends Component {
                             inputStyle={styles.inputs}
                             maxLength={40}
                             placeholder='Title'
+                            placeholderTextColor="#bdbdbd"
                             leftIcon={
                                 <Icon
                                     name='title'
                                     size={24}
-                                    color='#00b5ec'
+                                    color='#002f6c'
                                 />
                             }
                         />
@@ -181,11 +182,12 @@ export default class AddList extends Component {
                             inputStyle={styles.inputs}
                             maxLength={140}
                             placeholder='Subtitle'
+                            placeholderTextColor="#bdbdbd"
                             leftIcon={
                                 <Icon
                                     name='subtitles'
                                     size={24}
-                                    color='#00b5ec'
+                                    color='#002f6c'
                                 />
                             }
                         />
@@ -195,11 +197,12 @@ export default class AddList extends Component {
                             onChangeText = {(link) => this.setState({link})}
                             inputStyle={styles.inputs}
                             placeholder='URL Link'
+                            placeholderTextColor="#bdbdbd"
                             leftIcon={
                                 <Icon
                                     name='launch'
                                     size={24}
-                                    color='#00b5ec'
+                                    color='#002f6c'
                                 />
                             }
                         />
@@ -266,7 +269,7 @@ export default class AddList extends Component {
                         iconType='material'
                         checkedIcon='check-box'
                         uncheckedIcon='check-box-outline-blank'
-                        checkedColor='#00b5ec'
+                        checkedColor='#002f6c'
                         checked={this.state.locationChecked}
                         onPress={() => this.setState({locationChecked: !this.state.locationChecked})}
                     />
@@ -276,7 +279,7 @@ export default class AddList extends Component {
                         iconType='material'
                         checkedIcon='check-box'
                         uncheckedIcon='check-box-outline-blank'
-                        checkedColor='#00b5ec'
+                        checkedColor='#002f6c'
                         checked={this.state.dateChecked}
                         onPress={() => this.setState({dateChecked: !this.state.dateChecked})}
                     />
@@ -415,9 +418,9 @@ const styles = StyleSheet.create({
     },
     inputs:{
         marginLeft:15,
-        borderBottomColor: '#00b5ec',
+        borderBottomColor: '#002f6c',
         flex:1,
-        color: "#00b5ec",
+        color: "#002f6c",
     },
     buttonContainer: {
         alignItems: 'center',
@@ -425,17 +428,17 @@ const styles = StyleSheet.create({
         marginBottom:5,
     },
     loginButton: {
-        backgroundColor: "#00b5ec",
+        backgroundColor: "#002f6c",
     },
     signUpButton: {
         backgroundColor: "#fff",
-        borderColor: '#00b5ec',
+        borderColor: '#002f6c',
         borderWidth: 1,
     },
     loginText: {
         color: 'white',
     },
     signUpText: {
-        color: '#00b5ec',
+        color: '#002f6c',
     }
 });

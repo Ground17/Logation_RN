@@ -118,7 +118,7 @@ export default class Following extends Component {
                 }}
                 name='search'
                 size={30}
-                color='#00b5ec'
+                color='#002f6c'
               />
             }
           />

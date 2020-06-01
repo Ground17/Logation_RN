@@ -28,39 +28,39 @@ export default class Notification extends Component {
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
-        alignItems: 'center',
-        backgroundColor: "#fff",
-        justifyContent: 'space-between',
+      flex: 1,
+      alignItems: 'center',
+      backgroundColor: "#fff",
+      justifyContent: 'space-between',
     },
     cell: { width: "80%", height: 50 },
     cellView: { 
-        width: "84%",
-        height: 60, 
+      width: "84%",
+      height: 60, 
     },
     inputs:{
-        marginLeft:15,
-        borderBottomColor: '#00b5ec',
-        flex:1,
-        color: "#00b5ec",
+      marginLeft:15,
+      borderBottomColor: '#002f6c',
+      flex:1,
+      color: "#002f6c",
     },
     buttonContainer: {
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginBottom:5,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginBottom:5,
     },
     loginButton: {
-        backgroundColor: "#00b5ec",
+      backgroundColor: "#002f6c",
     },
     signUpButton: {
-        backgroundColor: "#fff",
-        borderColor: '#00b5ec',
-        borderWidth: 1,
+      backgroundColor: "#fff",
+      borderColor: '#002f6c',
+      borderWidth: 1,
     },
     loginText: {
-        color: 'white',
+      color: 'white',
     },
     signUpText: {
-        color: '#00b5ec',
+      color: '#002f6c',
     }
 });

@@ -1,0 +1,27 @@
+{ "applinks": 
+    { 
+        "apps": [], 
+        "details": [ 
+            { 
+                "appIDs": [
+                    "N5G63K4SQC.com.hyla981020.logory"
+                ],
+                "components": [
+                    {
+                        "/": "*",
+                        "comment": "Authenticate"
+                    }
+                ]
+            },
+            {
+                "appID": "N5G63K4SQC.com.hyla981020.logory",
+                "paths": [
+                    "*"
+                ]
+            },
+        ] 
+    },
+   "webcredentials": {
+      "apps": [ "N5G63K4SQC.com.hyla981020.logory" ]
+   }
+}

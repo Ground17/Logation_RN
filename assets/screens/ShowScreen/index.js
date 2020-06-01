@@ -185,7 +185,7 @@ export default class ShowScreen extends Component {
                 paddingLeft: 4,
                 paddingRight: 4,
               }} onPress={() => {
-                  const url = 'footprint://footprint/' + this.props.route.params.userEmail + '/' + this.props.route.params.itemId + '/' + this.state.viewcode + '/';
+                  const url = 'https://footprintwithmap.site/?email=' + this.props.route.params.userEmail + '&id=' + this.props.route.params.itemId + '&viewcode=' + this.state.viewcode;
                   const title = 'URL Content';
                   const message = 'Please check this out.';
                   const options = Platform.select({
@@ -216,7 +216,7 @@ export default class ShowScreen extends Component {
               <Icon
                 name="share"
                 size={20}
-                color='#00b5ec'
+                color='#002f6c'
               />
             </TouchableOpacity>
             <TouchableOpacity style={{
@@ -238,7 +238,7 @@ export default class ShowScreen extends Component {
               <Icon
                 name="tune"
                 size={20}
-                color='#00b5ec'
+                color='#002f6c'
               />
             </TouchableOpacity>
             <TouchableOpacity style={{
@@ -260,7 +260,7 @@ export default class ShowScreen extends Component {
               <Icon
                 name="launch"
                 size={20}
-                color='#00b5ec'
+                color='#002f6c'
               />
             </TouchableOpacity>
             {
@@ -281,7 +281,7 @@ export default class ShowScreen extends Component {
                 <Icon
                   name="edit"
                   size={20}
-                  color='#00b5ec'
+                  color='#002f6c'
                 />
               </TouchableOpacity>
               : <View></View>
@@ -313,7 +313,7 @@ export default class ShowScreen extends Component {
             coordinates={this.state.list.map(data => {
               return {latitude: data.lat, longitude: data.long}
             })}
-            strokeColor="#00b5ec" // fallback for when `strokeColors` is not supported by the map-provider
+            strokeColor="#002f6c" // fallback for when `strokeColors` is not supported by the map-provider
             strokeWidth={6}
           />
           {this.state.list.map((data, index) => (
@@ -359,7 +359,7 @@ export default class ShowScreen extends Component {
               <Icon
                 reverse
                 name='thumb-down'
-                color={this.state.disliked ? '#ff94c2' : '#bdbdbd'}
+                color={this.state.disliked ? '#bc477b' : '#bdbdbd'}
                 size={50}
                 onPress={async () => {
                   console.log('down');
@@ -397,7 +397,7 @@ export default class ShowScreen extends Component {
               <Icon
                 reverse
                 name='thumb-up'
-                color={this.state.liked ? '#00b5ec' : '#bdbdbd'}
+                color={this.state.liked ? '#4f83cc' : '#bdbdbd'}
                 size={50}
                 onPress={async () => {
                   console.log('up');
@@ -449,10 +449,10 @@ const styles = StyleSheet.create({
         height: 60, 
     },
     inputs:{
-        marginLeft:15,
-        borderBottomColor: '#00b5ec',
-        flex:1,
-        color: "#00b5ec",
+      marginLeft:15,
+      borderBottomColor: '#002f6c',
+      flex:1,
+      color: "#002f6c",
     },
     buttonContainer: {
         alignItems: 'center',

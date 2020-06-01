@@ -353,7 +353,7 @@ export default class EditScreen extends Component {
               <Icon
                 name="delete"
                 size={20}
-                color='#00b5ec'
+                color='#002f6c'
               />
             </TouchableOpacity>
             <TouchableOpacity style={{
@@ -382,7 +382,7 @@ export default class EditScreen extends Component {
               <Icon
                 name="library-add"
                 size={20}
-                color='#00b5ec'
+                color='#002f6c'
               />
             </TouchableOpacity>
             <TouchableOpacity style={{
@@ -406,7 +406,7 @@ export default class EditScreen extends Component {
               <Icon
                 name="tune"
                 size={20}
-                color='#00b5ec'
+                color='#002f6c'
               />
             </TouchableOpacity>
             <TouchableOpacity style={{
@@ -432,7 +432,7 @@ export default class EditScreen extends Component {
               <Icon
                 name="check-circle"
                 size={20}
-                color='#00b5ec'
+                color='#002f6c'
               />
             </TouchableOpacity>
         </View>
@@ -448,7 +448,7 @@ export default class EditScreen extends Component {
         <SafeAreaView style={styles.container}>
           { this.state.loading ? 
             <View style={styles.buttonContainer}>
-                <ActivityIndicator size="large" color="#00b5ec" />
+                <ActivityIndicator size="large" color="#002f6c" />
                 <Text> The more pictures you have, the more time it can take to upload. </Text>
             </View>
           : this.state.viewcode == 0 ? <MapView
@@ -473,7 +473,7 @@ export default class EditScreen extends Component {
             coordinates={this.state.list.map(data => {
               return {latitude: data.lat, longitude: data.long}
             })}
-            strokeColor="#00b5ec" // fallback for when `strokeColors` is not supported by the map-provider
+            strokeColor="#002f6c" // fallback for when `strokeColors` is not supported by the map-provider
             strokeWidth={6}
           />
           {this.state.list.map((data, index) => (
@@ -543,10 +543,10 @@ const styles = StyleSheet.create({
         height: 60, 
     },
     inputs:{
-        marginLeft:15,
-        borderBottomColor: '#00b5ec',
-        flex:1,
-        color: "#00b5ec",
+      marginLeft:15,
+      borderBottomColor: '#002f6c',
+      flex:1,
+      color: "#002f6c",
     },
     buttonContainer: {
         alignItems: 'center',

@@ -44,7 +44,8 @@ export default class Home extends Component {
         });
 
         const user = await firestore().collection("Users").where("email", "==", auth().currentUser.email).get();
-        if (!auth().currentUser.displayName || user.empty ) {
+        var storageRef = await storage().ref();
+        if (!auth().currentUser.displayName || user.empty) {
             const update = {
                 displayName: auth().currentUser.email
             };
@@ -61,28 +62,18 @@ export default class Home extends Component {
                     profile: '',
                     modifyDate: firestore.Timestamp.fromMillis((new Date()).getTime()),
                     displayName: auth().currentUser.email,
-                });
-        }
-        if (Platform.OS === 'android') {
-            Linking.getInitialURL().then(url => {
-                this.navigate(url);
-            });
-        } else {
-            Linking.addEventListener('url', this.handleOpenURL);
-        }
-
-        var storageRef = storage().ref();
-
-        firestore()
-            .collection("Users")
-            .where("email", "==", auth().currentUser.email)
-            .get()
-            .then(async (querySnapshot) => {
-                querySnapshot.forEach(async (documentSnapshot) => {
+                })
+                .then(async (documentSnapshot) => {
                     data = documentSnapshot.data();
                     this.setState({
                         followings : data.following,
                     });
+                });
+        } else {
+            user.forEach(async (documentSnapshot) => {
+                data = documentSnapshot.data();
+                this.setState({
+                    followings : data.following,
                 });
 
                 await firestore()
@@ -121,8 +112,16 @@ export default class Home extends Component {
                             });
                         }
                     });
-            }
-        );
+            });
+        }
+
+        if (Platform.OS === 'android') {
+            Linking.getInitialURL().then(url => {
+                this.navigate(url);
+            });
+        } else {
+            Linking.addEventListener('url', this.handleOpenURL);
+        }
     }
 
     async componentDidMount() {
@@ -136,25 +135,25 @@ export default class Home extends Component {
         this.navigate(event.url);
     }
 
-    navigate = (url) => { // url scheme settings (ex: logory://logory/hyla981020@naver.com/2EgGSgGMVzHFzq8oErBi/1/)
-        const route = url.replace(/.*?:\/\//g, '');
-        if (route.split('/').length < 4) {
+    navigate = (url) => { // url scheme settings (ex: https://travelog-4e274.web.app/?email=hyla981020@naver.com&&id=2EgGSgGMVzHFzq8oErBi&&viewcode=1)
+        var regex = /[?&]([^=#]+)=([^&#]*)/g,
+            params = {},
+            match;
+        var i = 0;
+        while (match = regex.exec(url)) {
+            params[match[1]] = match[2];
+            i++;
+        }
+        console.log(params)
+        if (!params['email'] || !params['id']) {
             return;
         }
-        if (route.split('/')[1] == auth().currentUser.email) {
-            this.props.navigation.push('ShowScreen', {
-                itemId: route.split('/')[2],
-                userEmail: route.split('/')[1],
-                viewcode: route.split('/')[3] ?? 0,
-                onPop: () => this.refresh(),
-            });
-        } else {
-            this.props.navigation.push('Other', {
-                itemId: route.split('/')[2],
-                userEmail: route.split('/')[1],
-                viewcode: route.split('/')[3] ?? 0,
-            });
-        }
+        this.props.navigation.push('ShowScreen', {
+            itemId: params['id'],
+            userEmail: params['email'],
+            viewcode: params['viewcode'] ? parseInt(params['viewcode']) : 0,
+            onPop: () => this.refresh(),
+        });
     }
 
 
@@ -228,19 +227,16 @@ export default class Home extends Component {
                 <View style={styles.buttonContainer, {marginTop:10, width: '84%' }}>
                     <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
                         <View style={{justifyContent: 'flex-start'}}>
-                            <Text style={{fontWeight: 'bold', textAlign: 'left', marginTop: 10}}>
-                                {auth().currentUser.displayName}
-                            </Text>
-                            <Text style={{textAlign: 'left'}}>
-                                {auth().currentUser.email}
-                            </Text>
+                            <Image
+                                style={{flex: 1, width: 120, height: 120,resizeMode: 'contain'}}
+                                source={require('./../../logo/graphicImage1.png')}/>
                         </View>
                         <View style={{flexDirection: 'row', justifyContent: 'flex-end'}}>
                             <TouchableOpacity style={{marginRight:10}} onPress={() => { this.refresh() }}>
                                 <Icon
                                     name='refresh'
                                     size={36}
-                                    color='#00b5ec'
+                                    color='#002f6c'
                                 />
                             </TouchableOpacity>
                         </View>
@@ -282,9 +278,9 @@ const styles = StyleSheet.create({
     },
     inputs:{
         marginLeft:15,
-        borderBottomColor: '#00b5ec',
+        borderBottomColor: '#002f6c',
         flex:1,
-        color: "#00b5ec",
+        color: "#002f6c",
     },
     buttonContainer: {
         marginBottom:5,
