@@ -109,20 +109,137 @@ export default class App extends Component {
         <NavigationContainer>
           <Stack.Navigator initialRouteName="Login">
             <Stack.Screen options={{headerShown: false}} name="Login" component={Login} />
-            <Stack.Screen name="SignUp" component={SignUp} />
-            <Stack.Screen name="ResetPassword" component={ResetPassword} />
-            <Stack.Screen options={{headerShown: false}} name="Main" component={Main} />
-            <Stack.Screen name="Notification" component={Notification} />
-            <Stack.Screen name="ShowScreen" component={ShowScreen} />
-            <Stack.Screen name="ShowItem" component={ShowItem} />
-            <Stack.Screen name="AddList" component={AddList} />
-            <Stack.Screen name="EditProfile" component={EditProfile} />
-            <Stack.Screen name="EditScreen" component={EditScreen} />
-            <Stack.Screen name="EditList" component={EditList} />
-            <Stack.Screen name="EditItem" component={EditItem} />
-            <Stack.Screen name="Settings" component={UserSetting} />
-            <Stack.Screen name="Other" component={Other} />
-            <Stack.Screen name="Following" component={Following} />
+          <Stack.Screen name="SignUp" component={SignUp} options={{
+            title: 'Sign Up',
+            headerStyle: {
+              backgroundColor: '#002f6c',
+            },
+            headerTintColor: '#fff',
+            headerTitleStyle: {
+              fontWeight: 'bold',
+            },
+          }}/>
+          <Stack.Screen name="ResetPassword" component={ResetPassword}  options={{
+            title: 'Reset Password',
+            headerStyle: {
+              backgroundColor: '#002f6c',
+            },
+            headerTintColor: '#fff',
+            headerTitleStyle: {
+              fontWeight: 'bold',
+            },
+          }}/>
+          <Stack.Screen options={{headerShown: false}} name="Main" component={Main} />
+          <Stack.Screen name="Notification" component={Notification} options={{
+            title: 'Notifications',
+            headerStyle: {
+              backgroundColor: '#002f6c',
+            },
+            headerTintColor: '#fff',
+            headerTitleStyle: {
+              fontWeight: 'bold',
+            },
+          }}/>
+          <Stack.Screen name="ShowScreen" component={ShowScreen} options={{
+            title: 'Show Screen',
+            headerStyle: {
+              backgroundColor: '#002f6c',
+            },
+            headerTintColor: '#fff',
+            headerTitleStyle: {
+              fontWeight: 'bold',
+            },
+          }}/>
+          <Stack.Screen name="ShowItem" component={ShowItem} options={{
+            title: 'Show Item',
+            headerStyle: {
+              backgroundColor: '#002f6c',
+            },
+            headerTintColor: '#fff',
+            headerTitleStyle: {
+              fontWeight: 'bold',
+            },
+          }}/>
+          <Stack.Screen name="AddList" component={AddList} options={{
+            title: 'Add List',
+            headerStyle: {
+              backgroundColor: '#002f6c',
+            },
+            headerTintColor: '#fff',
+            headerTitleStyle: {
+              fontWeight: 'bold',
+            },
+          }}/>
+          <Stack.Screen name="EditProfile" component={EditProfile} options={{
+            title: 'Edit Profile',
+            headerStyle: {
+              backgroundColor: '#002f6c',
+            },
+            headerTintColor: '#fff',
+            headerTitleStyle: {
+              fontWeight: 'bold',
+            },
+          }}/>
+          <Stack.Screen name="EditScreen" component={EditScreen} options={{
+            title: 'Edit Screen',
+            headerStyle: {
+              backgroundColor: '#002f6c',
+            },
+            headerTintColor: '#fff',
+            headerTitleStyle: {
+              fontWeight: 'bold',
+            },
+          }}/>
+          <Stack.Screen name="EditList" component={EditList} options={{
+            title: 'Edit List',
+            headerStyle: {
+              backgroundColor: '#002f6c',
+            },
+            headerTintColor: '#fff',
+            headerTitleStyle: {
+              fontWeight: 'bold',
+            },
+          }}/>
+          <Stack.Screen name="EditItem" component={EditItem} options={{
+            title: 'Edit Item',
+            headerStyle: {
+              backgroundColor: '#002f6c',
+            },
+            headerTintColor: '#fff',
+            headerTitleStyle: {
+              fontWeight: 'bold',
+            },
+          }}/>
+          <Stack.Screen name="Settings" component={UserSetting} options={{
+            title: 'Settings',
+            headerStyle: {
+              backgroundColor: '#002f6c',
+            },
+            headerTintColor: '#fff',
+            headerTitleStyle: {
+              fontWeight: 'bold',
+            },
+          }}/>
+          <Stack.Screen name="Other" component={Other} options={{
+            title: 'Other Account',
+            headerStyle: {
+              backgroundColor: '#002f6c',
+            },
+            headerTintColor: '#fff',
+            headerTitleStyle: {
+              fontWeight: 'bold',
+            },
+          }}/>
+          <Stack.Screen name="Following" component={Following} options={{
+            title: 'Followings',
+            headerStyle: {
+              backgroundColor: '#002f6c',
+            },
+            headerTintColor: '#fff',
+            headerTitleStyle: {
+              fontWeight: 'bold',
+            },
+          }}/>
           </Stack.Navigator>
         </NavigationContainer>
       );
@@ -132,20 +249,137 @@ export default class App extends Component {
       <NavigationContainer>
         <Stack.Navigator initialRouteName="Main">
           <Stack.Screen options={{headerShown: false}} name="Login" component={Login} />
-          <Stack.Screen name="SignUp" component={SignUp} />
-          <Stack.Screen name="ResetPassword" component={ResetPassword} />
+          <Stack.Screen name="SignUp" component={SignUp} options={{
+            title: 'Sign Up',
+            headerStyle: {
+              backgroundColor: '#002f6c',
+            },
+            headerTintColor: '#fff',
+            headerTitleStyle: {
+              fontWeight: 'bold',
+            },
+          }}/>
+          <Stack.Screen name="ResetPassword" component={ResetPassword}  options={{
+            title: 'Reset Password',
+            headerStyle: {
+              backgroundColor: '#002f6c',
+            },
+            headerTintColor: '#fff',
+            headerTitleStyle: {
+              fontWeight: 'bold',
+            },
+          }}/>
           <Stack.Screen options={{headerShown: false}} name="Main" component={Main} />
-          <Stack.Screen name="Notification" component={Notification} />
-          <Stack.Screen name="ShowScreen" component={ShowScreen} />
-          <Stack.Screen name="ShowItem" component={ShowItem} />
-          <Stack.Screen name="AddList" component={AddList} />
-          <Stack.Screen name="EditProfile" component={EditProfile} />
-          <Stack.Screen name="EditScreen" component={EditScreen} />
-          <Stack.Screen name="EditList" component={EditList} />
-          <Stack.Screen name="EditItem" component={EditItem} />
-          <Stack.Screen name="Settings" component={UserSetting} />
-          <Stack.Screen name="Other" component={Other} />
-          <Stack.Screen name="Following" component={Following} />
+          <Stack.Screen name="Notification" component={Notification} options={{
+            title: 'Notifications',
+            headerStyle: {
+              backgroundColor: '#002f6c',
+            },
+            headerTintColor: '#fff',
+            headerTitleStyle: {
+              fontWeight: 'bold',
+            },
+          }}/>
+          <Stack.Screen name="ShowScreen" component={ShowScreen} options={{
+            title: 'Show Screen',
+            headerStyle: {
+              backgroundColor: '#002f6c',
+            },
+            headerTintColor: '#fff',
+            headerTitleStyle: {
+              fontWeight: 'bold',
+            },
+          }}/>
+          <Stack.Screen name="ShowItem" component={ShowItem} options={{
+            title: 'Show Item',
+            headerStyle: {
+              backgroundColor: '#002f6c',
+            },
+            headerTintColor: '#fff',
+            headerTitleStyle: {
+              fontWeight: 'bold',
+            },
+          }}/>
+          <Stack.Screen name="AddList" component={AddList} options={{
+            title: 'Add List',
+            headerStyle: {
+              backgroundColor: '#002f6c',
+            },
+            headerTintColor: '#fff',
+            headerTitleStyle: {
+              fontWeight: 'bold',
+            },
+          }}/>
+          <Stack.Screen name="EditProfile" component={EditProfile} options={{
+            title: 'Edit Profile',
+            headerStyle: {
+              backgroundColor: '#002f6c',
+            },
+            headerTintColor: '#fff',
+            headerTitleStyle: {
+              fontWeight: 'bold',
+            },
+          }}/>
+          <Stack.Screen name="EditScreen" component={EditScreen} options={{
+            title: 'Edit Screen',
+            headerStyle: {
+              backgroundColor: '#002f6c',
+            },
+            headerTintColor: '#fff',
+            headerTitleStyle: {
+              fontWeight: 'bold',
+            },
+          }}/>
+          <Stack.Screen name="EditList" component={EditList} options={{
+            title: 'Edit List',
+            headerStyle: {
+              backgroundColor: '#002f6c',
+            },
+            headerTintColor: '#fff',
+            headerTitleStyle: {
+              fontWeight: 'bold',
+            },
+          }}/>
+          <Stack.Screen name="EditItem" component={EditItem} options={{
+            title: 'Edit Item',
+            headerStyle: {
+              backgroundColor: '#002f6c',
+            },
+            headerTintColor: '#fff',
+            headerTitleStyle: {
+              fontWeight: 'bold',
+            },
+          }}/>
+          <Stack.Screen name="Settings" component={UserSetting} options={{
+            title: 'Settings',
+            headerStyle: {
+              backgroundColor: '#002f6c',
+            },
+            headerTintColor: '#fff',
+            headerTitleStyle: {
+              fontWeight: 'bold',
+            },
+          }}/>
+          <Stack.Screen name="Other" component={Other} options={{
+            title: 'Other Account',
+            headerStyle: {
+              backgroundColor: '#002f6c',
+            },
+            headerTintColor: '#fff',
+            headerTitleStyle: {
+              fontWeight: 'bold',
+            },
+          }}/>
+          <Stack.Screen name="Following" component={Following} options={{
+            title: 'Followings',
+            headerStyle: {
+              backgroundColor: '#002f6c',
+            },
+            headerTintColor: '#fff',
+            headerTitleStyle: {
+              fontWeight: 'bold',
+            },
+          }}/>
         </Stack.Navigator>
       </NavigationContainer>
     );
