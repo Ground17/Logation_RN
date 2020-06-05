@@ -353,7 +353,7 @@ export default class EditScreen extends Component {
               <Icon
                 name="delete"
                 size={20}
-                color='#002f6c'
+                color='#fff'
               />
             </TouchableOpacity>
             <TouchableOpacity style={{
@@ -382,7 +382,7 @@ export default class EditScreen extends Component {
               <Icon
                 name="library-add"
                 size={20}
-                color='#002f6c'
+                color='#fff'
               />
             </TouchableOpacity>
             <TouchableOpacity style={{
@@ -406,7 +406,7 @@ export default class EditScreen extends Component {
               <Icon
                 name="tune"
                 size={20}
-                color='#002f6c'
+                color='#fff'
               />
             </TouchableOpacity>
             <TouchableOpacity style={{
@@ -432,7 +432,7 @@ export default class EditScreen extends Component {
               <Icon
                 name="check-circle"
                 size={20}
-                color='#002f6c'
+                color='#fff'
               />
             </TouchableOpacity>
         </View>

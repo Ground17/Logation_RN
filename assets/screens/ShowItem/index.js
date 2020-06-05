@@ -56,7 +56,7 @@ export default class ShowItem extends Component {
               <Icon
                 name="launch"
                 size={20}
-                color='#002f6c'
+                color='#fff'
               />
             </TouchableOpacity>
             {
@@ -87,7 +87,7 @@ export default class ShowItem extends Component {
                   <Icon
                     name="edit"
                     size={20}
-                    color='#002f6c'
+                    color='#fff'
                   />
                 </TouchableOpacity>
               : <View></View>

@@ -216,7 +216,7 @@ export default class ShowScreen extends Component {
               <Icon
                 name="share"
                 size={20}
-                color='#002f6c'
+                color='#fff'
               />
             </TouchableOpacity>
             <TouchableOpacity style={{
@@ -238,7 +238,7 @@ export default class ShowScreen extends Component {
               <Icon
                 name="tune"
                 size={20}
-                color='#002f6c'
+                color='#fff'
               />
             </TouchableOpacity>
             <TouchableOpacity style={{
@@ -260,7 +260,7 @@ export default class ShowScreen extends Component {
               <Icon
                 name="launch"
                 size={20}
-                color='#002f6c'
+                color='#fff'
               />
             </TouchableOpacity>
             {
@@ -281,7 +281,7 @@ export default class ShowScreen extends Component {
                 <Icon
                   name="edit"
                   size={20}
-                  color='#002f6c'
+                  color='#fff'
                 />
               </TouchableOpacity>
               : <View></View>
