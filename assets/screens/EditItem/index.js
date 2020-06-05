@@ -11,6 +11,7 @@ import {
   Image,
   Dimensions,
   Alert,
+  PermissionsAndroid,
 } from 'react-native';
 
 import FastImage from 'react-native-fast-image';
@@ -310,8 +311,9 @@ export default class EditItem extends Component {
               is24Hour={true}
               display="default"
               onChange={ (event, selectedDate) => {
-                const currentDate = selectedDate || new Date();
+                var currentDate = selectedDate || new Date();
                 if (Platform.OS === 'android') {
+                  currentDate.setHours(this.state.date.getHours(), this.state.date.getMinutes(), this.state.date.getSeconds());
                   this.setState({
                     show: false,
                   });
@@ -352,12 +354,35 @@ export default class EditItem extends Component {
                 }).then(image => {
                   try {
                     console.log(image);
-                    this.setState({
-                      lat: image.exif["{GPS}"].Latitude,
-                      long: image.exif["{GPS}"].Longitude,
-                      changed: true,
-                      url: image.path,
-                    });
+                    if (Platform.OS == 'ios') {
+                      this.setState({
+                        data: this.state.data.concat({ 
+                          lat: image.exif["{GPS}"].LatitudeRef != "S" ? image.exif["{GPS}"].Latitude : -image.exif["{GPS}"].Latitude,
+                          long: image.exif["{GPS}"].LongitudeRef != "W" ? image.exif["{GPS}"].Longitude : -image.exif["{GPS}"].Longitude,
+                          changed: true,
+                          url: image.path,
+                        }),
+                      });
+                    } else {
+                      // GPSLatitudeRef, GPSLongitudeRef
+                      var latitudeStrings = image.exif["GPSLatitude"].split(',');
+                      var longitudeStrings = image.exif["GPSLongitude"].split(',');
+
+                      var latitude = parseInt(latitudeStrings[0]) + (parseInt(latitudeStrings[1]) / 60) + (parseInt(latitudeStrings[2]) / 3600);
+                      var longitude = parseInt(longitudeStrings[0]) + (parseInt(longitudeStrings[1]) / 60) + (parseInt(longitudeStrings[2]) / 3600);
+
+                      if (image.exif["GPSLatitudeRef"] == "S") { latitude = -latitude; }
+                      if (image.exif["GPSLongitudeRef"] == "W") { longitude = -longitude; }
+
+                      this.setState({
+                        data: this.state.data.concat({ 
+                          lat: latitude,
+                          long: longitude,
+                          changed: true,
+                          url: image.path,
+                        }),
+                      });
+                    }
                   } catch (e) { // location data가 없는 것으로 추정
                     console.log(e);
                     this.setState({
@@ -402,6 +427,13 @@ export default class EditItem extends Component {
             <MapView
               style={{flex: 1, width: "100%", height: 500}}
               provider={PROVIDER_GOOGLE} // remove if not using Google Maps
+              onMapReady={() => {
+                Platform.OS === 'android' ? PermissionsAndroid.request(
+                  PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION) : ''
+              }}
+              showsUserLocation={true}
+              showsMyLocationButton={true}
+              showsCompass={true}
               region={{
                 latitude: this.state.lat,
                 longitude: this.state.long,

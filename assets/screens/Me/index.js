@@ -211,7 +211,7 @@ export default class Me extends Component {
     render() {
         return(
             <SafeAreaView style={styles.container}>
-                <View style={styles.buttonContainer, {marginTop:10}}>
+                <View style={styles.buttonContainer, {marginTop:10, width: '84%' }}>
                     <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
                         <View style={{justifyContent: 'flex-start'}}>
                             <Image

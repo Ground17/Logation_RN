@@ -283,6 +283,8 @@ const styles = StyleSheet.create({
         color: "#002f6c",
     },
     buttonContainer: {
+        alignItems: 'center',
+        justifyContent: 'center',
         marginBottom:5,
     },
 });

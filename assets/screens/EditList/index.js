@@ -163,26 +163,40 @@ export default class EditList extends Component {
                         {this.state.date.toString()} 
                     </Text>
                     {this.state.show && <DateTimePicker
-                        style={{width:'100%'}}
+                        style={{width:'110%'}}
                         mode="date"
                         value={this.state.date}
                         is24Hour={true}
                         display="default"
                         onChange={ (event, selectedDate) => {
+                            var currentDate = selectedDate || new Date();
+                            if (Platform.OS === 'android') {
+                                currentDate.setHours(this.state.date.getHours(), this.state.date.getMinutes(), this.state.date.getSeconds());
+                                this.setState({
+                                    show: false,
+                                });
+                            }
                             this.setState({
-                                date: selectedDate,
+                                date: currentDate,
                             });
                         }}
                     />}
                     {this.state.show && <DateTimePicker
-                        style={{width:'100%'}}
+                        style={{width:'110%'}}
                         mode="time"
                         value={this.state.date}
                         is24Hour={true}
                         display="default"
                         onChange={ (event, selectedDate) => {
+                            const currentDate = selectedDate || new Date();
+                            if (Platform.OS === 'android') {
+                                console.log("changed");
+                                this.setState({
+                                    show: false,
+                                });
+                            }
                             this.setState({
-                                date: selectedDate,
+                                date: currentDate,
                             });
                         }}
                     /> }
@@ -226,7 +240,7 @@ export default class EditList extends Component {
                             onChangeText = {(link) => this.setState({link})}
                             value = {this.state.link}
                             inputStyle={styles.inputs}
-                            placeholder='URL Link'
+                            placeholder='URL Link (must contain "https://")'
                             placeholderTextColor="#bdbdbd"
                             leftIcon={
                                 <Icon
@@ -256,26 +270,50 @@ export default class EditList extends Component {
                             maxFiles: 20,
                         }).then(images => {
                             for (var i=0; i<images.length; i++) {
+                                var factor = Platform.OS == 'ios' ? 1000 : 1;
                                 try {
                                     if (this.state.data.length + this.props.route.params.photoNumber > 19) {
                                         continue;
                                     }
                                     console.log(images[i]);
-                                    this.setState({
-                                        data: this.state.data.concat({ 
-                                            date: firestore.Timestamp.fromMillis(parseInt(images[i].modificationDate) * 1000),
-                                            lat: images[i].exif["{GPS}"].Latitude,
-                                            long: images[i].exif["{GPS}"].Longitude,
-                                            photo: images[i].path,
-                                            title: (i + this.props.route.params.photoNumber).toString(),
-                                            subtitle: (i + this.props.route.params.photoNumber).toString(),
-                                        }),
-                                    });
+                                    if (Platform.OS == 'ios') {
+                                        this.setState({
+                                            data: this.state.data.concat({ 
+                                                date: firestore.Timestamp.fromMillis(parseInt(images[i].modificationDate) * factor),
+                                                lat: images[i].exif["{GPS}"].LatitudeRef != "S" ? images[i].exif["{GPS}"].Latitude : -images[i].exif["{GPS}"].Latitude,
+                                                long: images[i].exif["{GPS}"].LongitudeRef != "W" ? images[i].exif["{GPS}"].Longitude : -images[i].exif["{GPS}"].Longitude,
+                                                photo: images[i].path,
+                                                title: i.toString(),
+                                                subtitle: i.toString(),
+                                            }),
+                                        });
+                                    } else {
+                                        // GPSLatitudeRef, GPSLongitudeRef
+                                        var latitudeStrings = images[i].exif["GPSLatitude"].split(',');
+                                        var longitudeStrings = images[i].exif["GPSLongitude"].split(',');
+
+                                        var latitude = parseInt(latitudeStrings[0]) + (parseInt(latitudeStrings[1]) / 60) + (parseInt(latitudeStrings[2]) / 3600);
+                                        var longitude = parseInt(longitudeStrings[0]) + (parseInt(longitudeStrings[1]) / 60) + (parseInt(longitudeStrings[2]) / 3600);
+
+                                        if (images[i].exif["GPSLatitudeRef"] == "S") { latitude = -latitude; }
+                                        if (images[i].exif["GPSLongitudeRef"] == "W") { longitude = -longitude; }
+
+                                        this.setState({
+                                            data: this.state.data.concat({ 
+                                                date: firestore.Timestamp.fromMillis(parseInt(images[i].modificationDate) * factor),
+                                                lat: latitude,
+                                                long: longitude,
+                                                photo: images[i].path,
+                                                title: i.toString(),
+                                                subtitle: i.toString(),
+                                            }),
+                                        });
+                                    }
                                 } catch (e) { // location data가 없는 것으로 추정
                                     console.log(e);
                                     this.setState({
                                         data: this.state.data.concat({ 
-                                            date: firestore.Timestamp.fromMillis(parseInt(images[i].modificationDate) * 1000),
+                                            date: firestore.Timestamp.fromMillis(parseInt(images[i].modificationDate) * factor),
                                             lat: 37,
                                             long: 127,
                                             photo: images[i].path,
@@ -371,7 +409,7 @@ export default class EditList extends Component {
                             });
                             var updateData = this.state.data;
                             for (var i=0; i < this.state.data.length; i++) {
-                                filename = this.state.data[i].photo.split('/');
+                                var filename = this.state.data[i].photo.split('/');
                                 storageChildRef = storage().ref(`${auth().currentUser.email}/${this.props.route.params.itemId}/${filename[filename.length - 1]}`)
                                 await storageChildRef.putFile(this.state.data[i].photo);
 

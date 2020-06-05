@@ -11,6 +11,7 @@ import {
   Alert,
   Linking,
   TouchableHighlight,
+  PermissionsAndroid,
 } from 'react-native';
 
 import FastImage from 'react-native-fast-image';
@@ -39,6 +40,7 @@ export default class ShowScreen extends Component {
       disliked: false,
       likeCount: 0,
       dislikeCount: 0,
+      marginBottom: 1,
     };
 
     keyExtractor = (item, index) => index.toString()
@@ -108,6 +110,7 @@ export default class ShowScreen extends Component {
         disliked: false,
         likeCount: 0,
         dislikeCount: 0,
+        marginBottom: 1,
       });
 
       var storageRef = storage().ref();
@@ -300,7 +303,7 @@ export default class ShowScreen extends Component {
       return(
         <SafeAreaView style={styles.container}>
           { this.state.viewcode == 0 ? <MapView
-            style={{flex: 1, width: "100%"}}
+            style={{flex: 1, width: "100%", marginBottom: this.state.marginBottom}}
             provider={PROVIDER_GOOGLE} // remove if not using Google Maps
             region={{
               latitude: this.state.list.length > 0 ? this.state.list[0].lat : 37,
@@ -308,6 +311,14 @@ export default class ShowScreen extends Component {
               latitudeDelta: 0.922,
               longitudeDelta: 0.421,
             }}
+            onMapReady={() => {
+              this.setState({marginBottom: 0})
+              Platform.OS === 'android' ? PermissionsAndroid.request(
+                PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION) : ''
+            }}
+            showsUserLocation={true}
+            showsMyLocationButton={true}
+            showsCompass={false}
           >
           <Polyline
             coordinates={this.state.list.map(data => {
@@ -464,9 +475,8 @@ const styles = StyleSheet.create({
       width: 110,
       height: 50,
       flexDirection: 'row',
-      alignItems: 'center',
       justifyContent: 'space-between',
-      right: 20,
+      alignSelf: 'center',
       bottom: 50,
     },
 });

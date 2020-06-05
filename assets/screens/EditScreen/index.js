@@ -12,6 +12,7 @@ import {
   Linking,
   ActivityIndicator,
   TouchableHighlight,
+  PermissionsAndroid,
 } from 'react-native';
 
 import FastImage from 'react-native-fast-image';
@@ -49,6 +50,7 @@ export default class EditScreen extends Component {
       subtitle: '',
       link: '',
       photoNumber: 0,
+      marginBottom: 1,
     };
 
     keyExtractor = (item, index) => index.toString()
@@ -109,11 +111,12 @@ export default class EditScreen extends Component {
         subtitle: '',
         link: '',
         photoNumber: 0,
+        marginBottom: 1,
       });
 
       var storageRef = storage().ref();
       
-      firestore()
+      await firestore()
         .collection(auth().currentUser.email)
         .doc(this.props.route.params.itemId)
         .get()
@@ -157,6 +160,8 @@ export default class EditScreen extends Component {
             }
           }
       });
+
+      await this.props.route.params.onPop();
     }
 
     async update() {
@@ -201,6 +206,8 @@ export default class EditScreen extends Component {
           loading: false,
           changed: false,
         });
+
+        await this.props.route.params.onPop();
       }
     }
 
@@ -452,7 +459,7 @@ export default class EditScreen extends Component {
                 <Text> The more pictures you have, the more time it can take to upload. </Text>
             </View>
           : this.state.viewcode == 0 ? <MapView
-            style={{flex: 1, width: "100%"}}
+            style={{flex: 1, width: "100%", marginBottom: this.state.marginBottom}}
             provider={PROVIDER_GOOGLE} // remove if not using Google Maps
             region={{
               latitude: this.state.lat,
@@ -460,6 +467,14 @@ export default class EditScreen extends Component {
               latitudeDelta: this.state.latDelta,
               longitudeDelta: this.state.longDelta,
             }}
+            onMapReady={() => {
+              this.setState({marginBottom: 0})
+              Platform.OS === 'android' ? PermissionsAndroid.request(
+                PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION) : ''
+            }}
+            showsUserLocation={true}
+            showsMyLocationButton={true}
+            showsCompass={true}
             onRegionChangeComplete={(e) => {
               this.setState({ 
                 lat: e.latitude,
@@ -524,7 +539,7 @@ export default class EditScreen extends Component {
           />)}
           <View
             style={styles.floatingViewStyle}>
-            <Text style={{fontSize: 18, textAlign: 'right'}}> {"Mode: " + (this.state.delete ? "delete" : "edit" )} </Text>
+            <Text style={{fontSize: 18, textAlign: 'center', width: 160}}> {"Mode: " + (this.state.delete ? "delete" : "edit" )} </Text>
           </View>
         </SafeAreaView>
       );
@@ -555,12 +570,9 @@ const styles = StyleSheet.create({
     },
     floatingViewStyle: {
       position: 'absolute',
-      width: 120,
       height: 50,
       flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      right: 10,
-      bottom: 50,
+      alignSelf: 'center',
+      bottom: 15,
     },
 });

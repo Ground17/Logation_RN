@@ -130,8 +130,9 @@ export default class AddList extends Component {
                         is24Hour={true}
                         display="default"
                         onChange={ (event, selectedDate) => {
-                            const currentDate = selectedDate || new Date();
+                            var currentDate = selectedDate || new Date();
                             if (Platform.OS === 'android') {
+                                currentDate.setHours(this.state.date.getHours(), this.state.date.getMinutes(), this.state.date.getSeconds());
                                 this.setState({
                                     show: false,
                                 });
@@ -196,7 +197,7 @@ export default class AddList extends Component {
                         <Input
                             onChangeText = {(link) => this.setState({link})}
                             inputStyle={styles.inputs}
-                            placeholder='URL Link'
+                            placeholder='URL Link (must contain "https://")'
                             placeholderTextColor="#bdbdbd"
                             leftIcon={
                                 <Icon
@@ -225,27 +226,51 @@ export default class AddList extends Component {
                             includeExif: true,
                             maxFiles: 20,
                         }).then(images => {
+                            var factor = Platform.OS == 'ios' ? 1000 : 1;
                             for (var i = 0; i<images.length; i++) {
                                 try {
                                     if (this.state.data.length > 19) {
                                         continue;
                                     }
                                     console.log(images[i]);
-                                    this.setState({
-                                        data: this.state.data.concat({ 
-                                            date: firestore.Timestamp.fromMillis(parseInt(images[i].modificationDate) * 1000),
-                                            lat: images[i].exif["{GPS}"].Latitude,
-                                            long: images[i].exif["{GPS}"].Longitude,
-                                            photo: images[i].path,
-                                            title: i.toString(),
-                                            subtitle: i.toString(),
-                                        }),
-                                    });
+                                    if (Platform.OS == 'ios') {
+                                        this.setState({
+                                            data: this.state.data.concat({ 
+                                                date: firestore.Timestamp.fromMillis(parseInt(images[i].modificationDate) * factor),
+                                                lat: images[i].exif["{GPS}"].LatitudeRef != "S" ? images[i].exif["{GPS}"].Latitude : -images[i].exif["{GPS}"].Latitude,
+                                                long: images[i].exif["{GPS}"].LongitudeRef != "W" ? images[i].exif["{GPS}"].Longitude : -images[i].exif["{GPS}"].Longitude,
+                                                photo: images[i].path,
+                                                title: i.toString(),
+                                                subtitle: i.toString(),
+                                            }),
+                                        });
+                                    } else {
+                                        // GPSLatitudeRef, GPSLongitudeRef
+                                        var latitudeStrings = images[i].exif["GPSLatitude"].split(',');
+                                        var longitudeStrings = images[i].exif["GPSLongitude"].split(',');
+
+                                        var latitude = parseInt(latitudeStrings[0]) + (parseInt(latitudeStrings[1]) / 60) + (parseInt(latitudeStrings[2]) / 3600);
+                                        var longitude = parseInt(longitudeStrings[0]) + (parseInt(longitudeStrings[1]) / 60) + (parseInt(longitudeStrings[2]) / 3600);
+
+                                        if (images[i].exif["GPSLatitudeRef"] == "S") { latitude = -latitude; }
+                                        if (images[i].exif["GPSLongitudeRef"] == "W") { longitude = -longitude; }
+
+                                        this.setState({
+                                            data: this.state.data.concat({ 
+                                                date: firestore.Timestamp.fromMillis(parseInt(images[i].modificationDate) * factor),
+                                                lat: latitude,
+                                                long: longitude,
+                                                photo: images[i].path,
+                                                title: i.toString(),
+                                                subtitle: i.toString(),
+                                            }),
+                                        });
+                                    }
                                 } catch (e) { // location data가 없는 것으로 추정
                                     console.log(e);
                                     this.setState({
                                         data: this.state.data.concat({ 
-                                            date: firestore.Timestamp.fromMillis(parseInt(images[i].modificationDate) * 1000),
+                                            date: firestore.Timestamp.fromMillis(parseInt(images[i].modificationDate) * factor),
                                             lat: 37,
                                             long: 127,
                                             photo: images[i].path,

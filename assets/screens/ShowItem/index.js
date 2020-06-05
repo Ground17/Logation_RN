@@ -10,6 +10,7 @@ import {
   ActivityIndicator,
   Image,
   Dimensions,
+  PermissionsAndroid,
 } from 'react-native';
 
 import FastImage from 'react-native-fast-image';
@@ -156,6 +157,13 @@ export default class ShowItem extends Component {
             <MapView
               style={{flex: 1, width: "100%", height: 500}}
               provider={PROVIDER_GOOGLE} // remove if not using Google Maps
+              onMapReady={() => {
+                Platform.OS === 'android' ? PermissionsAndroid.request(
+                  PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION) : ''
+              }}
+              showsUserLocation={true}
+              showsMyLocationButton={true}
+              showsCompass={true}
               region={{
                 latitude: this.props.route.params.lat,
                 longitude: this.props.route.params.long,
