@@ -43,7 +43,6 @@ export default class EditItem extends Component {
       long: 127,
       photo: '',
       list: [], // 전체 update용 list
-      data: {}, // 현재 수정중인 data
       changed: false, // 변경된 사항이 있을 경우 true, 이 화면 나갈 때 Alert로 물어보기
       loading: false,
     };
@@ -257,7 +256,7 @@ export default class EditItem extends Component {
           if (documentSnapshot.exists) {
             try {
               console.log('data: ', documentSnapshot.data());
-              data = documentSnapshot.data();
+              var data = documentSnapshot.data();
               this.setState({
                 list: data.data,
               });
@@ -356,12 +355,10 @@ export default class EditItem extends Component {
                     console.log(image);
                     if (Platform.OS == 'ios') {
                       this.setState({
-                        data: this.state.data.concat({ 
-                          lat: image.exif["{GPS}"].LatitudeRef != "S" ? image.exif["{GPS}"].Latitude : -image.exif["{GPS}"].Latitude,
-                          long: image.exif["{GPS}"].LongitudeRef != "W" ? image.exif["{GPS}"].Longitude : -image.exif["{GPS}"].Longitude,
-                          changed: true,
-                          url: image.path,
-                        }),
+                        lat: image.exif["{GPS}"].LatitudeRef != "S" ? image.exif["{GPS}"].Latitude : -image.exif["{GPS}"].Latitude,
+                        long: image.exif["{GPS}"].LongitudeRef != "W" ? image.exif["{GPS}"].Longitude : -image.exif["{GPS}"].Longitude,
+                        changed: true,
+                        url: image.path,
                       });
                     } else {
                       // GPSLatitudeRef, GPSLongitudeRef
@@ -383,12 +380,10 @@ export default class EditItem extends Component {
                       if (image.exif["GPSLongitudeRef"] == "W") { longitude = -longitude; }
 
                       this.setState({
-                        data: this.state.data.concat({ 
-                          lat: latitude,
-                          long: longitude,
-                          changed: true,
-                          url: image.path,
-                        }),
+                        lat: latitude,
+                        long: longitude,
+                        changed: true,
+                        url: image.path,
                       });
                     }
                   } catch (e) { // location data가 없는 것으로 추정
@@ -405,7 +400,7 @@ export default class EditItem extends Component {
               <FastImage
                 style={{width: this.state.imgWidth, height: this.state.imgHeight}}
                 source={{ 
-                  uri: this.props.route.params.url,
+                  uri: this.state.url,
                   priority: FastImage.priority.high,
                   }}
               />
