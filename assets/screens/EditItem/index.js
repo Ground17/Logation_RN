@@ -367,9 +367,17 @@ export default class EditItem extends Component {
                       // GPSLatitudeRef, GPSLongitudeRef
                       var latitudeStrings = image.exif["GPSLatitude"].split(',');
                       var longitudeStrings = image.exif["GPSLongitude"].split(',');
+                      
+                      var latitudeD = latitudeStrings[0].split('/');
+                      var latitudeM = latitudeStrings[1].split('/');
+                      var latitudeS = latitudeStrings[2].split('/');
 
-                      var latitude = parseInt(latitudeStrings[0]) + (parseInt(latitudeStrings[1]) / 60) + (parseInt(latitudeStrings[2]) / 3600);
-                      var longitude = parseInt(longitudeStrings[0]) + (parseInt(longitudeStrings[1]) / 60) + (parseInt(longitudeStrings[2]) / 3600);
+                      var longitudeD = longitudeStrings[0].split('/');
+                      var longitudeM = longitudeStrings[1].split('/');
+                      var longitudeS = longitudeStrings[2].split('/');
+
+                      var latitude = parseInt(latitudeD[0]) / parseInt(latitudeD[1]) + (parseInt(latitudeM[0]) / parseInt(latitudeM[1]) / 60) + (parseInt(latitudeS[0]) / parseInt(latitudeS[1]) / 3600);
+                      var longitude = parseInt(longitudeD[0]) / parseInt(longitudeD[1]) + (parseInt(longitudeM[0]) / parseInt(longitudeM[1]) / 60) + (parseInt(longitudeS[0]) / parseInt(longitudeS[1]) / 3600);
 
                       if (image.exif["GPSLatitudeRef"] == "S") { latitude = -latitude; }
                       if (image.exif["GPSLongitudeRef"] == "W") { longitude = -longitude; }
