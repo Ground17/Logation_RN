@@ -94,20 +94,27 @@ export default class Home extends Component {
                             .then(async (querySnap) => {
                                 for (var j=0; j < querySnap.docs.length; j++) {
                                     var data = querySnap.docs[j].data();
-                                    var URL = await storageRef.child(querySnapshot.docs[i].data().email + "/" + querySnap.docs[j].id + "/" + data.thumbnail).getDownloadURL();
-                                    var profileURL = await storageRef.child(querySnapshot.docs[i].data().email + "/" + querySnapshot.docs[i].data().profile).getDownloadURL();
-                                    this.setState({
-                                        list: this.state.list.concat({ 
-                                            name: data.title,
-                                            subtitle: data.subtitle,
-                                            url: URL,
-                                            id: querySnap.docs[j].id,
-                                            viewcode: data.viewcode,
-                                            email: querySnapshot.docs[i].data().email,
-                                            displayName: querySnapshot.docs[i].data().displayName,
-                                            profileURL: profileURL,
-                                        })
-                                    });
+                                    var URL = "";
+                                    var profileURL = "";
+                                    try {
+                                        URL = await storageRef.child(querySnapshot.docs[i].data().email + "/" + querySnap.docs[j].id + "/" + data.thumbnail).getDownloadURL();
+                                        profileURL = await storageRef.child(querySnapshot.docs[i].data().email + "/" + querySnapshot.docs[i].data().profile).getDownloadURL();
+                                    } catch (e) {
+                                        console.log(e);
+                                    } finally {
+                                        this.setState({
+                                            list: this.state.list.concat({ 
+                                                name: data.title,
+                                                subtitle: data.subtitle,
+                                                url: URL,
+                                                id: querySnap.docs[j].id,
+                                                viewcode: data.viewcode,
+                                                email: querySnapshot.docs[i].data().email,
+                                                displayName: querySnapshot.docs[i].data().displayName,
+                                                profileURL: profileURL,
+                                            })
+                                        });
+                                    }
                                 }
                             });
                         }

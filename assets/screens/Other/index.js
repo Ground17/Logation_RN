@@ -68,7 +68,12 @@ export default class Other extends Component {
             .then(async (querySnapshot) => {
                 for (var i=0; i < querySnapshot.docs.length; i++) {
                     console.log('data: ', querySnapshot.docs[i].id, querySnapshot.docs[i].data());
-                    var URL = await storageRef.child(await this.props.route.params.userEmail + "/" + querySnapshot.docs[i].id + "/" + querySnapshot.docs[i].data().thumbnail).getDownloadURL();
+                    var URL = "";
+                    try {
+                        URL = await storageRef.child(await this.props.route.params.userEmail + "/" + querySnapshot.docs[i].id + "/" + querySnapshot.docs[i].data().thumbnail).getDownloadURL();
+                    } catch (e) {
+                        console.log(e);
+                    }
                     data = querySnapshot.docs[i].data();
                     this.setState({
                         list: this.state.list.concat({ 
@@ -106,7 +111,13 @@ export default class Other extends Component {
                             viewsLength : this.state.viewsLength + 1,
                         });
                     }
-                    this.setState({profileURL : await storageRef.child(this.props.route.params.userEmail + "/" + data.profile).getDownloadURL()});
+                    var URL = "";
+                    try {
+                        URL = await storageRef.child(this.props.route.params.userEmail + "/" + data.profile).getDownloadURL();
+                    } catch (e) {
+                        console.log(e);
+                    }
+                    this.setState({profileURL : URL,});
                 });
             }
         );

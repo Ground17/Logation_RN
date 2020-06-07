@@ -42,13 +42,23 @@ export default class Following extends Component {
         querySnapshot.forEach(async (documentSnapshot) => {
           console.log("email");
           var data = documentSnapshot.data();
-          this.setState({
-            list: this.state.list.concat({ 
-              email : data.email,
-              displayName : data.displayName,
-              prlfileURL : await storageRef.child(data.email + "/" + data.profile).getDownloadURL(),
-            })
-          });
+          try {
+            this.setState({
+              list: this.state.list.concat({ 
+                email : data.email,
+                displayName : data.displayName,
+                profileURL : await storageRef.child(data.email + "/" + data.profile).getDownloadURL(),
+              })
+            });
+          } catch (e) {
+            this.setState({
+              list: this.state.list.concat({ 
+                email : data.email,
+                displayName : data.displayName,
+                profileURL : '',
+              })
+            });
+          }
         });
       });
 
@@ -61,14 +71,24 @@ export default class Following extends Component {
       .then(async (querySnapshot) => {
         querySnapshot.forEach(async (documentSnapshot) => {
           console.log("nickname");
-          data = documentSnapshot.data();
-          this.setState({
-            list: this.state.list.concat({ 
-              email : data.email,
-              displayName : data.displayName,
-              profileURL : await storageRef.child(data.email + "/" + data.profile).getDownloadURL(),
-            })
-          });
+          var data = documentSnapshot.data();
+          try {
+            this.setState({
+              list: this.state.list.concat({ 
+                email : data.email,
+                displayName : data.displayName,
+                profileURL : await storageRef.child(data.email + "/" + data.profile).getDownloadURL(),
+              })
+            });
+          } catch (e) {
+            this.setState({
+              list: this.state.list.concat({ 
+                email : data.email,
+                displayName : data.displayName,
+                profileURL : '',
+              })
+            });
+          }
         });
       });
   }

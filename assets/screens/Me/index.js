@@ -106,7 +106,11 @@ export default class Me extends Component {
                         views : data.view,
                         localProfileURL : data.profile
                     });
-                    this.setState({profileURL : await storageRef.child(auth().currentUser.email + "/" + data.profile).getDownloadURL()});
+                    try {
+                        this.setState({profileURL : await storageRef.child(auth().currentUser.email + "/" + data.profile).getDownloadURL()});
+                    } catch (e) {
+                        this.setState({profileURL : ''});
+                    }
                 });
             
         } else {
@@ -118,7 +122,11 @@ export default class Me extends Component {
                     views : data.view,
                     localProfileURL : data.profile
                 });
-                this.setState({profileURL : await storageRef.child(auth().currentUser.email + "/" + data.profile).getDownloadURL()});
+                try {
+                    this.setState({profileURL : await storageRef.child(auth().currentUser.email + "/" + data.profile).getDownloadURL()});
+                } catch (e) {
+                    this.setState({profileURL : ''});
+                }
             });
         }
 
@@ -136,17 +144,23 @@ export default class Me extends Component {
             .then(async (querySnapshot) => {
                 for (var i=0; i < querySnapshot.docs.length; i++) {
                     console.log('data: ', querySnapshot.docs[i].id, querySnapshot.docs[i].data());
-                    var URL = await storageRef.child(await auth().currentUser.email + "/" + querySnapshot.docs[i].id + "/" + querySnapshot.docs[i].data().thumbnail).getDownloadURL();
-                    data = querySnapshot.docs[i].data();
-                    this.setState({
-                        list: this.state.list.concat({ 
-                            name: data.title,
-                            subtitle: data.subtitle,
-                            url: URL,
-                            id: querySnapshot.docs[i].id,
-                            viewcode: data.viewcode,
-                        })
-                    });
+                    var URL = "";
+                    try {
+                        var URL = await storageRef.child(await auth().currentUser.email + "/" + querySnapshot.docs[i].id + "/" + querySnapshot.docs[i].data().thumbnail).getDownloadURL();
+                    } catch (e) {
+                        console.log(e);
+                    } finally {
+                        data = querySnapshot.docs[i].data();
+                        this.setState({
+                            list: this.state.list.concat({ 
+                                name: data.title,
+                                subtitle: data.subtitle,
+                                url: URL,
+                                id: querySnapshot.docs[i].id,
+                                viewcode: data.viewcode,
+                            })
+                        });
+                    }
                 }
             });
     }
