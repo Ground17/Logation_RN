@@ -84,7 +84,9 @@ export default class AddList extends Component {
                 {this.state.loading ? 
                 <View style={styles.buttonContainer}>
                     <ActivityIndicator size="large" color="#002f6c" />
-                    <Text> The more pictures you have, the more time it can take to upload. </Text>
+                    <Text> The more pictures you have, the more time it can take to upload. </Text> 
+                    /* 사진이 많을수록 업로드 시간이 오래걸립니다.
+                    */ 
                 </View>
                 : <ScrollView 
                     contentContainerStyle={styles.viewContainer}
@@ -92,19 +94,20 @@ export default class AddList extends Component {
                 >
                     <View style={{height: 200, width: 100, alignItems: 'center', justifyContent: 'center', flexDirection: 'row'}}>
                         <Text> Category </Text>
+                        // 카테고리
                         <Picker
                             selectedValue={this.state.category}
                             style={{width: 130}}
                             onValueChange={(itemValue, itemIndex) =>
                                 this.setState({category: itemValue})
                             }>
-                            <Picker.Item label="Travel" value="Travel" />
-                            <Picker.Item label="Daily Life" value="Daily Life" />
-                            <Picker.Item label="Entertainment" value="Entertainment" />
-                            <Picker.Item label="Sports" value="Sports" />
-                            <Picker.Item label="News" value="News" />
-                            <Picker.Item label="Education" value="Education" />
-                            <Picker.Item label="Other" value="Other" />
+                            <Picker.Item label="Travel" value="Travel" /> //여행
+                            <Picker.Item label="Daily Life" value="Daily Life" /> //일상
+                            <Picker.Item label="Entertainment" value="Entertainment" /> //여가
+                            <Picker.Item label="Sports" value="Sports" /> //스포츠
+                            <Picker.Item label="News" value="News" /> //뉴스
+                            <Picker.Item label="Education" value="Education" /> //교육
+                            <Picker.Item label="Other" value="Other" /> //기타
                         </Picker>
                         <Text> View Mode </Text>
                         <Picker
@@ -113,8 +116,8 @@ export default class AddList extends Component {
                             onValueChange={(itemValue, itemIndex) =>
                                 this.setState({viewmode: itemValue})
                             }>
-                            <Picker.Item label="Map" value="Map" />
-                            <Picker.Item label="List" value="List" />
+                            <Picker.Item label="Map" value="Map" />  //지도
+                            <Picker.Item label="List" value="List" /> //목록
                             <Picker.Item label="Grid" value="Grid" />
                         </Picker>
                     </View>
@@ -122,13 +125,13 @@ export default class AddList extends Component {
                         onPress={() => this.setState({show: !this.state.show})}
                     > 
                         {this.state.date.toString()} 
-                    </Text>
+                    </Text> 
                     {this.state.show && <DateTimePicker
                         style={{width: "110%"}}
-                        mode="date"
+                        mode="date" //날짜
                         value={this.state.date}
                         is24Hour={true}
-                        display="default"
+                        display="default" 
                         onChange={ (event, selectedDate) => {
                             var currentDate = selectedDate || new Date();
                             if (Platform.OS === 'android') {
@@ -144,7 +147,7 @@ export default class AddList extends Component {
                     />}
                     {this.state.show && <DateTimePicker
                         style={{width: "110%"}}
-                        mode="time"
+                        mode="time" //시간
                         value={this.state.date}
                         is24Hour={true}
                         display="default"
@@ -165,7 +168,7 @@ export default class AddList extends Component {
                             onChangeText = {(title) => this.setState({title})}
                             inputStyle={styles.inputs}
                             maxLength={40}
-                            placeholder='Title'
+                            placeholder='Title' //제목
                             placeholderTextColor="#bdbdbd"
                             leftIcon={
                                 <Icon
@@ -182,7 +185,7 @@ export default class AddList extends Component {
                             onChangeText = {(subtitle) => this.setState({subtitle})}
                             inputStyle={styles.inputs}
                             maxLength={140}
-                            placeholder='Subtitle'
+                            placeholder='Subtitle' //부제목
                             placeholderTextColor="#bdbdbd"
                             leftIcon={
                                 <Icon
@@ -197,7 +200,7 @@ export default class AddList extends Component {
                         <Input
                             onChangeText = {(link) => this.setState({link})}
                             inputStyle={styles.inputs}
-                            placeholder='URL Link (must contain "https://")'
+                            placeholder='URL Link (must contain "https://")' //URL 링크
                             placeholderTextColor="#bdbdbd"
                             leftIcon={
                                 <Icon
@@ -222,7 +225,7 @@ export default class AddList extends Component {
                     <TouchableOpacity style={[styles.buttonContainer, styles.loginButton, {height:45, width: "80%", borderRadius:5,}]} onPress={() => { 
                         ImagePicker.openPicker({
                             multiple: true,
-                            mediaType: 'photo',
+                            mediaType: 'photo', //사진
                             includeExif: true,
                             maxFiles: 20,
                         }).then(images => {
@@ -293,11 +296,11 @@ export default class AddList extends Component {
                             } 
                         });
                     }}>
-                        <Text style={styles.loginText}>Add Photos</Text>
+                        <Text style={styles.loginText}>Add Photos</Text> //사진 추가
                     </TouchableOpacity>
                     <CheckBox
                         containerStyle={styles.cell}
-                        title='Contain location information in photos'
+                        title='Contain location information in photos' //사진의 위치정보 포함
                         iconType='material'
                         checkedIcon='check-box'
                         uncheckedIcon='check-box-outline-blank'
@@ -307,7 +310,7 @@ export default class AddList extends Component {
                     />
                     <CheckBox
                         containerStyle={styles.cell}
-                        title='Contain date information in photos'
+                        title='Contain date information in photos' //사진의 날짜정보 포함
                         iconType='material'
                         checkedIcon='check-box'
                         uncheckedIcon='check-box-outline-blank'
@@ -330,7 +333,7 @@ export default class AddList extends Component {
                         if (this.state.data.length < 1) {
                             Alert.alert(
                                 'Error',
-                                'Please add at least one photo.',
+                                'Please add at least one photo.', //하나 이상의 사진을 추가해주세요.
                                 [
                                 {text: 'OK', onPress: () => console.log('OK Pressed')},
                                 ],
@@ -408,8 +411,8 @@ export default class AddList extends Component {
                                     data: this.state.data
                                 });
                             Alert.alert(
-                                'Success',
-                                'Successfully uploaded.',
+                                'Success', //성공
+                                'Successfully uploaded.', //성공적으로 업로드됐습니다.
                                 [
                                 {text: 'OK', onPress: () => console.log('OK Pressed')},
                                 ],
@@ -423,7 +426,7 @@ export default class AddList extends Component {
                             this.props.navigation.pop();
                         });
                     }}>
-                        <Text style={styles.loginText}>Add List</Text>
+                        <Text style={styles.loginText}>Add List</Text> //목록에 추가
                     </TouchableOpacity>
                 </ScrollView>}
             </SafeAreaView>
