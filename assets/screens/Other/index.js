@@ -236,7 +236,7 @@ export default class Other extends Component {
                                 console.error(err);
                             });
                          }}>
-                            <Text style={styles.loginText}>{this.state.follow ? 'Unfollow' : 'Follow' }</Text>
+                            <Text style={styles.loginText}>{this.state.follow ? 'Unfollow' : 'Follow' }</Text> //언팔로우, 팔로우
                         </TouchableOpacity>
                     </View>
                     <View style={{
@@ -274,7 +274,7 @@ export default class Other extends Component {
                             alignItems: 'center',
                             justifyContent: 'center',
                         }}>
-                            <Text> Followers </Text>
+                            <Text> Followers </Text> //팔로워
                             <Text> {this.state.followersLength} </Text>
                         </View>
                         <View style={{
@@ -283,7 +283,7 @@ export default class Other extends Component {
                             alignItems: 'center',
                             justifyContent: 'center',
                         }}>
-                            <Text> Followings </Text>
+                            <Text> Followings </Text> //팔로잉
                             <Text> {this.state.followingsLength} </Text>
                         </View>
                         <View style={{
@@ -292,7 +292,7 @@ export default class Other extends Component {
                             alignItems: 'center',
                             justifyContent: 'center',
                         }}>
-                            <Text> Views </Text>
+                            <Text> Views </Text> //조회수
                             <Text> {this.state.viewsLength} </Text>
                         </View>
                     </View>

@@ -93,7 +93,7 @@ export default class EditProfile extends Component {
                     value = {this.state.nickname}
                     maxLength = {40}
                     inputStyle={styles.inputs}
-                    placeholder='URL Link'
+                    placeholder='URL Link' //이메일 주소
                     placeholderTextColor="#bdbdbd"
                     leftIcon={
                         <Icon
@@ -157,13 +157,13 @@ export default class EditProfile extends Component {
                             if (interstitial.loaded) {
                                 interstitial.show();
                             }
-                            this.props.navigation.replace('Main');
+                            this.props.navigation.replace('Main'); //메인
                         }
                     }
                     this.setState({loading: false});
                 }
             }}>
-                <Text style={styles.loginText}>Update Profile</Text>
+                <Text style={styles.loginText}>Update Profile</Text> //프로필 업데이트
             </TouchableOpacity>
             </View>
             }

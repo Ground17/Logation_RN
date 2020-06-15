@@ -55,7 +55,7 @@ export default class Login extends Component {
       } 
     } catch (e) {
       Alert.alert(
-        'Login Error',
+        'Login Error', //로그인 에러
         e.toString(),
         [
           {text: 'OK', onPress: () => console.log('OK Pressed')},
@@ -93,8 +93,8 @@ export default class Login extends Component {
   async emailLogin(email, password) {
       if (email == null || !email.includes('@') || password == null) {
           Alert.alert(
-          'Invalid value',
-          'Please check your email or password.',
+          'Invalid value', //정확하지 않은 정보
+          'Please check your email or password.', //이메일 혹은 비밀번호를 다시 확인해주세요.
           [
               {text: 'OK', onPress: () => console.log('OK Pressed')},
           ],
@@ -112,8 +112,8 @@ export default class Login extends Component {
           console.log(auth().currentUser);
           auth().currentUser.sendEmailVerification();
           Alert.alert(
-            'Verification error',
-            'Please check your email in ' + email + '.\nIf you do not receive an email, please wait a moment.',
+            'Verification error', //확인 오류
+            'Please check your email in ' + email + '.\nIf you do not receive an email, please wait a moment.', //이메일을 확인해주세요. 이메일을 받지 못했다면 잠시만 기다려 주세요.
             [
                 {text: 'OK', onPress: () => {  }},
             ],
@@ -137,8 +137,8 @@ export default class Login extends Component {
   async forgotPassword(email) {
       if (email == null || !email.includes('@')) {
           Alert.alert(
-          'Invalid value',
-          'Please check your email',
+          'Invalid value', //정확하지 않은 정보
+          'Please check your email', //이메일 혹은 비밀번호를 다시 확인해주세요.
           [
               {text: 'OK', onPress: () => console.log('OK Pressed')},
           ],
@@ -149,8 +149,8 @@ export default class Login extends Component {
       auth().sendPasswordResetEmail(email)
       .then(() => {
           Alert.alert(
-          'Password reset',
-          'Sent a password reset email to ' + email + '.',
+          'Password reset', //비밀번호 초기화
+          'Sent a password reset email to ' + email + '.', //초기 비밀번호를 이메일로 보냈습니다.
           [
               {text: 'OK', onPress: () => console.log('OK Pressed')},
           ],
@@ -182,7 +182,7 @@ export default class Login extends Component {
       <SafeAreaView style={styles.container}>
         <View style={styles.cellView}>
             <Input
-            placeholder='Email'
+            placeholder='Email' //이메일
             placeholderTextColor="#bdbdbd"
             onChangeText = {(email) => this.setState({email})}
             leftIcon={
@@ -197,7 +197,7 @@ export default class Login extends Component {
         </View>
         <View style={styles.cellView}>
             <Input
-            placeholder='Password'
+            placeholder='Password' //비밀번호
             placeholderTextColor="#bdbdbd"
             secureTextEntry={true}
             onChangeText = {(password) => this.setState({password})}
@@ -214,13 +214,13 @@ export default class Login extends Component {
         <TouchableOpacity style={[styles.buttonContainer, styles.loginButton]} onPress={() => { 
           console.log(this.state.email)
           this.emailLogin(this.state.email, this.state.password) }}>
-            <Text style={styles.loginText}>Sign in</Text>
+            <Text style={styles.loginText}>Sign in</Text> //로그인
         </TouchableOpacity>
         <TouchableOpacity style={[styles.buttonContainer, styles.signUpButton]} onPress={() => { this.props.navigation.push('SignUp') }}>
-            <Text style={styles.signUpText}>Sign up</Text>
+            <Text style={styles.signUpText}>Sign up</Text> //회원가입
         </TouchableOpacity>
         <TouchableOpacity style={{marginBottom: 15}} onPress={() => { this.props.navigation.push('ResetPassword') }}>
-            <Text>Forgot your password?</Text>
+            <Text>Forgot your password?</Text> //비밀번호 분실
         </TouchableOpacity>
         <View style={{marginBottom: 15}}>
             <View style={{alignSelf:'center', position:'absolute', borderBottomColor:'gray', borderBottomWidth:1, height:'50%', width:'80%'}}/>

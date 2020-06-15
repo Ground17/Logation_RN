@@ -214,8 +214,8 @@ export default class EditScreen extends Component {
     goEditItem (item, index) {
       if (this.state.changed) {
         Alert.alert(
-          'Confirm',
-          'Will you save the changes?',
+          'Confirm', //확인
+          'Will you save the changes?', //변경점을 저장하시겠습니까?
           [
               {text: 'Cancel', onPress: () => { 
                 this.props.navigation.push('EditItem', {
@@ -291,8 +291,8 @@ export default class EditScreen extends Component {
     alertDelete(item) {
       if (this.state.list.length < 2) {
         Alert.alert(
-          'Alert',
-          'Are you sure you want to delete this log? This behavior is irreversible.',
+          'Alert', //알림
+          'Are you sure you want to delete this log? This behavior is irreversible.', //이 기록을 지우시겠습니까? 지우시면 다시 복구할 수 없습니다.
           [
               {text: 'Cancel', onPress: () => {  }},
               {text: 'OK', onPress: async () => {
@@ -313,7 +313,7 @@ export default class EditScreen extends Component {
                   console.log(e);
                 } finally {
                   this.setState({loading: false});
-                  this.props.navigation.replace("Main");
+                  this.props.navigation.replace("Main"); //메인
                 }
                 }
               },
@@ -322,8 +322,8 @@ export default class EditScreen extends Component {
         );
       } else {
         Alert.alert(
-          'Confirm',
-          'Are you sure you want to delete this image?',
+          'Confirm', //확인
+          'Are you sure you want to delete this image?', // 사진을 지우시겠습니까?
           [
               {text: 'Cancel', onPress: () => {  }},
               {
@@ -424,8 +424,8 @@ export default class EditScreen extends Component {
               }} onPress={() => {
               if (this.state.changed) {
                 Alert.alert(
-                  'Confirm',
-                  'Will you save the changes?',
+                  'Confirm', //확인
+                  'Will you save the changes?', //변경점을 저장하시겠습니까?
                   [
                       {text: 'Cancel', onPress: () => {  }},
                       {text: 'OK', onPress: async () => {

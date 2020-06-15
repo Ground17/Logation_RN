@@ -307,7 +307,7 @@ export default class Me extends Component {
                             alignItems: 'center',
                             justifyContent: 'center',
                         }}>
-                            <Text> Followers </Text>
+                            <Text> Followers </Text> //팔로워
                             <Text> {this.state.followers.length} </Text>
                         </View>
                         <View style={{
@@ -316,7 +316,7 @@ export default class Me extends Component {
                             alignItems: 'center',
                             justifyContent: 'center',
                         }}>
-                            <Text> Followings </Text>
+                            <Text> Followings </Text> //팔로잉
                             <Text> {this.state.followings.length} </Text>
                         </View>
                         <View style={{
@@ -325,7 +325,7 @@ export default class Me extends Component {
                             alignItems: 'center',
                             justifyContent: 'center',
                         }}>
-                            <Text> Views </Text>
+                            <Text> Views </Text> //조회수
                             <Text> {this.state.views.length} </Text>
                         </View>
                     </View>

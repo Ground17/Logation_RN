@@ -17,8 +17,8 @@ export default class ResetPassword extends Component {
     async createEmail(email, password, passwordConfirm) {
         if (email == null || !email.includes('@')) {
             Alert.alert(
-                'Invalid value',
-                'Please check your email.',
+                'Invalid value', //정확하지 않은 정보
+                'Please check your email.', //이메일을 확인해주세요.
                     [
                         {text: 'OK', onPress: () => console.log('OK Pressed')},
                     ],
@@ -30,8 +30,8 @@ export default class ResetPassword extends Component {
         .sendPasswordResetEmail(email)
         .then(() => {
             Alert.alert(
-                'Sended email for reset!',
-                'Please check email in ' + email + '.',
+                'Sended email for reset!', //초기화를 위한 이메일을 전송했습니다.
+                'Please check email in ' + email + '.', //이메일을 확인해주세요
                 [
                     {text: 'OK', onPress: () => {this.props.navigation.goBack()}},
                 ],

@@ -137,23 +137,23 @@ export default class EditList extends Component {
                             onValueChange={(itemValue, itemIndex) =>
                                 this.setState({category: itemValue})
                             }>
-                            <Picker.Item label="Travel" value="Travel" />
-                            <Picker.Item label="Daily Life" value="Daily Life" />
-                            <Picker.Item label="Entertainment" value="Entertainment" />
-                            <Picker.Item label="Sports" value="Sports" />
-                            <Picker.Item label="News" value="News" />
-                            <Picker.Item label="Education" value="Education" />
-                            <Picker.Item label="Other" value="Other" />
+                            <Picker.Item label="Travel" value="Travel" /> //여행
+                            <Picker.Item label="Daily Life" value="Daily Life" /> //일상
+                            <Picker.Item label="Entertainment" value="Entertainment" /> //여가
+                            <Picker.Item label="Sports" value="Sports" /> //스포츠
+                            <Picker.Item label="News" value="News" /> //뉴스
+                            <Picker.Item label="Education" value="Education" /> //교욱
+                            <Picker.Item label="Other" value="Other" /> //기타
                         </Picker>
-                        <Text> View Mode </Text>
+                        <Text> View Mode </Text> //
                         <Picker
                             selectedValue={this.state.viewmode}
                             style={{width: 90}}
                             onValueChange={(itemValue, itemIndex) =>
                                 this.setState({viewmode: itemValue})
                             }>
-                            <Picker.Item label="Map" value="Map" />
-                            <Picker.Item label="List" value="List" />
+                            <Picker.Item label="Map" value="Map" /> //지도
+                            <Picker.Item label="List" value="List" /> //목록
                             <Picker.Item label="Grid" value="Grid" />
                         </Picker>
                     </View>
@@ -206,7 +206,7 @@ export default class EditList extends Component {
                             value = {this.state.title}
                             inputStyle={styles.inputs}
                             maxLength={40}
-                            placeholder='Title'
+                            placeholder='Title' //제목
                             placeholderTextColor="#bdbdbd"
                             leftIcon={
                                 <Icon
@@ -224,7 +224,7 @@ export default class EditList extends Component {
                             value = {this.state.subtitle}
                             inputStyle={styles.inputs}
                             maxLength={140}
-                            placeholder='Subtitle'
+                            placeholder='Subtitle' //부제목
                             placeholderTextColor="#bdbdbd"
                             leftIcon={
                                 <Icon
@@ -240,7 +240,7 @@ export default class EditList extends Component {
                             onChangeText = {(link) => this.setState({link})}
                             value = {this.state.link}
                             inputStyle={styles.inputs}
-                            placeholder='URL Link (must contain "https://")'
+                            placeholder='URL Link (must contain "https://")' //URL 링크 ("https://"로 시작)
                             placeholderTextColor="#bdbdbd"
                             leftIcon={
                                 <Icon
@@ -251,7 +251,7 @@ export default class EditList extends Component {
                             }
                         />
                     </View>
-                    <Text style={{textAlign: 'center'}}> Press to delete. Drag to move. </Text>
+                    <Text style={{textAlign: 'center'}}> Press to delete. Drag to move. </Text> //삭제를 원하신다면 왼쪽으로 드래그해주세요.
                     <View style={{ flex: 1, width: "84%" }}>
                         <DraggableFlatList
                             keyExtractor={this.keyExtractor}
@@ -336,11 +336,11 @@ export default class EditList extends Component {
                             } 
                         });
                     }}>
-                        <Text style={styles.loginText}>Add Photos</Text>
+                        <Text style={styles.loginText}>Add Photos</Text> //사진 추가
                     </TouchableOpacity>
                     <CheckBox
                         containerStyle={styles.cell}
-                        title='Contain location information in photos'
+                        title='Contain location information in photos' //사진의 위치정보 포함
                         iconType='material'
                         checkedIcon='check-box'
                         uncheckedIcon='check-box-outline-blank'
@@ -350,7 +350,7 @@ export default class EditList extends Component {
                     />
                     <CheckBox
                         containerStyle={styles.cell}
-                        title='Contain date information in photos'
+                        title='Contain date information in photos' //사진의 날짜정보 포함
                         iconType='material'
                         checkedIcon='check-box'
                         uncheckedIcon='check-box-outline-blank'
@@ -447,7 +447,7 @@ export default class EditList extends Component {
                             );
                         });
                     }}>
-                        <Text style={styles.loginText}>Edit List</Text>
+                        <Text style={styles.loginText}>Edit List</Text> //목록 수정
                     </TouchableOpacity>
                 </ScrollView>}
             </SafeAreaView>

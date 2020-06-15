@@ -127,7 +127,7 @@ export default class Following extends Component {
         <SearchBar
             lightTheme
             containerStyle={styles.cellView}
-            placeholder="Type Here for search users..."
+            placeholder="Type Here for search users..." //사용자의 이름을 입력해주세요....
             onChangeText={this.updateSearch}
             value={this.state.search}
             searchIcon={false}

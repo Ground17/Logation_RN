@@ -200,7 +200,7 @@ export default class AddList extends Component {
                         <Input
                             onChangeText = {(link) => this.setState({link})}
                             inputStyle={styles.inputs}
-                            placeholder='URL Link (must contain "https://")' //URL 링크
+                            placeholder='URL Link (must contain "https://")' //URL 링크 ("https://"로 시작)
                             placeholderTextColor="#bdbdbd"
                             leftIcon={
                                 <Icon
@@ -211,7 +211,7 @@ export default class AddList extends Component {
                             }
                         />
                     </View>
-                    <Text style={{textAlign: 'center'}}> Press to delete. Drag to move. </Text>
+                    <Text style={{textAlign: 'center'}}> Press to delete. Drag to move. </Text> //삭제를 원하신다면 왼쪽으로 드래그해주세요.
                     <View style={{ flex: 1, width: "84%" }}>
                         <DraggableFlatList
                             keyExtractor={this.keyExtractor}
