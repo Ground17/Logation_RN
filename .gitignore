@@ -1,5 +1,13 @@
 node_modules
-node_modules
 
-android/
-ios/
+/android/
+/ios/*
+!/ios/Trevelog
+/ios/Trevelog/*
+!/ios/Trevelog/infoPlist.strings
+
+functions/.eslintrc.json
+.gitignore
+functions/index.js
+functions/package-lock.json
+functions/package.json
