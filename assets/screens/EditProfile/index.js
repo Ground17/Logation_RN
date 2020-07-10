@@ -22,6 +22,8 @@ import { InterstitialAd, TestIds, } from '@react-native-firebase/admob';
 import storage from '@react-native-firebase/storage';
 import firestore from '@react-native-firebase/firestore';
 
+import { translate } from '../Utils';
+
 const adBannerUnitId = __DEV__ ? TestIds.BANNER : 
     (Platform.OS == 'ios' 
     ? 'ca-app-pub-1477690609272793/3050510769' 
@@ -58,7 +60,7 @@ export default class EditProfile extends Component {
                 justifyContent: 'center',
                 marginBottom:5,}}>
                 <ActivityIndicator size="large" color="#002f6c" />
-                <Text> The more pictures you have, the more time it can take to upload. </Text>
+                <Text> {translate("EditProfileComment1")} </Text>
             </View>
             : <View style={{
                 alignItems: 'center',
@@ -93,7 +95,7 @@ export default class EditProfile extends Component {
                     value = {this.state.nickname}
                     maxLength = {40}
                     inputStyle={styles.inputs}
-                    placeholder='URL Link' //이메일 주소
+                    placeholder={translate("Nickname")}
                     placeholderTextColor="#bdbdbd"
                     leftIcon={
                         <Icon
@@ -120,15 +122,10 @@ export default class EditProfile extends Component {
                     if (this.props.route.params.profileURL == this.state.profileURL) {
                         await firestore()
                         .collection("Users")
-                        .where("email", "==", auth().currentUser.email)
-                        .get()
-                        .then(async (querySnapshot) => {
-                            querySnapshot.forEach(async (documentSnapshot) => {
-                                await documentSnapshot.ref.update({
-                                    modifyDate: firestore.Timestamp.fromMillis((new Date()).getTime()),
-                                    displayName: this.state.nickname,
-                                });
-                            });
+                        .doc(auth().currentUser.email)
+                        .update({
+                            modifyDate: firestore.Timestamp.fromMillis((new Date()).getTime()),
+                            displayName: this.state.nickname,
                         });
                     } else {
                         var filename = this.state.profileURL.split('/');
@@ -136,16 +133,11 @@ export default class EditProfile extends Component {
                         var storageRef = storage().ref(`${auth().currentUser.email}/${filename[filename.length - 1]}`);
                         await firestore()
                         .collection("Users")
-                        .where("email", "==", auth().currentUser.email)
-                        .get()
-                        .then(async (querySnapshot) => {
-                            querySnapshot.forEach(async (documentSnapshot) => {
-                                await documentSnapshot.ref.update({
-                                    profile: filename[filename.length - 1],
-                                    modifyDate: firestore.Timestamp.fromMillis((new Date()).getTime()),
-                                    displayName: this.state.nickname,
-                                });
-                            });
+                        .doc(auth().currentUser.email)
+                        .update({
+                            profile: filename[filename.length - 1],
+                            modifyDate: firestore.Timestamp.fromMillis((new Date()).getTime()),
+                            displayName: this.state.nickname,
                         });
                         console.log('delete url: ', this.props.route.params.localProfileURL);
                         try {
@@ -157,13 +149,14 @@ export default class EditProfile extends Component {
                             if (interstitial.loaded) {
                                 interstitial.show();
                             }
-                            this.props.navigation.replace('Main'); //메인
+                            this.props.navigation.replace('Main');
                         }
                     }
                     this.setState({loading: false});
+                    this.props.route.params.onPop();
                 }
             }}>
-                <Text style={styles.loginText}>Update Profile</Text> //프로필 업데이트
+                <Text style={styles.loginText}> {translate("UpdateProfile")} </Text>
             </TouchableOpacity>
             </View>
             }

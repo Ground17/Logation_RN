@@ -32,6 +32,8 @@ import MapView, { Polyline, Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import storage from '@react-native-firebase/storage';
 import firestore from '@react-native-firebase/firestore';
 
+import { translate } from '../Utils';
+
 export default class EditScreen extends Component {
     state = {
       viewcode: 0,
@@ -172,14 +174,9 @@ export default class EditScreen extends Component {
         });
         await firestore()
         .collection("Users")
-        .where("email", "==", auth().currentUser.email)
-        .get()
-        .then(async (querySnapshot) => {
-          querySnapshot.forEach(async (documentSnapshot) => {
-            await documentSnapshot.ref.update({
-              modifyDate: firestore.Timestamp.fromMillis((new Date()).getTime()),
-            });
-          });
+        .doc(auth().currentUser.email)
+        .update({
+          modifyDate: firestore.Timestamp.fromMillis((new Date()).getTime()),
         });
         for (var i = 0; i < this.state.list.length; i++) {
           this.setState({
@@ -214,10 +211,10 @@ export default class EditScreen extends Component {
     goEditItem (item, index) {
       if (this.state.changed) {
         Alert.alert(
-          'Confirm', //확인
-          'Will you save the changes?', //변경점을 저장하시겠습니까?
+          translate('Confirm'), //확인
+          translate('EditScreenComment1'), //변경점을 저장하시겠습니까?
           [
-              {text: 'Cancel', onPress: () => { 
+              {text: translate('Cancel'), onPress: () => { 
                 this.props.navigation.push('EditItem', {
                   date: item.date.toDate(),
                   title: item.title,
@@ -234,7 +231,7 @@ export default class EditScreen extends Component {
                   }
                 });
               }},
-              {text: 'OK', onPress: async () => {
+              {text: translate('OK'), onPress: async () => {
                 await this.update();
                 this.props.navigation.push('EditItem', {
                   date: item.date.toDate(),
@@ -291,17 +288,17 @@ export default class EditScreen extends Component {
     alertDelete(item) {
       if (this.state.list.length < 2) {
         Alert.alert(
-          'Alert', //알림
-          'Are you sure you want to delete this log? This behavior is irreversible.', //이 기록을 지우시겠습니까? 지우시면 다시 복구할 수 없습니다.
+          translate('Alert'), //알림
+          translate('EditScreenComment2'), //이 기록을 지우시겠습니까? 지우시면 다시 복구할 수 없습니다.
           [
-              {text: 'Cancel', onPress: () => {  }},
-              {text: 'OK', onPress: async () => {
+              {text: translate('Cancel'), onPress: () => {  }},
+              {text: translate('OK'), onPress: async () => {
                 this.setState({loading: true});
                 try {
+                  console.log("delete");
                   var array = await storage()
                   .ref(`${auth().currentUser.email}/${this.props.route.params.itemId}`)
                   .listAll();
-                  console.log(array._items);
                   for (var i = 0; i < array._items.length; i++) {
                     await array._items[i].delete();
                   }
@@ -322,16 +319,16 @@ export default class EditScreen extends Component {
         );
       } else {
         Alert.alert(
-          'Confirm', //확인
-          'Are you sure you want to delete this image?', // 사진을 지우시겠습니까?
+          translate('Confirm'), //확인
+          translate('EditScreenComment3'), // 사진을 지우시겠습니까?
           [
-              {text: 'Cancel', onPress: () => {  }},
+              {text: translate('Cancel'), onPress: () => {  }},
               {
-                text: 'OK', onPress: async () => {
+                text: translate('OK'), onPress: async () => {
                   console.log(item);
                   this.setState({
                     list: this.state.list.filter(data => item !== data),
-                    chagned: true,
+                    changed: true,
                   });
                 }
               },
@@ -371,11 +368,11 @@ export default class EditScreen extends Component {
               }} onPress={() => { // EditList로 이동
                     if (this.state.changed) {
                       Alert.alert(
-                        'Confirm',
-                        'Will you save the changes?',
+                        translate('Confirm'), //확인
+                        translate('EditScreenComment1'), //변경점을 저장하시겠습니까?
                         [
-                            {text: 'Cancel', onPress: () => this.goEditList()},
-                            {text: 'OK', onPress: async () => {
+                            {text: translate('Cancel'), onPress: () => this.goEditList()},
+                            {text: translate('OK'), onPress: async () => {
                               await this.update();
                               this.goEditList();
                             }},
@@ -420,15 +417,15 @@ export default class EditScreen extends Component {
                 alignItems: 'center',
                 justifyContent: 'center',
                 paddingLeft: 4,
-                paddingRight: 4,
+                paddingRight: 8,
               }} onPress={() => {
               if (this.state.changed) {
                 Alert.alert(
-                  'Confirm', //확인
-                  'Will you save the changes?', //변경점을 저장하시겠습니까?
+                  translate('Confirm'), //확인
+                  translate('EditScreenComment1'), //변경점을 저장하시겠습니까?
                   [
-                      {text: 'Cancel', onPress: () => {  }},
-                      {text: 'OK', onPress: async () => {
+                      {text: translate('Cancel'), onPress: () => this.goEditList()},
+                      {text: translate('OK'), onPress: async () => {
                         await this.update();
                       }},
                   ],
@@ -456,7 +453,7 @@ export default class EditScreen extends Component {
           { this.state.loading ? 
             <View style={styles.buttonContainer}>
                 <ActivityIndicator size="large" color="#002f6c" />
-                <Text> The more pictures you have, the more time it can take to upload. </Text>
+                <Text> {translate('EditScreenComment4')} </Text>
             </View>
           : this.state.viewcode == 0 ? <MapView
             style={{flex: 1, width: "100%", marginBottom: this.state.marginBottom}}
@@ -509,7 +506,6 @@ export default class EditScreen extends Component {
               }}
               coordinate={ {latitude: data.lat, longitude: data.long} }
               title={data.title}
-              description={"See details"}
               onPress={e => {
                   console.log(e.nativeEvent);
                   if (this.state.delete) {
@@ -539,7 +535,7 @@ export default class EditScreen extends Component {
           />)}
           <View
             style={styles.floatingViewStyle}>
-            <Text style={{fontSize: 18, textAlign: 'center', width: 160}}> {"Mode: " + (this.state.delete ? "delete" : "edit" )} </Text>
+            <Text style={{fontSize: 18, textAlign: 'center', width: 160}}> {translate("Mode") + (this.state.delete ? translate("Delete") : translate("Edit") )} </Text>
           </View>
         </SafeAreaView>
       );

@@ -29,6 +29,8 @@ import MapView, { Polyline, Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import storage from '@react-native-firebase/storage';
 import firestore from '@react-native-firebase/firestore';
 
+import { translate } from '../Utils';
+
 export default class ShowScreen extends Component {
     state = {
       viewcode: 0,
@@ -257,7 +259,7 @@ export default class ShowScreen extends Component {
                   // by some browser in the mobile
                   await Linking.openURL(this.state.link);
                 } else {
-                  Alert.alert(`Don't know how to open this URL: ${this.state.link}`);
+                  Alert.alert(translate("ShowItemAndShowScreen") + this.state.link);
                 }
               }}>
               <Icon
@@ -272,7 +274,7 @@ export default class ShowScreen extends Component {
                   alignItems: 'center',
                   justifyContent: 'center',
                   paddingLeft: 4,
-                  paddingRight: 4,
+                  paddingRight: 8,
                 }} onPress={() => {// 수정창(EditScreen) 열기
                   this.props.navigation.push('EditScreen', {
                     itemId: this.props.route.params.itemId,
@@ -287,7 +289,7 @@ export default class ShowScreen extends Component {
                   color='#fff'
                 />
               </TouchableOpacity>
-              : <View></View>
+              : <View style={{paddingRight: 4}}></View>
             }
         </View>
       });
@@ -331,7 +333,6 @@ export default class ShowScreen extends Component {
             <Marker
               coordinate={ {latitude: data.lat, longitude: data.long} }
               title={data.title}
-              description={"See details"}
               onPress={e => {
                   console.log(e.nativeEvent);
                   this.props.navigation.push('ShowItem', {
@@ -382,16 +383,28 @@ export default class ShowScreen extends Component {
                     }
 
                     var updateLike = data.like;
-                    if (updateLike[auth().currentUser.email] == true) {
-                      this.setState({
-                        likeCount: this.state.likeCount - 1
-                      });
-                    }
                     updateLike[auth().currentUser.email] = false;
                     await transaction.update(sfDocRef, { like: updateLike });
+                    var localLikeCount = 0;
+                    var localDislikeCount = 0;
+                    Object.keys(data.like).map((key, i) => {
+                      if (key == auth().currentUser.email) {
+                        this.setState({
+                          liked: data.like[key],
+                          disliked: !data.like[key],
+                        });
+                      }
+
+                      if (data.like[key]) {
+                        localLikeCount++;
+                      } else {
+                        localDislikeCount++;
+                      }
+                    });
                     this.setState({
                       like: updateLike,
-                      dislikeCount: this.state.dislikeCount + 1,
+                      likeCount: localLikeCount,
+                      dislikeCount: localDislikeCount,
                       liked: false,
                       disliked: true,
                     });
@@ -420,16 +433,28 @@ export default class ShowScreen extends Component {
                     }
 
                     var updateLike = data.like;
-                    if (updateLike[auth().currentUser.email] == false) {
-                      this.setState({
-                        dislikeCount: this.state.dislikeCount - 1
-                      });
-                    }
                     updateLike[auth().currentUser.email] = true;
                     await transaction.update(sfDocRef, { like: updateLike });
+                    var localLikeCount = 0;
+                    var localDislikeCount = 0;
+                    Object.keys(data.like).map((key, i) => {
+                      if (key == auth().currentUser.email) {
+                        this.setState({
+                          liked: data.like[key],
+                          disliked: !data.like[key],
+                        });
+                      }
+
+                      if (data.like[key]) {
+                        localLikeCount++;
+                      } else {
+                        localDislikeCount++;
+                      }
+                    });
                     this.setState({
                       like: updateLike,
-                      likeCount: this.state.likeCount + 1,
+                      likeCount: localLikeCount,
+                      dislikeCount: localDislikeCount,
                       liked: true,
                       disliked: false,
                     });

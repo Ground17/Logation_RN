@@ -29,6 +29,8 @@ import MapView, { Polyline, Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import storage from '@react-native-firebase/storage';
 import firestore from '@react-native-firebase/firestore';
 
+import { translate } from '../Utils';
+
 export default class EditItem extends Component {
     state = {
       imgWidth: 0,
@@ -59,11 +61,11 @@ export default class EditItem extends Component {
               }} onPress={async () => { // 이 사진 삭제
                 if (this.state.list.length < 2) {
                   Alert.alert(
-                    'Alert', //알림
-                    'Are you sure you want to delete this log? This behavior is irreversible.', //이 로그를 지우시겠습니까? 이 행동은 돌이킬 수 없습니다.
+                    translate("Alert"), //알림
+                    translate("EditItemComment1"), //이 로그를 지우시겠습니까? 이 행동은 돌이킬 수 없습니다.
                     [
-                    {text: 'Cancel', onPress: () => {  }}, //아니요
-                    {text: 'OK', onPress: async () => {  //예
+                    {text: translate('Cancel'), onPress: () => {  }}, //아니요
+                    {text: translate('OK'), onPress: async () => {  //예
                       this.setState({loading: true});
                       try {
                         var array = await storage()
@@ -88,11 +90,11 @@ export default class EditItem extends Component {
                   );
                 } else {
                   Alert.alert(
-                    'Alert', //알림
-                    'Are you sure you want to delete this picture and data?', //이 로그를 지우시겠습니까? 이 행동은 돌이킬 수 없습니다.
+                    translate("Alert"), //알림
+                    translate("EditItemComment2"), //이 사진을 지우시겠습니까?
                     [
-                    {text: 'Cancel', onPress: () => console.log('Cancel Pressed')}, //아니요
-                    {text: 'OK', onPress: async () => { //예
+                    {text: translate('Cancel'), onPress: () => console.log('Cancel Pressed')}, //아니요
+                    {text: translate('OK'), onPress: async () => { //예
                       console.log('OK Pressed');
                       this.setState({loading: true});
                       try {
@@ -140,14 +142,14 @@ export default class EditItem extends Component {
                 alignItems: 'center',
                 justifyContent: 'center',
                 paddingLeft: 4,
-                paddingRight: 4,
+                paddingRight: 8,
               }} onPress={async () => { // 수정 완료, 기존 창 복귀
                 if (this.state.title.length < 1 || this.state.title.subtitle < 1) {
                   Alert.alert(
-                    'Error', //오류
-                    'Please fill blank.', //빈칸을 채워주세요
+                    translate('Error'), //오류
+                    translate("EditItemComment3"), //빈칸을 채워주세요
                     [
-                    {text: 'OK', onPress: () => console.log('OK Pressed')},
+                    {text: translate('OK'), onPress: () => console.log('OK Pressed')},
                     ],
                     { cancelable: false }
                   );
@@ -190,14 +192,8 @@ export default class EditItem extends Component {
                     try {
                       await firestore()
                         .collection("Users")
-                        .where("email", "==", auth().currentUser.email)
-                        .get()
-                        .then(async (querySnapshot) => {
-                          querySnapshot.forEach(async (documentSnapshot) => {
-                            await documentSnapshot.ref.update({
-                              modifyDate: firestore.Timestamp.fromMillis((new Date()).getTime()),
-                            });
-                          });
+                        .doc(auth().currentUser.email).update({
+                          modifyDate: firestore.Timestamp.fromMillis((new Date()).getTime()),
                         });
 
                       if (this.state.index == 0) {
@@ -273,7 +269,7 @@ export default class EditItem extends Component {
         {this.state.loading ? 
           <View style={styles.buttonContainer}>
               <ActivityIndicator size="large" color="#002f6c" />
-              <Text> Please wait... </Text> //잠시만 기다려주세요
+              <Text> {translate("EditItemComment4")} </Text>
           </View>
           : <ScrollView 
               contentContainerStyle={styles.viewContainer}

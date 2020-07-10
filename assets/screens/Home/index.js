@@ -21,6 +21,8 @@ import { InterstitialAd, BannerAd, TestIds, BannerAdSize } from '@react-native-f
 import storage from '@react-native-firebase/storage';
 import firestore from '@react-native-firebase/firestore';
 
+import { translate } from '../Utils';
+
 const adBannerUnitId = __DEV__ ? TestIds.BANNER : 
     (Platform.OS == 'ios' 
     ? 'ca-app-pub-1477690609272793/3050510769' 
@@ -33,94 +35,59 @@ const adInterstitialUnitId = __DEV__ ? TestIds.INTERSTITIAL :
 
 export default class Home extends Component {
     state = {
-        followings: [],
         list: [],
     }
 
     async refresh() {
         this.setState({
-            followings: [],
             list: [],
         });
 
-        const user = await firestore().collection("Users").where("email", "==", auth().currentUser.email).get();
         var storageRef = await storage().ref();
-        if (!auth().currentUser.displayName || user.empty) {
-            const update = {
-                displayName: auth().currentUser.email
-            };
 
-            await auth().currentUser.updateProfile(update);
-
-            await firestore()
-                .collection("Users")
-                .add({
-                    follower:[],
-                    following:[],
-                    view:[],
-                    email: auth().currentUser.email,
-                    profile: '',
-                    modifyDate: firestore.Timestamp.fromMillis((new Date()).getTime()),
-                    displayName: auth().currentUser.email,
-                })
-                .then(async (documentSnapshot) => {
-                    data = documentSnapshot.data();
-                    this.setState({
-                        followings : data.following,
-                    });
-                });
-        } else {
-            user.forEach(async (documentSnapshot) => {
-                data = documentSnapshot.data();
-                this.setState({
-                    followings : data.following,
-                });
-
-                await firestore()
-                    .collection("Users")
-                    .where("follower", "array-contains", auth().currentUser.email)
+        await firestore()
+            .collection("Users")
+            .where("follower", "array-contains", auth().currentUser.email)
+            .orderBy("modifyDate", "desc")
+            .limit(7)
+            .get()
+            .then(async (querySnapshot) => {
+                console.log("collectionPath", querySnapshot.docs);
+                for (var i=0; i < querySnapshot.docs.length; i++) {
+                    console.log("collectionPath", querySnapshot.docs[i].data().email);
+                    await firestore()
+                    .collection(querySnapshot.docs[i].data().email)
                     .orderBy("modifyDate", "desc")
-                    .limit(7)
+                    .limit(3)
                     .get()
-                    .then(async (querySnapshot) => {
-                        console.log("collectionPath", querySnapshot.docs);
-                        for (var i=0; i < querySnapshot.docs.length; i++) {
-                            console.log("collectionPath", querySnapshot.docs[i].data().email);
-                            await firestore()
-                            .collection(querySnapshot.docs[i].data().email)
-                            .orderBy("modifyDate", "desc")
-                            .limit(3)
-                            .get()
-                            .then(async (querySnap) => {
-                                for (var j=0; j < querySnap.docs.length; j++) {
-                                    var data = querySnap.docs[j].data();
-                                    var URL = "";
-                                    var profileURL = "";
-                                    try {
-                                        URL = await storageRef.child(querySnapshot.docs[i].data().email + "/" + querySnap.docs[j].id + "/" + data.thumbnail).getDownloadURL();
-                                        profileURL = await storageRef.child(querySnapshot.docs[i].data().email + "/" + querySnapshot.docs[i].data().profile).getDownloadURL();
-                                    } catch (e) {
-                                        console.log(e);
-                                    } finally {
-                                        this.setState({
-                                            list: this.state.list.concat({ 
-                                                name: data.title,
-                                                subtitle: data.subtitle,
-                                                url: URL,
-                                                id: querySnap.docs[j].id,
-                                                viewcode: data.viewcode,
-                                                email: querySnapshot.docs[i].data().email,
-                                                displayName: querySnapshot.docs[i].data().displayName,
-                                                profileURL: profileURL,
-                                            })
-                                        });
-                                    }
-                                }
-                            });
+                    .then(async (querySnap) => {
+                        for (var j=0; j < querySnap.docs.length; j++) {
+                            var data = querySnap.docs[j].data();
+                            var URL = "";
+                            var profileURL = "";
+                            try {
+                                URL = await storageRef.child(querySnapshot.docs[i].data().email + "/" + querySnap.docs[j].id + "/" + data.thumbnail).getDownloadURL();
+                                profileURL = await storageRef.child(querySnapshot.docs[i].data().email + "/" + querySnapshot.docs[i].data().profile).getDownloadURL();
+                            } catch (e) {
+                                console.log(e);
+                            } finally {
+                                this.setState({
+                                    list: this.state.list.concat({ 
+                                        name: data.title,
+                                        subtitle: data.subtitle,
+                                        url: URL,
+                                        id: querySnap.docs[j].id,
+                                        viewcode: data.viewcode,
+                                        email: querySnapshot.docs[i].data().email,
+                                        displayName: querySnapshot.docs[i].data().displayName,
+                                        profileURL: profileURL,
+                                    })
+                                });
+                            }
                         }
                     });
+                }
             });
-        }
 
         if (Platform.OS === 'android') {
             Linking.getInitialURL().then(url => {
@@ -162,7 +129,6 @@ export default class Home extends Component {
             onPop: () => this.refresh(),
         });
     }
-
 
     constructor(props) {
         super(props);
@@ -208,7 +174,7 @@ export default class Home extends Component {
                             'My account',
                             item.email,
                         [
-                            {text: 'OK', onPress: () => console.log('OK Pressed')},
+                            {text: translate('OK'), onPress: () => console.log('OK Pressed')},
                         ],
                             { cancelable: false }
                         );

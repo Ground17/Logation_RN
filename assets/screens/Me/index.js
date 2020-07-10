@@ -10,31 +10,52 @@ import {
   Linking
 } from 'react-native';
 
-import RNIap, {
-  purchaseErrorListener,
-  purchaseUpdatedListener,
-  type ProductPurchase,
-  type PurchaseError
-} from 'react-native-iap'; // 확인 필요
+import { translate, getPurchases } from '../Utils';
 
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
 import { ListItem, Avatar, Button } from 'react-native-elements'
 
 import auth from '@react-native-firebase/auth';
-import { InterstitialAd, BannerAd, TestIds, BannerAdSize } from '@react-native-firebase/admob';
+import { BannerAd, TestIds, BannerAdSize } from '@react-native-firebase/admob';
 import storage from '@react-native-firebase/storage';
 import firestore from '@react-native-firebase/firestore';
+import messaging from '@react-native-firebase/messaging';
 
 const adBannerUnitId = __DEV__ ? TestIds.BANNER : 
     (Platform.OS == 'ios' 
     ? 'ca-app-pub-1477690609272793/3050510769' 
     : 'ca-app-pub-1477690609272793/8274029234');
 
-const adInterstitialUnitId = __DEV__ ? TestIds.INTERSTITIAL : 
-    (Platform.OS == 'ios' 
-    ? 'ca-app-pub-1477690609272793/3775880012' 
-    : 'ca-app-pub-1477690609272793/9626786110');
+const itemSkus = [
+  'adfree_for_1month',
+  'adfree_for_1year'
+]
+
+async function requestUserPermission() {
+  const authorizationStatus = await messaging().requestPermission();
+
+  if (authorizationStatus) {
+    console.log('Permission status:', authorizationStatus);
+
+    messaging().onMessage(async remoteMessage => {
+        Alert.alert('A new message arrived!', JSON.stringify(remoteMessage));
+    });
+
+    messaging().setBackgroundMessageHandler(async remoteMessage => {
+        console.log('Message handled in the background!', remoteMessage);
+    });
+
+    const token = await messaging().getToken();
+
+    await firestore()
+        .collection('Users')
+        .doc(auth().currentUser.email)
+        .update({
+            tokens: firestore.FieldValue.arrayUnion(token),
+        });
+  }
+}
 
 export default class Me extends Component {
     state = {
@@ -44,28 +65,7 @@ export default class Me extends Component {
         list: [],
         profileURL: '', // 사진 URL
         localProfileURL: '', // 상대 위치 참조 URL
-        // ads: true,
-    }
-
-    async getPurchases () {
-        // try {
-        // const purchases = await RNIap.getAvailablePurchases();
-    
-        // purchases.forEach(purchase => {
-        //     switch (purchase.productId) {
-        //     case 'com.hyla981020.adfree1':
-        //         this.setState({ads: false});
-        //         break;
-    
-        //     case 'com.hyla981020.adfree12':
-        //         this.setState({ads: false});
-        //         break;
-        //     }
-        // });
-        // } catch(err) {
-        //     console.warn(err); // standardized err.code and err.message available
-        //     Alert.alert(err.message);
-        // }
+        ads: true,
     }
 
     async refresh() {
@@ -78,60 +78,57 @@ export default class Me extends Component {
             localProfileURL: '', // 상대 위치 참조 URL
         });
 
-        const user = await firestore().collection("Users").where("email", "==", auth().currentUser.email).get();
+        const user = await firestore().collection("Users").doc(auth().currentUser.email);
         var storageRef = await storage().ref();
-        if (!auth().currentUser.displayName || user.empty) {
+        if (!(await user.get()).exists) {
+            await user.set({
+                follower: [],
+                following: [],
+                view: [],
+                email: auth().currentUser.email,
+                profile: '',
+                modifyDate: firestore.Timestamp.fromMillis((new Date()).getTime()),
+                displayName: auth().currentUser.email,
+            });
+
             const update = {
                 displayName: auth().currentUser.email
             };
 
             await auth().currentUser.updateProfile(update);
 
-            await firestore()
-                .collection("Users")
-                .add({
-                    follower:[],
-                    following:[],
-                    view:[],
-                    email: auth().currentUser.email,
-                    profile: '',
-                    modifyDate: firestore.Timestamp.fromMillis((new Date()).getTime()),
-                    displayName: auth().currentUser.email,
-                })
-                .then(async (documentSnapshot) => {
-                    data = documentSnapshot.data();
-                    this.setState({
-                        followers : data.follower,
-                        followings : data.following,
-                        views : data.view,
-                        localProfileURL : data.profile
-                    });
-                    try {
-                        this.setState({profileURL : await storageRef.child(auth().currentUser.email + "/" + data.profile).getDownloadURL()});
-                    } catch (e) {
-                        this.setState({profileURL : ''});
-                    }
-                });
-            
-        } else {
-            user.forEach(async (documentSnapshot) => {
-                data = documentSnapshot.data();
-                this.setState({
-                    followers : data.follower,
-                    followings : data.following,
-                    views : data.view,
-                    localProfileURL : data.profile
-                });
-                try {
-                    this.setState({profileURL : await storageRef.child(auth().currentUser.email + "/" + data.profile).getDownloadURL()});
-                } catch (e) {
-                    this.setState({profileURL : ''});
-                }
+            await user.update({
+                displayName: auth().currentUser.email,
             });
+        } else {
+            data = (await user.get()).data();
+            this.setState({
+                followers : data.follower,
+                followings : data.following,
+                views : data.view,
+                localProfileURL : data.profile
+            });
+
+            if (!data.displayName || !auth().currentUser.displayName || data.displayName != auth().currentUser.displayName) {
+                const update = {
+                    displayName: auth().currentUser.email
+                };
+
+                await auth().currentUser.updateProfile(update);
+
+                await user.update({
+                    displayName: auth().currentUser.email,
+                });
+            }
+
+            try {
+                this.setState({profileURL : await storageRef.child(auth().currentUser.email + "/" + data.profile).getDownloadURL()});
+            } catch (e) {
+                this.setState({profileURL : ''});
+            }
         }
 
         if (Platform.OS === 'android') {
-            console.log("asdf");
             Linking.getInitialURL().then(url => {
                 this.navigate(url);
             });
@@ -166,7 +163,12 @@ export default class Me extends Component {
     }
 
     async componentDidMount() {
-        await this.getPurchases();
+        if (await getPurchases()) {
+            this.setState({
+                ads: false,
+            });
+        }
+        await requestUserPermission();
         await this.refresh();
     }
 
@@ -285,6 +287,7 @@ export default class Me extends Component {
                                 this.props.navigation.push('EditProfile', {
                                     profileURL: this.state.profileURL,
                                     localProfileURL: this.state.localProfileURL, // 상대 위치 참조 URL
+                                    onPop: () => this.refresh(),
                                 })
                             }}
                         />
@@ -307,33 +310,42 @@ export default class Me extends Component {
                             alignItems: 'center',
                             justifyContent: 'center',
                         }}>
-                            <Text> Followers </Text> //팔로워
+                            <Text> {translate("Followers")} </Text>
                             <Text> {this.state.followers.length} </Text>
                         </View>
+                        <TouchableOpacity 
+                        style={{
+                            width: "30%",
+                            marginTop: 15,
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                        }} onPress={() => { this.props.navigation.push('Following', {
+                            userEmail: auth().currentUser.email,
+                            onPop: () => this.refresh(),
+                        }) }}>
+                            <View style={{
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                            }}>
+                                <Text> {translate("Followings")} </Text>
+                                <Text> {this.state.followings.length} </Text>
+                            </View>
+                        </TouchableOpacity>
                         <View style={{
                             width: "30%",
                             marginTop: 15,
                             alignItems: 'center',
                             justifyContent: 'center',
                         }}>
-                            <Text> Followings </Text> //팔로잉
-                            <Text> {this.state.followings.length} </Text>
-                        </View>
-                        <View style={{
-                            width: "30%",
-                            marginTop: 15,
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                        }}>
-                            <Text> Views </Text> //조회수
+                            <Text> {translate("Views")} </Text>
                             <Text> {this.state.views.length} </Text>
                         </View>
                     </View>
                     <View style={{alignItems: 'center',}}>
-                        <BannerAd 
+                        {this.state.ads && <BannerAd 
                             unitId={adBannerUnitId} 
                             size={BannerAdSize.BANNER}
-                        />
+                        />}
                     </View>
                 </View>
                 <FlatList

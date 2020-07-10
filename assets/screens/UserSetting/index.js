@@ -5,13 +5,17 @@ import {
   View,
   Text,
   TouchableOpacity,
-  Alert
+  Alert,
+  Linking,
 } from 'react-native';
 
 import { Divider, Input, Avatar } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
 import auth from '@react-native-firebase/auth';
+import functions from '@react-native-firebase/functions';
+
+import { translate, getlocalizedPrice } from '../Utils';
 
 import RNIap, {
   purchaseErrorListener,
@@ -20,123 +24,60 @@ import RNIap, {
   type PurchaseError,
 } from 'react-native-iap'; // 확인 필요
 
-const itemSkus = Platform.select({
-  ios: [
-    'com.hyla981020.adfree1',
-    'com.hyla981020.adfree12'
-  ],
-  android: [
-    'com.hyla981020.adfree1',
-    'com.hyla981020.adfree12'
-  ]
-});
+const itemSkus = [
+  'adfree_for_1month',
+  'adfree_for_1year'
+]
 
 export default class UserSetting extends Component {
   purchaseUpdateSubscription = null
   purchaseErrorSubscription = null
+
+  state = {
+    month: null,
+    year: null,
+  };
+
   async componentDidMount() {
-    try {
-      const products: Product[] = await RNIap.getSubscriptions(itemSkus);
-    } catch(err) {
-      console.warn(err); // standardized err.code and err.message available
-    }
-
-    // this.purchaseUpdateSubscription = purchaseUpdatedListener((purchase: InAppPurchase | SubscriptionPurchase | ProductPurchase ) => {
-    //   console.log('purchaseUpdatedListener', purchase);
-    //   const receipt = purchase.transactionReceipt;
-    //   if (receipt) {
-    //     yourAPI.deliverOrDownloadFancyInAppPurchase(purchase.transactionReceipt)
-    //     .then((deliveryResult) => {
-    //       if (isSuccess(deliveryResult)) {
-    //         // Tell the store that you have delivered what has been paid for.
-    //         // Failure to do this will result in the purchase being refunded on Android and
-    //         // the purchase event will reappear on every relaunch of the app until you succeed
-    //         // in doing the below. It will also be impossible for the user to purchase consumables
-    //         // again untill you do this.
-    //         if (Platform.OS == 'ios') {
-    //           RNIap.finishTransactionIOS(purchase.transactionId);
-    //         } else if (Platform.OS == 'android') {
-    //           // If consumable (can be purchased again)
-    //           RNIap.consumePurchaseAndroid(purchase.purchaseToken);
-    //           // If not consumable
-    //           RNIap.acknowledgePurchaseAndroid(purchase.purchaseToken);
-    //         }
- 
-    //         // From react-native-iap@4.1.0 you can simplify above `method`. Try to wrap the statement with `try` and `catch` to also grab the `error` message.
-    //         // If consumable (can be purchased again)
-    //         // RNIap.finishTransaction(purchase, true);
-    //         // If not consumable
-    //         RNIap.finishTransaction(purchase, false);
-    //       } else {
-    //         // Retry / conclude the purchase is fraudulent, etc...
-    //       }
-    //     });
-    //   }
-    // });
- 
-    // this.purchaseErrorSubscription = purchaseErrorListener((error: PurchaseError) => {
-    //   console.warn('purchaseErrorListener', error);
-    // });
-  }
-
-  componentWillUnmount() {
-    if (this.purchaseUpdateSubscription) {
-      this.purchaseUpdateSubscription.remove();
-      this.purchaseUpdateSubscription = null;
-    }
-    if (this.purchaseErrorSubscription) {
-      this.purchaseErrorSubscription.remove();
-      this.purchaseErrorSubscription = null;
-    }
-  }
-
-  requestSubscription1 = async () => {
-    try {
-      await RNIap.requestSubscription('com.hyla981020.adfree1');
-    } catch (err) {
-      console.warn(err.code, err.message);
-    }
-  }
- 
-  requestSubscription12 = async () => {
-    try {
-      await RNIap.requestSubscription('com.hyla981020.adfree12');
-    } catch (err) {
-      console.warn(err.code, err.message);
+    const price = await getlocalizedPrice();
+    if (price) {
+      this.setState({
+        month: price[month],
+        year: price[year],
+      });
     }
   }
 
   alert() {
     Alert.alert(
-      'Delete account',
-      'Are you sure you want to delete the account? This process cannot be reversed.\n' + 
-      '(Undeleted data is stored for up to one year, and if you want to delete it immediately, contact your developer. If the data has not been erased, it will remain on the same email again.)',
+      translate("UserSettingComment1"),
+      translate("UserSettingComment2") + translate("UserSettingComment3"),
       [
-          {text: 'OK', onPress: async () => {
+          {text: translate('OK'), onPress: async () => {
             await auth().currentUser.delete()
               .then(() => {
                 Alert.alert(
-                  'Account Deletion Successfully!',
-                  'Thank you for using our application.',
+                  translate("UserSettingComment4"),
+                  translate("UserSettingComment5"),
                   [
-                      {text: 'OK', onPress: () => this.props.navigation.replace("Login")},
+                      {text: translate('OK'), onPress: () => this.props.navigation.replace("Login")},
                   ],
                   { cancelable: false }
                 );
               })
               .catch(error => {
                 Alert.alert(
-                'Error',
+                translate('Error'),
                 error.toString(),
                 [
-                    {text: 'OK', onPress: () => console.log('OK Pressed')},
+                    {text: translate('OK'), onPress: () => console.log('OK Pressed')},
                 ],
                 { cancelable: false }
                 );
               });
             }
           },
-          {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+          {text: translate('Cancel'), onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
       ],
       { cancelable: false }
       );
@@ -145,26 +86,35 @@ export default class UserSetting extends Component {
   render() {
     return(
       <SafeAreaView style={styles.container}>
-        {/* <View style={{width: '100%', alignItems: 'center', justifyContent: 'center', paddingTop: 30}}>
-          <TouchableOpacity style={[styles.buttonContainer, styles.loginButton, {height:45, width: "80%", borderRadius:5,}]} onPress={() => { this.requestSubscription1() }}>
-            <Text style={styles.loginText}>Ad free for 1 month</Text>
+        <View style={{width: '100%', alignItems: 'center', justifyContent: 'center', paddingTop: 30}}>
+          <TouchableOpacity style={[styles.buttonContainer, styles.loginButton, {height:45, width: "80%", borderRadius:5, marginBottom: 15}]} onPress={() => { 
+            this.props.navigation.push("Purchase", {
+              month: this.state.month,
+              year: this.state.year,
+            });
+           }}>
+            <Text style={styles.loginText}>{translate("Purchase")}</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.buttonContainer, styles.loginButton, {height:45, width: "80%", borderRadius:5, marginBottom: 15}]} onPress={() => { this.requestSubscription12() }}>
-            <Text style={styles.loginText}>Ad free for 1 year</Text>
-          </TouchableOpacity>
-        </View> */}
+         
+        </View>
         <View style={{width: '100%', alignItems: 'center', justifyContent: 'center', paddingBottom: 30}}>
-          <View style={{marginBottom: 15}}>
+          <View style={{marginBottom: 10}}>
+            <View style={{alignSelf:'center', position:'absolute', borderBottomColor:'gray', borderBottomWidth:1, height:'50%', width:'80%'}}/>
+          </View>
+          <TouchableOpacity style={[styles.buttonContainer, styles.loginButton, {height:45, width: "80%", borderRadius:5}]} onPress={() => { this.props.navigation.push('Language') }}>
+            <Text style={styles.loginText}>{translate("Language")}</Text>
+          </TouchableOpacity>
+          <View style={{marginTop: 5, marginBottom: 10}}>
             <View style={{alignSelf:'center', position:'absolute', borderBottomColor:'gray', borderBottomWidth:1, height:'50%', width:'80%'}}/>
           </View>
           <TouchableOpacity style={[styles.buttonContainer, styles.loginButton, {height:45, width: "80%", borderRadius:5}]} onPress={() => { auth().signOut().then(() => 
             console.log('User signed out!'));
             this.props.navigation.replace("Login");
           }}>
-            <Text style={styles.loginText}>Sign out</Text>
+            <Text style={styles.loginText}>{translate("SignOut")}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={[styles.buttonContainer, styles.signUpButton, {height:45, width: "80%", borderRadius:5}]} onPress={() => { this.alert() }}>
-            <Text style={styles.signUpText}>Delete account</Text>
+            <Text style={styles.signUpText}>{translate("DeleteAccount")}</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>

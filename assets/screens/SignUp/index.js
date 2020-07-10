@@ -13,34 +13,36 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 
 import auth from '@react-native-firebase/auth';
 
+import { translate } from '../Utils';
+
 export default class SignUp extends Component {
     async createEmail(email, password, passwordConfirm) {
         if (email == null || !email.includes('@')) {
             Alert.alert(
-                'Invalid value',
-                'Please check your email or password.',
+                translate('InvalidValue'),
+                translate('SignUpComment1'),
                     [
-                        {text: 'OK', onPress: () => console.log('OK Pressed')},
+                        {text: translate('OK'), onPress: () => console.log('OK Pressed')},
                     ],
                 { cancelable: false }
             );
             return;
         } else if (password == null || password.length < 6) {
             Alert.alert(
-                'Invalid value',
-                'Please check your password is at least six digits.',
+                translate('InvalidValue'),
+                translate('SignUpComment2'),
                     [
-                        {text: 'OK', onPress: () => console.log('OK Pressed')},
+                        {text: translate('OK'), onPress: () => console.log('OK Pressed')},
                     ],
                 { cancelable: false }
             );
             return;
         } else if (passwordConfirm == null || password != passwordConfirm) {
             Alert.alert(
-                'Invalid value',
-                'Please check if the password matches the confirm password.',
+                translate('InvalidValue'),
+                translate('SignUpComment3'),
                     [
-                        {text: 'OK', onPress: () => console.log('OK Pressed')},
+                        {text: translate('OK'), onPress: () => console.log('OK Pressed')},
                     ],
                 { cancelable: false }
             );
@@ -51,20 +53,20 @@ export default class SignUp extends Component {
         .then(() => {
             if (auth().currentUser.emailVerified) {
                 Alert.alert(
-                    'Successfully signed up!',
-                    'Please sign in via ' + email + '.',
+                    translate('SignUpComment4'),
+                    translate('SignUpComment5') + email,
                     [
-                        {text: 'OK', onPress: () => {this.props.navigation.goBack()}},
+                        {text: translate('OK'), onPress: () => {this.props.navigation.goBack()}},
                     ],
                     { cancelable: false }
                     );
             } else {
                 auth().currentUser.sendEmailVerification();
                 Alert.alert(
-                    'Successfully signed up!',
-                    'Please check your email in ' + email + '.',
+                    translate('SignUpComment4'),
+                    translate('SignUpComment6') + email,
                     [
-                        {text: 'OK', onPress: () => {this.props.navigation.goBack()}},
+                        {text: translate('OK'), onPress: () => {this.props.navigation.goBack()}},
                     ],
                     { cancelable: false }
                 );
@@ -72,10 +74,10 @@ export default class SignUp extends Component {
         })
         .catch(error => {
             Alert.alert(
-            'Error',
+            translate('Error'),
             error.toString(),
             [
-                {text: 'OK', onPress: () => console.log('OK Pressed')},
+                {text: translate('OK'), onPress: () => console.log('OK Pressed')},
             ],
             { cancelable: false }
             );
@@ -101,7 +103,7 @@ export default class SignUp extends Component {
         <SafeAreaView style={styles.container}>
             <View style={styles.cellView}>
                 <Input
-                placeholder='Email'
+                placeholder={translate('Email')}
                 placeholderTextColor="#bdbdbd"
                 onChangeText = {(email) => this.setState({email})}
                 leftIcon={
@@ -116,7 +118,7 @@ export default class SignUp extends Component {
             </View>
             <View style={styles.cellView}>
                 <Input
-                placeholder='Password'
+                placeholder={translate('Password')}
                 placeholderTextColor="#bdbdbd"
                 secureTextEntry={true}
                 onChangeText = {(password) => this.setState({password})}
@@ -132,7 +134,7 @@ export default class SignUp extends Component {
             </View>
             <View style={styles.cellView}>
                 <Input
-                placeholder='Confirm Password'
+                placeholder={translate('ConfirmPassword')}
                 placeholderTextColor="#bdbdbd"
                 secureTextEntry={true}
                 onChangeText = {(passwordConfirm) => this.setState({passwordConfirm})}
@@ -149,7 +151,7 @@ export default class SignUp extends Component {
             <TouchableOpacity style={[styles.buttonContainer, styles.signUpButton]} onPress={() => { 
                 this.createEmail(this.state.email, this.state.password, this.state.passwordConfirm)
             }}>
-                <Text style={styles.signUpText}>Sign up</Text>
+                <Text style={styles.signUpText}>{translate('SignUp')}</Text>
             </TouchableOpacity>
         </SafeAreaView>
         );

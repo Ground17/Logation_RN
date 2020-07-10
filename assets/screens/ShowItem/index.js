@@ -26,6 +26,8 @@ import MapView, { Polyline, Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import storage from '@react-native-firebase/storage';
 import firestore from '@react-native-firebase/firestore';
 
+import { translate } from '../Utils';
+
 export default class ShowItem extends Component {
     state = {
       imgWidth: 0,
@@ -51,7 +53,7 @@ export default class ShowItem extends Component {
                   // by some browser in the mobile
                   await Linking.openURL(this.props.route.params.link);
                 } else {
-                  Alert.alert(`Don't know how to open this URL: ${this.props.route.params.link}`);
+                  Alert.alert(translate("ShowItemAndShowScreen") + this.props.route.params.link);
                 }
               }}>
               <Icon
@@ -66,7 +68,7 @@ export default class ShowItem extends Component {
                     alignItems: 'center',
                     justifyContent: 'center',
                     paddingLeft: 4,
-                    paddingRight: 4,
+                    paddingRight: 8,
                   }} onPress={() => {
                   this.props.navigation.push('EditItem', {
                     date: this.props.route.params.date,
@@ -91,7 +93,7 @@ export default class ShowItem extends Component {
                     color='#fff'
                   />
                 </TouchableOpacity>
-              : <View></View>
+              : <View style={{paddingRight: 4}}></View>
             }
         </View>
       });

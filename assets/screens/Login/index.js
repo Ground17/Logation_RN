@@ -23,6 +23,8 @@ import appleAuth, {
 
 import { InterstitialAd, BannerAd, TestIds, BannerAdSize } from '@react-native-firebase/admob';
 
+import { translate } from '../Utils';
+
 const adBannerUnitId = __DEV__ ? TestIds.BANNER : 
     (Platform.OS == 'ios' 
     ? 'ca-app-pub-1477690609272793/3050510769' 
@@ -55,10 +57,10 @@ export default class Login extends Component {
       } 
     } catch (e) {
       Alert.alert(
-        'Login Error', //로그인 에러
+        translate('LoginError'), //로그인 에러
         e.toString(),
         [
-          {text: 'OK', onPress: () => console.log('OK Pressed')},
+          {text: translate('OK'), onPress: () => console.log('OK Pressed')},
         ],
         { cancelable: false }
       );
@@ -81,10 +83,10 @@ export default class Login extends Component {
       return;
     } catch (e) {
       Alert.alert(
-        'Login Error',
+        translate('LoginError'), //로그인 에러
         e.toString(),
         [
-          {text: 'OK', onPress: () => console.log('OK Pressed')},
+          {text: translate('OK'), onPress: () => console.log('OK Pressed')},
         ],
         { cancelable: false }
       );
@@ -93,10 +95,10 @@ export default class Login extends Component {
   async emailLogin(email, password) {
       if (email == null || !email.includes('@') || password == null) {
           Alert.alert(
-          'Invalid value', //정확하지 않은 정보
-          'Please check your email or password.', //이메일 혹은 비밀번호를 다시 확인해주세요.
+            translate('InvalidValue'), //정확하지 않은 정보
+            translate('LoginComment1'), //이메일 혹은 비밀번호를 다시 확인해주세요.
           [
-              {text: 'OK', onPress: () => console.log('OK Pressed')},
+              {text: translate('OK'), onPress: () => console.log('OK Pressed')},
           ],
           { cancelable: false }
           );
@@ -112,10 +114,10 @@ export default class Login extends Component {
           console.log(auth().currentUser);
           auth().currentUser.sendEmailVerification();
           Alert.alert(
-            'Verification error', //확인 오류
-            'Please check your email in ' + email + '.\nIf you do not receive an email, please wait a moment.', //이메일을 확인해주세요. 이메일을 받지 못했다면 잠시만 기다려 주세요.
+            translate('VerificationError'), //확인 오류
+            translate('LoginComment2'), //이메일을 확인해주세요. 이메일을 받지 못했다면 잠시만 기다려 주세요.
             [
-                {text: 'OK', onPress: () => {  }},
+                {text: translate('OK'), onPress: () => {  }},
             ],
             { cancelable: false }
           );
@@ -123,10 +125,10 @@ export default class Login extends Component {
       })
       .catch(error => {
           Alert.alert(
-          'Error',
+          translate('Error'),
           error.toString(),
           [
-              {text: 'OK', onPress: () => console.log('OK Pressed')},
+              {text: translate('OK'), onPress: () => console.log('OK Pressed')},
           ],
           { cancelable: false }
           );
@@ -137,44 +139,20 @@ export default class Login extends Component {
   async forgotPassword(email) {
       if (email == null || !email.includes('@')) {
           Alert.alert(
-          'Invalid value', //정확하지 않은 정보
-          'Please check your email', //이메일 혹은 비밀번호를 다시 확인해주세요.
+            translate('InvalidValue'), //정확하지 않은 정보
+            translate('LoginComment1'), //이메일 혹은 비밀번호를 다시 확인해주세요.
           [
-              {text: 'OK', onPress: () => console.log('OK Pressed')},
+              {text: translate('OK'), onPress: () => console.log('OK Pressed')},
           ],
           { cancelable: false }
           );
           return;
       }
-      auth().sendPasswordResetEmail(email)
-      .then(() => {
-          Alert.alert(
-          'Password reset', //비밀번호 초기화
-          'Sent a password reset email to ' + email + '.', //초기 비밀번호를 이메일로 보냈습니다.
-          [
-              {text: 'OK', onPress: () => console.log('OK Pressed')},
-          ],
-          { cancelable: false }
-          );
-      })
-      .catch(error => {
-          Alert.alert(
-          'Error',
-          error.toString(),
-          [
-              {text: 'OK', onPress: () => console.log('OK Pressed')},
-          ],
-          { cancelable: false }
-          );
-      });
   }
+
   state = {
     email: '',
     password: '',
-  }
-
-  constructor(props) {
-      super(props);
   }
 
   render() {
@@ -182,7 +160,8 @@ export default class Login extends Component {
       <SafeAreaView style={styles.container}>
         <View style={styles.cellView}>
             <Input
-            placeholder='Email' //이메일
+            autoCapitalize='none'
+            placeholder={translate('Email')} //이메일
             placeholderTextColor="#bdbdbd"
             onChangeText = {(email) => this.setState({email})}
             leftIcon={
@@ -197,7 +176,8 @@ export default class Login extends Component {
         </View>
         <View style={styles.cellView}>
             <Input
-            placeholder='Password' //비밀번호
+            autoCapitalize='none'
+            placeholder={translate('Password')} //비밀번호
             placeholderTextColor="#bdbdbd"
             secureTextEntry={true}
             onChangeText = {(password) => this.setState({password})}
@@ -214,13 +194,13 @@ export default class Login extends Component {
         <TouchableOpacity style={[styles.buttonContainer, styles.loginButton]} onPress={() => { 
           console.log(this.state.email)
           this.emailLogin(this.state.email, this.state.password) }}>
-            <Text style={styles.loginText}>Sign in</Text> //로그인
+            <Text style={styles.loginText}>{translate("SignIn")}</Text>
         </TouchableOpacity>
         <TouchableOpacity style={[styles.buttonContainer, styles.signUpButton]} onPress={() => { this.props.navigation.push('SignUp') }}>
-            <Text style={styles.signUpText}>Sign up</Text> //회원가입
+            <Text style={styles.signUpText}>{translate("SignUp")}</Text>
         </TouchableOpacity>
         <TouchableOpacity style={{marginBottom: 15}} onPress={() => { this.props.navigation.push('ResetPassword') }}>
-            <Text>Forgot your password?</Text> //비밀번호 분실
+            <Text>{translate("LoginComment3")}</Text>
         </TouchableOpacity>
         <View style={{marginBottom: 15}}>
             <View style={{alignSelf:'center', position:'absolute', borderBottomColor:'gray', borderBottomWidth:1, height:'50%', width:'80%'}}/>
@@ -238,7 +218,16 @@ export default class Login extends Component {
             buttonType={AppleButton.Type.SIGN_IN}
             onPress={() => this.appleLogin()}
         />}
-        <View style={{marginTop: 15, width: "80%", alignItems: "center"}}>
+        <View style={{marginTop: 10, marginBottom: 10}}>
+            <View style={{alignSelf:'center', position:'absolute', borderBottomColor:'gray', borderBottomWidth:1, height:'50%', width:'80%'}}/>
+        </View>
+        <TouchableOpacity style={[styles.buttonContainer, styles.loginButton]} onPress={() => { this.props.navigation.push('Language') }}>
+            <Text style={styles.loginText}>{translate("Language")}</Text>
+        </TouchableOpacity>
+        <View style={{marginTop: 5, marginBottom: 10}}>
+            <View style={{alignSelf:'center', position:'absolute', borderBottomColor:'gray', borderBottomWidth:1, height:'50%', width:'80%'}}/>
+        </View>
+        <View style={{width: "80%", alignItems: "center"}}>
           <BannerAd 
             unitId={adBannerUnitId} 
             size={BannerAdSize.BANNER}

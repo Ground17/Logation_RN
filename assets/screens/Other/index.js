@@ -7,7 +7,8 @@ import {
   TouchableOpacity,
   FlatList,
   Image, 
-  Linking
+  Linking,
+  Alert
 } from 'react-native';
 
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -18,6 +19,8 @@ import auth from '@react-native-firebase/auth';
 import { InterstitialAd, BannerAd, TestIds, BannerAdSize } from '@react-native-firebase/admob';
 import storage from '@react-native-firebase/storage';
 import firestore from '@react-native-firebase/firestore';
+
+import { translate } from '../Utils';
 
 const adBannerUnitId = __DEV__ ? TestIds.BANNER : 
     (Platform.OS == 'ios' 
@@ -43,6 +46,7 @@ export default class Other extends Component {
         profileURL: '', // 사진 URL
         documentID: '',
         documentIDforMe: '',
+        loading: false,
     }
 
     async refresh() {
@@ -57,6 +61,7 @@ export default class Other extends Component {
             follow: false,
             displayName: '',
             profileURL: '', // 사진 URL
+            loading: false,
         });
 // auth().currentUser.email => this.props.route.params.userEmail
         var storageRef = storage().ref();
@@ -86,13 +91,12 @@ export default class Other extends Component {
                     });
                 }
             });
-        
+
         firestore()
             .collection("Users")
-            .where("email", "==", this.props.route.params.userEmail)
+            .doc(this.props.route.params.userEmail)
             .get()
-            .then(async (querySnapshot) => {
-                querySnapshot.forEach(async (documentSnapshot) => {
+            .then(async (documentSnapshot) => {
                     data = documentSnapshot.data();
                     this.setState({
                         documentID: documentSnapshot.id,
@@ -119,18 +123,14 @@ export default class Other extends Component {
                     }
                     this.setState({profileURL : URL,});
                 });
-            }
-        );
 
         firestore()
             .collection("Users")
-            .where("email", "==", auth().currentUser.email)
+            .doc(auth().currentUser.email)
             .get()
-            .then(async (querySnapshot) => {
-                querySnapshot.forEach(async (documentSnapshot) => {
-                    this.setState({
-                        documentIDforMe: documentSnapshot.id,
-                    });
+            .then(async (documentSnapshot) => {
+                this.setState({
+                    documentIDforMe: auth().currentUser.email,
                 });
             }
         );
@@ -187,56 +187,65 @@ export default class Other extends Component {
                             this.setState({
                                 follow : !this.state.follow,
                             });
-                            var sfDocRef = firestore().collection("Users").doc(this.state.documentID);
-                            var sfDocRefForMe = firestore().collection("Users").doc(this.state.documentIDforMe);
-                            await firestore().runTransaction(async (transaction) => {
-                                var sfDoc = await transaction.get(sfDocRef);
-                                if (!sfDoc.exists) {
-                                    throw "Document does not exist!";
-                                }
+                            if (!this.state.loading) {
+                                try {
+                                    this.setState({loading: true});
+                                    var sfDocRef = firestore().collection("Users").doc(this.state.documentID);
+                                    var sfDocRefForMe = firestore().collection("Users").doc(this.state.documentIDforMe);
+                                    
+                                    await firestore().runTransaction(async (transaction) => {
+                                        var sfDoc = await transaction.get(sfDocRef);
+                                        var sfDocForMe = await transaction.get(sfDocRefForMe);
 
-                                if (this.state.follow) {
-                                    if (!sfDoc.data().follower.includes(auth().currentUser.email)) {
-                                        await transaction.update(sfDocRef, { follower: sfDoc.data().follower.concat(auth().currentUser.email) });
-                                        this.setState({
-                                            followersLength : this.state.followersLength + 1,
-                                        });
-                                    }
-                                } else {
-                                    if (sfDoc.data().follower.includes(auth().currentUser.email)) {
-                                        await transaction.update(sfDocRef, { follower: sfDoc.data().follower.filter(data => auth().currentUser.email != data) });
-                                        this.setState({
-                                            followersLength : this.state.followersLength - 1,
-                                        });
-                                    }
-                                }
-                            }).then(async () => {
-                                console.log("success?");
-                            }).catch(async (err) => {
-                                console.error(err);
-                            });
-                            await firestore().runTransaction(async (transaction) => {
-                                var sfDocForMe = await transaction.get(sfDocRefForMe);
-                                if (!sfDocForMe.exists) {
-                                    throw "Document does not exist!";
-                                }
+                                        if (!sfDoc.exists) {
+                                            throw "Document does not exist!";
+                                        }
 
-                                if (this.state.follow) {
-                                    if (!sfDocForMe.data().following.includes(this.props.route.params.userEmail)) {
-                                        await transaction.update(sfDocRefForMe, { following: sfDocForMe.data().following.concat(this.props.route.params.userEmail) });
-                                    }
-                                } else {
-                                    if (sfDocForMe.data().following.includes(this.props.route.params.userEmail)) {
-                                        await transaction.update(sfDocRefForMe, { following: sfDocForMe.data().following.filter(data => this.props.route.params.userEmail != data) });
-                                    }
+                                        if (this.state.follow) {
+                                            if (!sfDoc.data().follower.includes(auth().currentUser.email)) {
+                                                await transaction.update(sfDocRef, { follower: sfDoc.data().follower.concat(auth().currentUser.email) });
+                                                this.setState({
+                                                    followersLength : this.state.followersLength + 1,
+                                                });
+                                            }
+                                        } else {
+                                            if (sfDoc.data().follower.includes(auth().currentUser.email)) {
+                                                await transaction.update(sfDocRef, { follower: sfDoc.data().follower.filter(data => auth().currentUser.email != data) });
+                                                this.setState({
+                                                    followersLength : this.state.followersLength - 1,
+                                                });
+                                            }
+                                        }
+                                        if (!sfDocForMe.exists) {
+                                            throw "Document does not exist!";
+                                        }
+
+                                        if (this.state.follow) {
+                                            if (!sfDocForMe.data().following.includes(this.props.route.params.userEmail)) {
+                                                await transaction.update(sfDocRefForMe, { following: sfDocForMe.data().following.concat(this.props.route.params.userEmail) });
+                                            }
+                                        } else {
+                                            if (sfDocForMe.data().following.includes(this.props.route.params.userEmail)) {
+                                                await transaction.update(sfDocRefForMe, { following: sfDocForMe.data().following.filter(data => this.props.route.params.userEmail != data) });
+                                            }
+                                        }
+                                        return Promise.resolve(true);
+                                    }).then(async () => {
+                                        console.log("success");
+                                        this.setState({loading: false});
+                                    }).catch(async (err) => {
+                                        console.error(err);
+                                        this.setState({loading: false});
+                                    });
+                                    
+                                    this.setState({loading: false});
+                                    return Promise.reject(new Error('Task closed!'));
+                                } catch (e) {
+                                    this.refresh();
                                 }
-                            }).then(async () => {
-                                console.log("success?");
-                            }).catch(async (err) => {
-                                console.error(err);
-                            });
+                            }
                          }}>
-                            <Text style={styles.loginText}>{this.state.follow ? 'Unfollow' : 'Follow' }</Text> //언팔로우, 팔로우
+                            <Text style={styles.loginText}>{this.state.follow ? translate('Unfollow') : translate('Follow') }</Text>
                         </TouchableOpacity>
                     </View>
                     <View style={{
@@ -274,7 +283,7 @@ export default class Other extends Component {
                             alignItems: 'center',
                             justifyContent: 'center',
                         }}>
-                            <Text> Followers </Text> //팔로워
+                            <Text> {translate("Followers")} </Text>
                             <Text> {this.state.followersLength} </Text>
                         </View>
                         <View style={{
@@ -283,7 +292,7 @@ export default class Other extends Component {
                             alignItems: 'center',
                             justifyContent: 'center',
                         }}>
-                            <Text> Followings </Text> //팔로잉
+                            <Text> {translate("Followings")} </Text>
                             <Text> {this.state.followingsLength} </Text>
                         </View>
                         <View style={{
@@ -292,7 +301,7 @@ export default class Other extends Component {
                             alignItems: 'center',
                             justifyContent: 'center',
                         }}>
-                            <Text> Views </Text> //조회수
+                            <Text> {translate("Views")} </Text>
                             <Text> {this.state.viewsLength} </Text>
                         </View>
                     </View>

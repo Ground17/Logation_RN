@@ -26,6 +26,8 @@ import { InterstitialAd, TestIds } from '@react-native-firebase/admob';
 import storage from '@react-native-firebase/storage';
 import firestore from '@react-native-firebase/firestore';
 
+import { translate } from '../Utils';
+
 const adBannerUnitId = __DEV__ ? TestIds.BANNER : 
     (Platform.OS == 'ios' 
     ? 'ca-app-pub-1477690609272793/3050510769' 
@@ -123,38 +125,38 @@ export default class EditList extends Component {
                 {this.state.loading ? 
                 <View style={styles.buttonContainer}>
                     <ActivityIndicator size="large" color="#002f6c" />
-                    <Text> The more pictures you have, the more time it can take to upload. </Text>
+                    <Text> {translate("AddListComment1")} </Text>
                 </View>
                 : <ScrollView 
                     contentContainerStyle={styles.viewContainer}
-                    style={{flex: 1, width: "110%"}}
+                    style={{flex: 1, width: "100%"}}
                 >
                     <View style={{height: 200, width: 100, alignItems: 'center', justifyContent: 'center', flexDirection: 'row'}}>
-                        <Text> Category </Text>
+                        <Text> {translate("Category")} </Text>
                         <Picker
                             selectedValue={this.state.category}
                             style={{width: 130}}
                             onValueChange={(itemValue, itemIndex) =>
                                 this.setState({category: itemValue})
                             }>
-                            <Picker.Item label="Travel" value="Travel" /> //여행
-                            <Picker.Item label="Daily Life" value="Daily Life" /> //일상
-                            <Picker.Item label="Entertainment" value="Entertainment" /> //여가
-                            <Picker.Item label="Sports" value="Sports" /> //스포츠
-                            <Picker.Item label="News" value="News" /> //뉴스
-                            <Picker.Item label="Education" value="Education" /> //교욱
-                            <Picker.Item label="Other" value="Other" /> //기타
+                            <Picker.Item label={translate("Travel")} value="Travel" />
+                            <Picker.Item label={translate("DailyLife")} value="Daily Life" />
+                            <Picker.Item label={translate("Entertainment")} value="Entertainment" />
+                            <Picker.Item label={translate("Sports")} value="Sports" />
+                            <Picker.Item label={translate("News")} value="News" />
+                            <Picker.Item label={translate("Education")} value="Education" />
+                            <Picker.Item label={translate("Other")} value="Other" />
                         </Picker>
-                        <Text> View Mode </Text> //
+                        <Text> {translate("ViewMode")} </Text>
                         <Picker
                             selectedValue={this.state.viewmode}
                             style={{width: 90}}
                             onValueChange={(itemValue, itemIndex) =>
                                 this.setState({viewmode: itemValue})
                             }>
-                            <Picker.Item label="Map" value="Map" /> //지도
-                            <Picker.Item label="List" value="List" /> //목록
-                            <Picker.Item label="Grid" value="Grid" />
+                            <Picker.Item label={translate("Map")} value="Map" />
+                            <Picker.Item label={translate("List")} value="List" />
+                            <Picker.Item label={translate("Grid")} value="Grid" />
                         </Picker>
                     </View>
                     <Text
@@ -206,7 +208,7 @@ export default class EditList extends Component {
                             value = {this.state.title}
                             inputStyle={styles.inputs}
                             maxLength={40}
-                            placeholder='Title' //제목
+                            placeholder={translate("Title")}
                             placeholderTextColor="#bdbdbd"
                             leftIcon={
                                 <Icon
@@ -224,7 +226,7 @@ export default class EditList extends Component {
                             value = {this.state.subtitle}
                             inputStyle={styles.inputs}
                             maxLength={140}
-                            placeholder='Subtitle' //부제목
+                            placeholder={translate("Subtitle")}
                             placeholderTextColor="#bdbdbd"
                             leftIcon={
                                 <Icon
@@ -237,10 +239,11 @@ export default class EditList extends Component {
                     </View>
                     <View style={styles.cellView}>
                         <Input
+                            autoCapitalize='none'
                             onChangeText = {(link) => this.setState({link})}
                             value = {this.state.link}
                             inputStyle={styles.inputs}
-                            placeholder='URL Link (must contain "https://")' //URL 링크 ("https://"로 시작)
+                            placeholder={translate("URLLink")}
                             placeholderTextColor="#bdbdbd"
                             leftIcon={
                                 <Icon
@@ -251,7 +254,7 @@ export default class EditList extends Component {
                             }
                         />
                     </View>
-                    <Text style={{textAlign: 'center'}}> Press to delete. Drag to move. </Text> //삭제를 원하신다면 왼쪽으로 드래그해주세요.
+                    <Text style={{textAlign: 'center'}}> {translate("AddListComment2")} </Text>
                     <View style={{ flex: 1, width: "84%" }}>
                         <DraggableFlatList
                             keyExtractor={this.keyExtractor}
@@ -336,11 +339,11 @@ export default class EditList extends Component {
                             } 
                         });
                     }}>
-                        <Text style={styles.loginText}>Add Photos</Text> //사진 추가
+                        <Text style={styles.loginText}>{translate("AddPhotos")}</Text>
                     </TouchableOpacity>
                     <CheckBox
                         containerStyle={styles.cell}
-                        title='Contain location information in photos' //사진의 위치정보 포함
+                        title={translate("AddListComment3")}
                         iconType='material'
                         checkedIcon='check-box'
                         uncheckedIcon='check-box-outline-blank'
@@ -350,7 +353,7 @@ export default class EditList extends Component {
                     />
                     <CheckBox
                         containerStyle={styles.cell}
-                        title='Contain date information in photos' //사진의 날짜정보 포함
+                        title={translate("AddListComment4")} //사진의 날짜정보 포함
                         iconType='material'
                         checkedIcon='check-box'
                         uncheckedIcon='check-box-outline-blank'
@@ -361,10 +364,10 @@ export default class EditList extends Component {
                     <TouchableOpacity style={[styles.buttonContainer, styles.loginButton, {height:45, width: "80%", borderRadius:5,}]} onPress={() => {
                         if (this.state.title.length < 1 || this.state.title.subtitle < 1 || this.state.title.link < 1) {
                             Alert.alert(
-                                'Error',
-                                'Please fill blank.',
+                                translate("Error"),
+                                translate("AddListComment5"),
                                 [
-                                {text: 'OK', onPress: () => console.log('OK Pressed')},
+                                {text: translate("OK"), onPress: () => console.log('OK Pressed')},
                                 ],
                                 { cancelable: false }
                             );
@@ -405,14 +408,9 @@ export default class EditList extends Component {
                         .then(async () => {
                             await firestore()
                             .collection("Users")
-                            .where("email", "==", auth().currentUser.email)
-                            .get()
-                            .then(async (querySnapshot) => {
-                                querySnapshot.forEach(async (documentSnapshot) => {
-                                    await documentSnapshot.ref.update({
-                                        modifyDate: firestore.Timestamp.fromMillis((new Date()).getTime()),
-                                    });
-                                });
+                            .doc(auth().currentUser.email)
+                            .update({
+                                modifyDate: firestore.Timestamp.fromMillis((new Date()).getTime()),
                             });
                             var updateData = this.state.data;
                             for (var i=0; i < this.state.data.length; i++) {
@@ -431,10 +429,10 @@ export default class EditList extends Component {
                                     data: [...this.state.preData, ...this.state.data] /// this.state.preData+ this.state.data
                                 });
                             Alert.alert(
-                                'Success',
-                                'Successfully uploaded.',
+                                translate("Success"),
+                                translate("AddListComment7"), //성공적으로 업로드됐습니다.
                                 [
-                                {text: 'OK', onPress: () => {
+                                {text: translate('OK'), onPress: () => {
                                     if (interstitial.loaded) {
                                         interstitial.show();
                                     }
@@ -447,7 +445,7 @@ export default class EditList extends Component {
                             );
                         });
                     }}>
-                        <Text style={styles.loginText}>Edit List</Text> //목록 수정
+                        <Text style={styles.loginText}>{translate("EditList")}</Text>
                     </TouchableOpacity>
                 </ScrollView>}
             </SafeAreaView>

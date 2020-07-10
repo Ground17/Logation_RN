@@ -26,6 +26,8 @@ import { InterstitialAd, TestIds } from '@react-native-firebase/admob';
 import storage from '@react-native-firebase/storage';
 import firestore from '@react-native-firebase/firestore';
 
+import { translate } from '../Utils';
+
 const adBannerUnitId = __DEV__ ? TestIds.BANNER : 
     (Platform.OS == 'ios' 
     ? 'ca-app-pub-1477690609272793/3050510769' 
@@ -84,41 +86,38 @@ export default class AddList extends Component {
                 {this.state.loading ? 
                 <View style={styles.buttonContainer}>
                     <ActivityIndicator size="large" color="#002f6c" />
-                    <Text> The more pictures you have, the more time it can take to upload. </Text> 
-                    /* 사진이 많을수록 업로드 시간이 오래걸립니다.
-                    */ 
+                    <Text> {translate("AddListComment1")} </Text> 
                 </View>
                 : <ScrollView 
                     contentContainerStyle={styles.viewContainer}
                     style={{flex: 1, width: "100%"}}
                 >
                     <View style={{height: 200, width: 100, alignItems: 'center', justifyContent: 'center', flexDirection: 'row'}}>
-                        <Text> Category </Text>
-                        // 카테고리
+                        <Text> {translate("Category")} </Text>
                         <Picker
                             selectedValue={this.state.category}
                             style={{width: 130}}
                             onValueChange={(itemValue, itemIndex) =>
                                 this.setState({category: itemValue})
                             }>
-                            <Picker.Item label="Travel" value="Travel" /> //여행
-                            <Picker.Item label="Daily Life" value="Daily Life" /> //일상
-                            <Picker.Item label="Entertainment" value="Entertainment" /> //여가
-                            <Picker.Item label="Sports" value="Sports" /> //스포츠
-                            <Picker.Item label="News" value="News" /> //뉴스
-                            <Picker.Item label="Education" value="Education" /> //교육
-                            <Picker.Item label="Other" value="Other" /> //기타
+                            <Picker.Item label={translate("Travel")} value="Travel" />
+                            <Picker.Item label={translate("DailyLife")} value="Daily Life" />
+                            <Picker.Item label={translate("Entertainment")} value="Entertainment" />
+                            <Picker.Item label={translate("Sports")} value="Sports" />
+                            <Picker.Item label={translate("News")} value="News" />
+                            <Picker.Item label={translate("Education")} value="Education" />
+                            <Picker.Item label={translate("Other")} value="Other" />
                         </Picker>
-                        <Text> View Mode </Text>
+                        <Text> {translate("ViewMode")} </Text>
                         <Picker
                             selectedValue={this.state.viewmode}
                             style={{width: 90}}
                             onValueChange={(itemValue, itemIndex) =>
                                 this.setState({viewmode: itemValue})
                             }>
-                            <Picker.Item label="Map" value="Map" />  //지도
-                            <Picker.Item label="List" value="List" /> //목록
-                            <Picker.Item label="Grid" value="Grid" />
+                            <Picker.Item label={translate("Map")} value="Map" />
+                            <Picker.Item label={translate("List")} value="List" />
+                            <Picker.Item label={translate("Grid")} value="Grid" />
                         </Picker>
                     </View>
                     <Text
@@ -128,7 +127,7 @@ export default class AddList extends Component {
                     </Text> 
                     {this.state.show && <DateTimePicker
                         style={{width: "110%"}}
-                        mode="date" //날짜
+                        mode="date"
                         value={this.state.date}
                         is24Hour={true}
                         display="default" 
@@ -147,7 +146,7 @@ export default class AddList extends Component {
                     />}
                     {this.state.show && <DateTimePicker
                         style={{width: "110%"}}
-                        mode="time" //시간
+                        mode="time"
                         value={this.state.date}
                         is24Hour={true}
                         display="default"
@@ -168,7 +167,7 @@ export default class AddList extends Component {
                             onChangeText = {(title) => this.setState({title})}
                             inputStyle={styles.inputs}
                             maxLength={40}
-                            placeholder='Title' //제목
+                            placeholder={translate("Title")}
                             placeholderTextColor="#bdbdbd"
                             leftIcon={
                                 <Icon
@@ -185,7 +184,7 @@ export default class AddList extends Component {
                             onChangeText = {(subtitle) => this.setState({subtitle})}
                             inputStyle={styles.inputs}
                             maxLength={140}
-                            placeholder='Subtitle' //부제목
+                            placeholder={translate("Subtitle")}
                             placeholderTextColor="#bdbdbd"
                             leftIcon={
                                 <Icon
@@ -198,9 +197,10 @@ export default class AddList extends Component {
                     </View>
                     <View style={styles.cellView}>
                         <Input
+                            autoCapitalize='none'
                             onChangeText = {(link) => this.setState({link})}
                             inputStyle={styles.inputs}
-                            placeholder='URL Link (must contain "https://")' //URL 링크 ("https://"로 시작)
+                            placeholder={translate("URLLink")}
                             placeholderTextColor="#bdbdbd"
                             leftIcon={
                                 <Icon
@@ -211,7 +211,7 @@ export default class AddList extends Component {
                             }
                         />
                     </View>
-                    <Text style={{textAlign: 'center'}}> Press to delete. Drag to move. </Text> //삭제를 원하신다면 왼쪽으로 드래그해주세요.
+                    <Text style={{textAlign: 'center'}}> {translate("AddListComment2")} </Text>
                     <View style={{ flex: 1, width: "84%" }}>
                         <DraggableFlatList
                             keyExtractor={this.keyExtractor}
@@ -296,11 +296,11 @@ export default class AddList extends Component {
                             } 
                         });
                     }}>
-                        <Text style={styles.loginText}>Add Photos</Text> //사진 추가
+                        <Text style={styles.loginText}>{translate("AddPhotos")}</Text>
                     </TouchableOpacity>
                     <CheckBox
                         containerStyle={styles.cell}
-                        title='Contain location information in photos' //사진의 위치정보 포함
+                        title={translate("AddListComment3")}
                         iconType='material'
                         checkedIcon='check-box'
                         uncheckedIcon='check-box-outline-blank'
@@ -310,7 +310,7 @@ export default class AddList extends Component {
                     />
                     <CheckBox
                         containerStyle={styles.cell}
-                        title='Contain date information in photos' //사진의 날짜정보 포함
+                        title={translate("AddListComment4")}
                         iconType='material'
                         checkedIcon='check-box'
                         uncheckedIcon='check-box-outline-blank'
@@ -321,10 +321,10 @@ export default class AddList extends Component {
                     <TouchableOpacity style={[styles.buttonContainer, styles.loginButton, {height:45, width: "80%", borderRadius:5,}]} onPress={async () => {
                         if (this.state.title.length < 1 || this.state.title.subtitle < 1 || this.state.title.link < 1) {
                             Alert.alert(
-                                'Error',
-                                'Please fill blank.',
+                                translate("Error"),
+                                translate("AddListComment5"),
                                 [
-                                {text: 'OK', onPress: () => console.log('OK Pressed')},
+                                {text: translate("OK"), onPress: () => console.log('OK Pressed')},
                                 ],
                                 { cancelable: false }
                             );
@@ -332,10 +332,10 @@ export default class AddList extends Component {
                         }
                         if (this.state.data.length < 1) {
                             Alert.alert(
-                                'Error',
-                                'Please add at least one photo.', //하나 이상의 사진을 추가해주세요.
+                                translate("Error"),
+                                translate("AddListComment6"), //하나 이상의 사진을 추가해주세요.
                                 [
-                                {text: 'OK', onPress: () => console.log('OK Pressed')},
+                                {text: translate("OK"), onPress: () => console.log('OK Pressed')},
                                 ],
                                 { cancelable: false }
                             );
@@ -377,14 +377,9 @@ export default class AddList extends Component {
                         .then(async (documentSnapshot) => {
                             await firestore()
                             .collection("Users")
-                            .where("email", "==", auth().currentUser.email)
-                            .get()
-                            .then(async (querySnapshot) => {
-                                querySnapshot.forEach(async (documentSnapshot) => {
-                                    await documentSnapshot.ref.update({
-                                        modifyDate: firestore.Timestamp.fromMillis((new Date()).getTime()),
-                                    });
-                                });
+                            .doc(auth().currentUser.email)
+                            .update({
+                                modifyDate: firestore.Timestamp.fromMillis((new Date()).getTime()),
                             });
                             var filename = this.state.thumbnail.split('/');
 
@@ -411,10 +406,10 @@ export default class AddList extends Component {
                                     data: this.state.data
                                 });
                             Alert.alert(
-                                'Success', //성공
-                                'Successfully uploaded.', //성공적으로 업로드됐습니다.
+                                translate("Success"),
+                                translate("AddListComment7"), //성공적으로 업로드됐습니다.
                                 [
-                                {text: 'OK', onPress: () => console.log('OK Pressed')},
+                                {text: translate("OK"), onPress: () => console.log('OK Pressed')},
                                 ],
                                 { cancelable: false }
                             );
@@ -426,7 +421,7 @@ export default class AddList extends Component {
                             this.props.navigation.pop();
                         });
                     }}>
-                        <Text style={styles.loginText}>Add List</Text> //목록에 추가
+                        <Text style={styles.loginText}>{translate("AddList")}</Text>
                     </TouchableOpacity>
                 </ScrollView>}
             </SafeAreaView>

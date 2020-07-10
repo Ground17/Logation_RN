@@ -17,6 +17,8 @@ import firestore from '@react-native-firebase/firestore';
 
 import auth from '@react-native-firebase/auth';
 
+import { translate } from '../Utils';
+
 export default class Search extends Component {
   state = {
     search: '',
@@ -107,10 +109,10 @@ export default class Search extends Component {
           return;
         }
         Alert.alert(
-          'My account',
+          translate('MyAccount'),
           item.email,
           [
-          {text: 'OK', onPress: () => console.log('OK Pressed')},
+          {text: translate('OK'), onPress: () => console.log('OK Pressed')},
           ],
           { cancelable: false }
         );
@@ -123,8 +125,9 @@ export default class Search extends Component {
       <SafeAreaView style={styles.container}>
         <SearchBar
             lightTheme
+            autoCapitalize='none'
             containerStyle={styles.cellView}
-            placeholder="Type Here for search users..."
+            placeholder={translate("SearchComment1")} //사용자의 이름을 입력해주세요...
             onChangeText={this.updateSearch}
             value={this.state.search}
             searchIcon={false}

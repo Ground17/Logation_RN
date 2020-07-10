@@ -13,14 +13,16 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 
 import auth from '@react-native-firebase/auth';
 
+import { translate } from '../Utils';
+
 export default class ResetPassword extends Component {
     async createEmail(email, password, passwordConfirm) {
         if (email == null || !email.includes('@')) {
             Alert.alert(
-                'Invalid value', //정확하지 않은 정보
-                'Please check your email.', //이메일을 확인해주세요.
+                translate("InvalidValue"), //정확하지 않은 정보
+                translate("ResetPasswordComment1"), //이메일을 확인해주세요.
                     [
-                        {text: 'OK', onPress: () => console.log('OK Pressed')},
+                        {text: translate('OK'), onPress: () => console.log('OK Pressed')},
                     ],
                 { cancelable: false }
             );
@@ -30,20 +32,20 @@ export default class ResetPassword extends Component {
         .sendPasswordResetEmail(email)
         .then(() => {
             Alert.alert(
-                'Sended email for reset!', //초기화를 위한 이메일을 전송했습니다.
-                'Please check email in ' + email + '.', //이메일을 확인해주세요
+                translate('ResetPasswordComment2'), //초기화를 위한 이메일을 전송했습니다.
+                translate("ResetPasswordComment3") + email, //이메일을 확인해주세요
                 [
-                    {text: 'OK', onPress: () => {this.props.navigation.goBack()}},
+                    {text: translate('OK'), onPress: () => {this.props.navigation.goBack()}},
                 ],
                 { cancelable: false }
             );
         })
         .catch(error => {
             Alert.alert(
-            'Error',
+            translate('Error'),
             error.toString(),
             [
-                {text: 'OK', onPress: () => console.log('OK Pressed')},
+                {text: translate('OK'), onPress: () => console.log('OK Pressed')},
             ],
             { cancelable: false }
             );
@@ -67,7 +69,7 @@ export default class ResetPassword extends Component {
         <SafeAreaView style={styles.container}>
             <View style={styles.cellView}>
                 <Input
-                placeholder='Email'
+                placeholder={translate('Email')}
                 placeholderTextColor="#bdbdbd"
                 onChangeText = {(email) => this.setState({email})}
                 leftIcon={
@@ -83,7 +85,7 @@ export default class ResetPassword extends Component {
             <TouchableOpacity style={[styles.buttonContainer, styles.signUpButton]} onPress={() => { 
                 this.createEmail(this.state.email, this.state.password, this.state.passwordConfirm)
             }}>
-                <Text style={styles.signUpText}>Send email for reset</Text>
+                <Text style={styles.signUpText}>{translate("ResetPasswordComment4")}</Text>
             </TouchableOpacity>
         </SafeAreaView>
         );
