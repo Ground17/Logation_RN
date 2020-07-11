@@ -77,6 +77,7 @@ export default class EditList extends Component {
     )
 
     async componentDidMount() {
+        this.props.navigation.setOptions({ title: translate("EditList") });
         if (!interstitial.loaded) {
             interstitial.load();
         }

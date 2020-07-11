@@ -148,7 +148,6 @@ export default class App extends Component {
             <Stack.Screen options={{headerShown: false}} name="SplashScreen" component={SplashScreen} />
             <Stack.Screen options={{headerShown: false}} name="Login" component={Login} />
             <Stack.Screen name="SignUp" component={SignUp} options={{
-              title: translate("SignUp"),
               headerStyle: {
                 backgroundColor: '#002f6c',
               },
@@ -158,7 +157,6 @@ export default class App extends Component {
               },
             }}/>
             <Stack.Screen name="ResetPassword" component={ResetPassword}  options={{
-              title: translate("ResetPassword"),
               headerStyle: {
                 backgroundColor: '#002f6c',
               },
@@ -169,7 +167,6 @@ export default class App extends Component {
             }}/>
             <Stack.Screen options={{headerShown: false}} name="Main" component={Main} />
             <Stack.Screen name="Notification" component={Notification} options={{
-              title: translate("Notifications"),
               headerStyle: {
                 backgroundColor: '#002f6c',
               },
@@ -179,7 +176,6 @@ export default class App extends Component {
               },
             }}/>
             <Stack.Screen name="ShowScreen" component={ShowScreen} options={{
-              title: translate("ShowScreen"),
               headerStyle: {
                 backgroundColor: '#002f6c',
               },
@@ -189,7 +185,6 @@ export default class App extends Component {
               },
             }}/>
             <Stack.Screen name="ShowItem" component={ShowItem} options={{
-              title: translate("ShowItem"),
               headerStyle: {
                 backgroundColor: '#002f6c',
               },
@@ -199,7 +194,6 @@ export default class App extends Component {
               },
             }}/>
             <Stack.Screen name="AddList" component={AddList} options={{
-              title: translate("AddList"),
               headerStyle: {
                 backgroundColor: '#002f6c',
               },
@@ -209,7 +203,6 @@ export default class App extends Component {
               },
             }}/>
             <Stack.Screen name="EditProfile" component={EditProfile} options={{
-              title: translate("EditProfile"),
               headerStyle: {
                 backgroundColor: '#002f6c',
               },
@@ -219,7 +212,6 @@ export default class App extends Component {
               },
             }}/>
             <Stack.Screen name="EditScreen" component={EditScreen} options={{
-              title: translate("EditScreen"),
               headerStyle: {
                 backgroundColor: '#002f6c',
               },
@@ -229,7 +221,6 @@ export default class App extends Component {
               },
             }}/>
             <Stack.Screen name="EditList" component={EditList} options={{
-              title: translate("EditList"),
               headerStyle: {
                 backgroundColor: '#002f6c',
               },
@@ -239,7 +230,6 @@ export default class App extends Component {
               },
             }}/>
             <Stack.Screen name="EditItem" component={EditItem} options={{
-              title: translate("EditItem"),
               headerStyle: {
                 backgroundColor: '#002f6c',
               },
@@ -249,7 +239,6 @@ export default class App extends Component {
               },
             }}/>
             <Stack.Screen name="Settings" component={UserSetting} options={{
-              title: translate("Settings"),
               headerStyle: {
                 backgroundColor: '#002f6c',
               },
@@ -259,7 +248,6 @@ export default class App extends Component {
               },
             }}/>
             <Stack.Screen name="Other" component={Other} options={{
-              title: translate("OtherAccount"),
               headerStyle: {
                 backgroundColor: '#002f6c',
               },
@@ -269,7 +257,6 @@ export default class App extends Component {
               },
             }}/>
             <Stack.Screen name="Following" component={Following} options={{
-              title: translate("Followings"),
               headerStyle: {
                 backgroundColor: '#002f6c',
               },
@@ -279,7 +266,6 @@ export default class App extends Component {
               },
             }}/>
             <Stack.Screen name="Purchase" component={Purchase} options={{
-              title: translate("Purchase"),
               headerStyle: {
                 backgroundColor: '#002f6c',
               },
@@ -289,7 +275,6 @@ export default class App extends Component {
               },
             }}/>
             <Stack.Screen name="Language" component={Language} options={{
-              title: translate("Language"),
               headerStyle: {
                 backgroundColor: '#002f6c',
               },

@@ -16,6 +16,10 @@ import auth from '@react-native-firebase/auth';
 import { translate } from '../Utils';
 
 export default class SignUp extends Component {
+    async componentDidMount() {
+        this.props.navigation.setOptions({ title: translate("SignUp") });
+    }
+
     async createEmail(email, password, passwordConfirm) {
         if (email == null || !email.includes('@')) {
             Alert.alert(

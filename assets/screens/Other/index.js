@@ -146,6 +146,7 @@ export default class Other extends Component {
     }
 
     async componentDidMount() {
+        this.props.navigation.setOptions({ title: translate("OtherAccount") });
         this.refresh();
     }
 

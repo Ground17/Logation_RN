@@ -180,6 +180,7 @@ export default class ShowScreen extends Component {
     
     async componentDidMount() {
       this.props.navigation.setOptions({
+        title: translate("ShowScreen"),
         headerRight: () => 
         <View style={{flexDirection: 'row',
                 alignItems: 'center',

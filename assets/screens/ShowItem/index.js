@@ -36,6 +36,7 @@ export default class ShowItem extends Component {
     
     async componentDidMount() {
       this.props.navigation.setOptions({
+        title: translate("ShowItem"),
         headerRight: () => 
         <View style={{flexDirection: 'row',
                 alignItems: 'center',

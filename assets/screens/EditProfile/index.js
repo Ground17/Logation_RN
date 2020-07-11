@@ -44,6 +44,7 @@ export default class EditProfile extends Component {
     }
 
     async componentDidMount() {
+        this.props.navigation.setOptions({ title: translate("EditProfile") });
         this.setState({nickname: await auth().currentUser.displayName});
         this.setState({profileURL: this.props.route.params.profileURL});
         if (!interstitial.loaded) {

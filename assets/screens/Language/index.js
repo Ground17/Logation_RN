@@ -1,5 +1,5 @@
-import React, { useContext } from 'react';
-import { View, Text, TouchableOpacity, SafeAreaView, StyleSheet,} from 'react-native';
+import React, { useContext, useEffect } from 'react';
+import { View, Text, TouchableOpacity, SafeAreaView, StyleSheet, Alert} from 'react-native';
 import { translationGetters, LocalizationContext, translate } from '../Utils';
 // import * as RNLocalize from 'react-native-localize';
 import { ListItem } from 'react-native-elements';
@@ -17,10 +17,14 @@ export default Language = ({navigation}) => {
     RNRestart.Restart();
   };
 
+  useEffect(() => {
+    navigation.setOptions({ title: translate("Language") });
+  }, []);
+
   const alert = language => {
     Alert.alert(
       translate("Confirm"),
-      translate("LanguageComment1") + translate(language);
+      translate("LanguageComment1") + translate(language),
       [
           {text: translate('Cancel'), onPress: () => {}},
           {text: translate('OK'), onPress: () => { handleSetLanguage(language); }},

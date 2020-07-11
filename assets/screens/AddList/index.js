@@ -75,6 +75,7 @@ export default class AddList extends Component {
     )
 
     async componentDidMount() {
+        this.props.navigation.setOptions({ title: translate("AddList") });
         if (!interstitial.loaded) {
             interstitial.load();
         }

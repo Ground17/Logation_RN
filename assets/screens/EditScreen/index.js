@@ -340,6 +340,7 @@ export default class EditScreen extends Component {
     
     async componentDidMount() {
       this.props.navigation.setOptions({
+        title: translate("EditScreen"),
         headerRight: () => 
         <View style={{flexDirection: 'row',
                 alignItems: 'center',

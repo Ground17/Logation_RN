@@ -13,7 +13,12 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 
 import auth from '@react-native-firebase/auth';
 
+import { translate } from '../Utils';
+
 export default class Notification extends Component {
+  async componentDidMount() {
+    this.props.navigation.setOptions({ title: translate("Notifications") });
+  }
 
   render() {
     return(

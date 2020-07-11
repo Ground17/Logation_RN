@@ -39,6 +39,7 @@ export default class UserSetting extends Component {
   };
 
   async componentDidMount() {
+    this.props.navigation.setOptions({ title: translate("Settings") });
     const price = await getlocalizedPrice();
     if (price) {
       this.setState({

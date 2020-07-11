@@ -1,0 +1,9 @@
+/* 
+  infoPlist.strings
+  Trevelog
+
+  Created by 유지상 on 2020/07/10.
+  Copyright © 2020 Facebook. All rights reserved.
+*/
+NSLocationWhenInUseUsageDescription = "지도상에서 당신의 위치를 확인하기 위해서입니다. 당신의 위치는 당신만 볼 수 있으며, 편집 모드에 있는 경우 당신의 위치를 기준으로 사진의 위치를 수정할 수 있습니다.";
+NSPhotoLibraryUsageDescription = "장치에서 서버로 당신의 기기 안 사진과 사진 속 정보(위치, 날짜)를 업로드하고 공유하기 위해서입니다. 당신은 사진 속 정보를 거부하거나 변경할 수 있습니다.";

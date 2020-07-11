@@ -80,6 +80,7 @@ export default class Following extends Component {
 
   async componentDidMount() {
     this.props.navigation.setOptions({
+      title: translate("Followings"),
       headerRight: () => 
       <View style={{flexDirection: 'row'}}>
         <TouchableOpacity style={{

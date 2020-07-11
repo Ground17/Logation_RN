@@ -51,6 +51,7 @@ export default class EditItem extends Component {
     
     async componentDidMount() {
       this.props.navigation.setOptions({
+        title: translate("EditItem"),
         headerRight: () => 
         <View style={{flexDirection: 'row'}}>
             <TouchableOpacity style={{

@@ -16,6 +16,10 @@ import auth from '@react-native-firebase/auth';
 import { translate } from '../Utils';
 
 export default class ResetPassword extends Component {
+    async componentDidMount() {
+        this.props.navigation.setOptions({ title: translate("ResetPassword") });
+    }
+
     async createEmail(email, password, passwordConfirm) {
         if (email == null || !email.includes('@')) {
             Alert.alert(

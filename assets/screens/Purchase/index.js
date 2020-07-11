@@ -40,6 +40,7 @@ export default class Purchase extends Component {
   };
 
   async componentDidMount() {
+    this.props.navigation.setOptions({ title: translate("Purchase") });
     if (this.props.route.params.month && this.props.route.params.year) {
       this.setState({
         month: this.props.route.params.month,
@@ -66,7 +67,6 @@ export default class Purchase extends Component {
     
 
     this.purchaseUpdateSubscription = purchaseUpdatedListener((purchase: InAppPurchase | SubscriptionPurchase | ProductPurchase ) => {
-      console.log('purchaseUpdatedListener', purchase);
       if (purchase.transactionReceipt) {
         if (Platform.OS === 'ios') {
           console.log(purchase.transactionReceipt);
@@ -74,10 +74,10 @@ export default class Purchase extends Component {
             .httpsCallable('saveIOSReceiptIAP')({receipt: purchase.transactionReceipt})
             .then(response => {
               console.log(response);
-              if (response.result) {
+              if (response.data.result) {
                 RNIap.finishTransaction(purchase, false);
               } else {
-                this.setState({log: response.log});
+                this.setState({log: response.data.log});
               }
             }).catch((error) => {
               console.log(error);
@@ -88,10 +88,10 @@ export default class Purchase extends Component {
             .httpsCallable('saveAOSReceiptIAP')({receipt: purchase.transactionReceipt})
             .then(response => {
               console.log(response);
-              if (response.result) {
+              if (response.data.result) {
                 RNIap.finishTransaction(purchase, false);
               } else {
-                this.setState({log: response.log});
+                this.setState({log: response.data.log});
               }
             }).catch((error) => {
               console.log(error);

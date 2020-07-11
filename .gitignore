@@ -5,6 +5,7 @@ node_modules
 !/ios/Trevelog
 /ios/Trevelog/*
 !/ios/Trevelog/infoPlist.strings
+!/ios/Trevelog/info.plist
 
 functions/.eslintrc.json
 .gitignore

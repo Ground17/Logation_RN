@@ -95,18 +95,17 @@ const LocalizationProvider = ({ children }) => {
 };
 
 const getPurchases = async () => {
+  var result = false;
+
   try {
     /// check anroid below
     // await RNIap.getSubscriptions(itemSkus);
     // const purchases = await RNIap.getAvailablePurchases();
 
-    var result = false;
-
-    functions()
+    await functions()
       .httpsCallable('validateReceiptIAP')()
-      .then(response => {
-        console.log(response);
-        if (response.result) {
+      .then(async response => {
+        if (response.data.result) {
           result = true;
         } else {
           result = result || false;
@@ -116,6 +115,8 @@ const getPurchases = async () => {
       });
   } catch (e) {
     console.log(e);
+  } finally {
+    return result;
   }
 };
 
