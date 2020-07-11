@@ -22,6 +22,8 @@ const itemSkus = [
 const APP_LANGUAGE = 'appLanguage';
 const DEFAULT_LANGUAGE = 'en';
 
+var adsFree = false;
+
 const translationGetters = {
   en: () => require('../../translations/en.json'), // 영어
   ko: () => require('../../translations/ko.json'), // 한국어
@@ -47,17 +49,17 @@ const LocalizationContext = createContext({
 const LocalizationProvider = ({ children }) => {
   const [appLanguage, setAppLanguage] = useState(DEFAULT_LANGUAGE);
 
-  const setLanguage = language => {
+  const setLanguage = async language => {
     console.log("language", language);
     setAppLanguage(language);
     translate.cache.clear();
     i18n.translations = { [language]: translationGetters[language]() };
     i18n.locale = language;
-    AsyncStorage.setItem(APP_LANGUAGE, language);
+    await AsyncStorage.setItem(APP_LANGUAGE, language);
+    // adsFree = await getPurchases(); /// 인앱이 구현되었을시 주석 해제!!!
   };
 
   const initializeAppLanguage = async () => {
-    console.log("language");
     const currentLanguage = await AsyncStorage.getItem(APP_LANGUAGE);
 
     if (!currentLanguage) {
@@ -65,17 +67,6 @@ const LocalizationProvider = ({ children }) => {
       const { languageTag } =
         RNLocalize.findBestAvailableLanguage(Object.keys(translationGetters)) ||
         fallback;
-      // let localeCode = DEFAULT_LANGUAGE;
-      // const supportedLocaleCodes = Object.keys(translationGetters);
-      // const phoneLocaleCodes = RNLocalize.getLocales().map(
-      //   locale => locale.languageCode,
-      // );
-      // phoneLocaleCodes.some(code => {
-      //   if (supportedLocaleCodes.includes(code)) {
-      //     localeCode = code;
-      //     return true;
-      //   }
-      // });
       setLanguage(languageTag);
     } else {
       setLanguage(currentLanguage);
@@ -98,24 +89,46 @@ const getPurchases = async () => {
   var result = false;
 
   try {
-    /// check anroid below
-    // await RNIap.getSubscriptions(itemSkus);
-    // const purchases = await RNIap.getAvailablePurchases();
+    /// check android below
+    if (Platform.OS === 'android') {
+      const purchases = await RNIap.getAvailablePurchases();
+      console.log("purchases", purchases);
 
-    await functions()
-      .httpsCallable('validateReceiptIAP')()
-      .then(async response => {
-        if (response.data.result) {
-          result = true;
-        } else {
-          result = result || false;
+      for (var i=0; i < purchases.length; i++) {
+        if (purchases[i].productId == itemSkus[0] || purchases[i].productId == itemSkus[1]) {
+          await functions()
+            .httpsCallable('validateReceiptIAP')({receipt: purchases[i].transactionReceipt})
+            .then(async response => {
+              console.log(response);
+              if (response.data.result) {
+                result = true;
+              } else {
+                result = result || false;
+              }
+            }).catch((error) => {
+              console.log(error);
+            });
         }
-      }).catch((error) => {
-        console.log(error);
-      });
+      }
+    } else {
+      await functions()
+        .httpsCallable('validateReceiptIAP')()
+        .then(async response => {
+          console.log(response);
+          if (response.data.result) {
+            result = true;
+          } else {
+            result = result || false;
+          }
+        }).catch((error) => {
+          console.log(error);
+        });
+    }
+    
   } catch (e) {
     console.log(e);
   } finally {
+    console.log("result", result);
     return result;
   }
 };
@@ -143,5 +156,6 @@ export {
   getPurchases,
   getlocalizedPrice,
   LocalizationContext,
-  LocalizationProvider
+  LocalizationProvider,
+  adsFree,
 }

@@ -26,7 +26,7 @@ import { InterstitialAd, TestIds } from '@react-native-firebase/admob';
 import storage from '@react-native-firebase/storage';
 import firestore from '@react-native-firebase/firestore';
 
-import { translate } from '../Utils';
+import { adsFree, translate } from '../Utils';
 
 const adBannerUnitId = __DEV__ ? TestIds.BANNER : 
     (Platform.OS == 'ios' 
@@ -55,6 +55,7 @@ export default class EditList extends Component {
         thumbnail: '',
         loading: false,
         preData: [], // 기존 데이터
+        ads: true,
         // totalData: [], // 최종 수정 데이터
     };
 
@@ -77,10 +78,6 @@ export default class EditList extends Component {
     )
 
     async componentDidMount() {
-        this.props.navigation.setOptions({ title: translate("EditList") });
-        if (!interstitial.loaded) {
-            interstitial.load();
-        }
         this.setState({
             category: this.props.route.params.category,
             date: this.props.route.params.date,
@@ -88,7 +85,12 @@ export default class EditList extends Component {
             subtitle: this.props.route.params.subtitle,
             link: this.props.route.params.link,
             viewmode: this.props.route.params.viewcode == 0 ? 'Map' : (this.props.route.params.viewcode == 1 ? 'List' : 'Grid'),
+            ads: !adsFree,
         });
+        this.props.navigation.setOptions({ title: translate("EditList") });
+        if (this.state.ads && !interstitial.loaded) {
+            interstitial.load();
+        }
 
         var storageRef = storage().ref();
       
@@ -434,7 +436,7 @@ export default class EditList extends Component {
                                 translate("AddListComment7"), //성공적으로 업로드됐습니다.
                                 [
                                 {text: translate('OK'), onPress: () => {
-                                    if (interstitial.loaded) {
+                                    if (this.state.ads && interstitial.loaded) {
                                         interstitial.show();
                                     }
                                     this.props.route.params.onPop();

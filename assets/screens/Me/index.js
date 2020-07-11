@@ -10,7 +10,7 @@ import {
   Linking
 } from 'react-native';
 
-import { translate, getPurchases } from '../Utils';
+import { adsFree, translate, } from '../Utils';
 
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
@@ -163,11 +163,10 @@ export default class Me extends Component {
     }
 
     async componentDidMount() {
-        if (await getPurchases()) {
-            this.setState({
-                ads: false,
-            });
-        }
+        console.log("adsFree: ", adsFree);
+        this.setState({
+            ads: !adsFree,
+        });
         await requestUserPermission();
         await this.refresh();
     }

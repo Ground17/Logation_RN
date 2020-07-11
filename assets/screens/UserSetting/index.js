@@ -51,15 +51,16 @@ export default class UserSetting extends Component {
 
   alert() {
     Alert.alert(
-      translate("UserSettingComment1"),
-      translate("UserSettingComment2") + translate("UserSettingComment3"),
+      translate("DeleteAccount"),
+      translate("UserSettingComment1") + translate("UserSettingComment2"),
       [
+          {text: translate('Cancel'), onPress: () => console.log('Cancel Pressed'),},
           {text: translate('OK'), onPress: async () => {
             await auth().currentUser.delete()
               .then(() => {
                 Alert.alert(
+                  translate("UserSettingComment3"),
                   translate("UserSettingComment4"),
-                  translate("UserSettingComment5"),
                   [
                       {text: translate('OK'), onPress: () => this.props.navigation.replace("Login")},
                   ],
@@ -78,7 +79,6 @@ export default class UserSetting extends Component {
               });
             }
           },
-          {text: translate('Cancel'), onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
       ],
       { cancelable: false }
       );
@@ -89,12 +89,13 @@ export default class UserSetting extends Component {
       <SafeAreaView style={styles.container}>
         <View style={{width: '100%', alignItems: 'center', justifyContent: 'center', paddingTop: 30}}>
           <TouchableOpacity style={[styles.buttonContainer, styles.loginButton, {height:45, width: "80%", borderRadius:5, marginBottom: 15}]} onPress={() => { 
-            this.props.navigation.push("Purchase", {
-              month: this.state.month,
-              year: this.state.year,
-            });
+            /// 인앱이 구현되었을시 주석 해제!!!
+            // this.props.navigation.push("Purchase", {
+            //   month: this.state.month,
+            //   year: this.state.year,
+            // });
            }}>
-            <Text style={styles.loginText}>{translate("Purchase")}</Text>
+            <Text style={styles.loginText}>{/*translate("Purchase") /// 인앱이 구현되었을시 주석 해제!!! */}</Text>
           </TouchableOpacity>
          
         </View>

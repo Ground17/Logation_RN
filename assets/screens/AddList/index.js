@@ -26,7 +26,7 @@ import { InterstitialAd, TestIds } from '@react-native-firebase/admob';
 import storage from '@react-native-firebase/storage';
 import firestore from '@react-native-firebase/firestore';
 
-import { translate } from '../Utils';
+import { adsFree, translate } from '../Utils';
 
 const adBannerUnitId = __DEV__ ? TestIds.BANNER : 
     (Platform.OS == 'ios' 
@@ -54,6 +54,7 @@ export default class AddList extends Component {
         subtitle: '',
         thumbnail: '',
         loading: false,
+        ads: true,
     };
 
     keyExtractor = (item, index) => index.toString()
@@ -75,8 +76,11 @@ export default class AddList extends Component {
     )
 
     async componentDidMount() {
+        this.setState({
+            ads: !adsFree,
+        });
         this.props.navigation.setOptions({ title: translate("AddList") });
-        if (!interstitial.loaded) {
+        if (this.state.ads && !interstitial.loaded) {
             interstitial.load();
         }
     }
@@ -414,7 +418,7 @@ export default class AddList extends Component {
                                 ],
                                 { cancelable: false }
                             );
-                            if (interstitial.loaded) {
+                            if (this.state.ads && interstitial.loaded) {
                                 interstitial.show();
                             }
                             this.setState({loading: false});

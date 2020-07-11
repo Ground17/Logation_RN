@@ -22,7 +22,9 @@ import RNIap, {
   purchaseUpdatedListener,
   type ProductPurchase,
   type PurchaseError,
-} from 'react-native-iap'; // 확인 필요
+} from 'react-native-iap';
+
+import RNRestart from 'react-native-restart';
 
 const itemSkus = [
   'adfree_for_1month',
@@ -76,6 +78,17 @@ export default class Purchase extends Component {
               console.log(response);
               if (response.data.result) {
                 RNIap.finishTransaction(purchase, false);
+                Alert.alert(
+                  translate('Success'),
+                  translate('PurchaseComment2'),
+                  [
+                  {text: translate('Cancel'), onPress: () => {  }},
+                  {text: translate('OK'), onPress: () => {
+                    RNRestart.Restart();
+                  }},
+                  ],
+                  { cancelable: false }
+                );
               } else {
                 this.setState({log: response.data.log});
               }
@@ -90,6 +103,17 @@ export default class Purchase extends Component {
               console.log(response);
               if (response.data.result) {
                 RNIap.finishTransaction(purchase, false);
+                Alert.alert(
+                  translate('Success'),
+                  translate('PurchaseComment2'),
+                  [
+                  {text: translate('Cancel'), onPress: () => {  }},
+                  {text: translate('OK'), onPress: () => {
+                    RNRestart.Restart();
+                  }},
+                  ],
+                  { cancelable: false }
+                );
               } else {
                 this.setState({log: response.data.log});
               }
@@ -102,7 +126,7 @@ export default class Purchase extends Component {
     });
  
     this.purchaseErrorSubscription = purchaseErrorListener((error: PurchaseError) => {
-      Alert.alert("Purchase Error");
+      this.setState({log: error});
       console.warn('purchaseErrorListener', error);
     });
   }
@@ -158,9 +182,9 @@ export default class Purchase extends Component {
           </TouchableOpacity>
           <TouchableOpacity onPress={() => { 
             if (Platform.OS === 'android') {
-              Linking.openURL('https://play.google.com/store/account/subscriptions')
-            } else {
               Linking.openURL('https://apps.apple.com/account/subscriptions')
+            } else {
+              Linking.openURL('https://play.google.com/store/account/subscriptions')
             }
            }}>
             <Text>{translate("PurchaseComment1")}</Text>

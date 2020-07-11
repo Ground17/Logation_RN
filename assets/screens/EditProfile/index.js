@@ -22,7 +22,7 @@ import { InterstitialAd, TestIds, } from '@react-native-firebase/admob';
 import storage from '@react-native-firebase/storage';
 import firestore from '@react-native-firebase/firestore';
 
-import { translate } from '../Utils';
+import { adsFree, translate } from '../Utils';
 
 const adBannerUnitId = __DEV__ ? TestIds.BANNER : 
     (Platform.OS == 'ios' 
@@ -41,13 +41,18 @@ export default class EditProfile extends Component {
         nickname: '',
         profileURL: '',
         loading: false,
+        ads: true,
     }
 
     async componentDidMount() {
+        this.setState({
+            ads: !adsFree,
+            nickname: await auth().currentUser.displayName,
+            profileURL: this.props.route.params.profileURL
+        });
         this.props.navigation.setOptions({ title: translate("EditProfile") });
-        this.setState({nickname: await auth().currentUser.displayName});
-        this.setState({profileURL: this.props.route.params.profileURL});
-        if (!interstitial.loaded) {
+        
+        if (this.state.ads && !interstitial.loaded) {
             interstitial.load();
         }
     }
@@ -147,7 +152,7 @@ export default class EditProfile extends Component {
                         } catch (e) {
                             console.log(e);
                         } finally {
-                            if (interstitial.loaded) {
+                            if (this.state.ads && interstitial.loaded) {
                                 interstitial.show();
                             }
                             this.props.navigation.replace('Main');

@@ -20,7 +20,7 @@ import { InterstitialAd, BannerAd, TestIds, BannerAdSize } from '@react-native-f
 import storage from '@react-native-firebase/storage';
 import firestore from '@react-native-firebase/firestore';
 
-import { translate } from '../Utils';
+import { adsFree, translate } from '../Utils';
 
 const adBannerUnitId = __DEV__ ? TestIds.BANNER : 
     (Platform.OS == 'ios' 
@@ -47,6 +47,7 @@ export default class Other extends Component {
         documentID: '',
         documentIDforMe: '',
         loading: false,
+        ads: true,
     }
 
     async refresh() {
@@ -146,6 +147,9 @@ export default class Other extends Component {
     }
 
     async componentDidMount() {
+        this.setState({
+            ads: !adsFree,
+        });
         this.props.navigation.setOptions({ title: translate("OtherAccount") });
         this.refresh();
     }
@@ -307,10 +311,10 @@ export default class Other extends Component {
                         </View>
                     </View>
                     <View style={{alignItems: 'center',}}>
-                        <BannerAd 
+                        {this.state.ads && <BannerAd 
                             unitId={adBannerUnitId} 
                             size={BannerAdSize.BANNER}
-                        />
+                        />}
                     </View>
                     <FlatList
                         keyExtractor={this.keyExtractor}

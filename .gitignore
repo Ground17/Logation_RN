@@ -4,7 +4,7 @@ node_modules
 /ios/*
 !/ios/Trevelog
 /ios/Trevelog/*
-!/ios/Trevelog/infoPlist.strings
+!/ios/Trevelog/InfoPlist.strings
 !/ios/Trevelog/info.plist
 
 functions/.eslintrc.json

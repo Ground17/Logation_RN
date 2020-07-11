@@ -21,7 +21,7 @@ import { InterstitialAd, BannerAd, TestIds, BannerAdSize } from '@react-native-f
 import storage from '@react-native-firebase/storage';
 import firestore from '@react-native-firebase/firestore';
 
-import { translate } from '../Utils';
+import { adsFree, translate } from '../Utils';
 
 const adBannerUnitId = __DEV__ ? TestIds.BANNER : 
     (Platform.OS == 'ios' 
@@ -36,6 +36,7 @@ const adInterstitialUnitId = __DEV__ ? TestIds.INTERSTITIAL :
 export default class Home extends Component {
     state = {
         list: [],
+        ads: true,
     }
 
     async refresh() {
@@ -99,6 +100,9 @@ export default class Home extends Component {
     }
 
     async componentDidMount() {
+        this.setState({
+            ads: !adsFree,
+        });
         this.refresh();
     }
 
@@ -215,10 +219,10 @@ export default class Home extends Component {
                         </View>
                     </View>
                     <View style={{alignItems: 'center'}}>
-                        <BannerAd 
+                        {this.state.ads && <BannerAd 
                             unitId={adBannerUnitId} 
                             size={BannerAdSize.BANNER}
-                        />
+                        />}
                     </View>
                 </View>
                 <FlatList

@@ -23,7 +23,7 @@ import appleAuth, {
 
 import { InterstitialAd, BannerAd, TestIds, BannerAdSize } from '@react-native-firebase/admob';
 
-import { translate } from '../Utils';
+import { adsFree, translate } from '../Utils';
 
 const adBannerUnitId = __DEV__ ? TestIds.BANNER : 
     (Platform.OS == 'ios' 
@@ -36,6 +36,11 @@ const adInterstitialUnitId = __DEV__ ? TestIds.INTERSTITIAL :
     : 'ca-app-pub-1477690609272793/9626786110');
 
 export default class Login extends Component {
+  state = {
+    email: '',
+    password: '',
+    ads: true,
+  }
   async appleLogin() {
     try {
       // 1). start a apple sign-in request
@@ -150,9 +155,12 @@ export default class Login extends Component {
       }
   }
 
-  state = {
-    email: '',
-    password: '',
+  async componentDidMount() {
+    this.setState({
+      email: '',
+      password: '',
+      ads: !adsFree,
+    });
   }
 
   render() {
@@ -228,10 +236,10 @@ export default class Login extends Component {
             <View style={{alignSelf:'center', position:'absolute', borderBottomColor:'gray', borderBottomWidth:1, height:'50%', width:'80%'}}/>
         </View>
         <View style={{width: "80%", alignItems: "center"}}>
-          <BannerAd 
+          {this.state.ads && <BannerAd 
             unitId={adBannerUnitId} 
             size={BannerAdSize.BANNER}
-          />
+          />}
         </View>
       </SafeAreaView>
     );
