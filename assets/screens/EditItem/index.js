@@ -31,6 +31,8 @@ import firestore from '@react-native-firebase/firestore';
 
 import { translate } from '../Utils';
 
+const locations = [[37.551161, 126.988228], [35.658405, 139.745300], [40.689306, -74.044361], [51.500700, -0.124607], [48.858369, 2.294480], [-33.856792, 151.214657], [40.431867, 116.570375]];
+
 export default class EditItem extends Component {
     state = {
       imgWidth: 0,
@@ -385,9 +387,10 @@ export default class EditItem extends Component {
                     }
                   } catch (e) { // location data가 없는 것으로 추정
                     console.log(e);
+                    var random = Math.floor(Math.random() * locations.length);
                     this.setState({
-                      lat: 37,
-                      long: 127,
+                      lat: locations[random][0],
+                      long: locations[random][1],
                       changed: true,
                       url: image.path,
                     });

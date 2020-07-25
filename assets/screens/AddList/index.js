@@ -40,6 +40,8 @@ const adInterstitialUnitId = __DEV__ ? TestIds.INTERSTITIAL :
 
 const interstitial = InterstitialAd.createForAdRequest(adInterstitialUnitId);
 
+const locations = [[37.551161, 126.988228], [35.658405, 139.745300], [40.689306, -74.044361], [51.500700, -0.124607], [48.858369, 2.294480], [-33.856792, 151.214657], [40.431867, 116.570375]];
+
 export default class AddList extends Component {
     state = {
         category: 'Travel',
@@ -283,11 +285,12 @@ export default class AddList extends Component {
                                     }
                                 } catch (e) { // location data가 없는 것으로 추정
                                     console.log(e);
+                                    var random = Math.floor(Math.random() * locations.length);
                                     this.setState({
                                         data: this.state.data.concat({ 
                                             date: firestore.Timestamp.fromMillis(parseInt(images[i].modificationDate) * factor),
-                                            lat: 37,
-                                            long: 127,
+                                            lat: locations[random][0],
+                                            long: locations[random][1],
                                             photo: images[i].path,
                                             title: i.toString(),
                                             subtitle: i.toString(),
@@ -348,9 +351,11 @@ export default class AddList extends Component {
                         }
                         if (!this.state.locationChecked) {
                             var updateData = this.state.data;
+                            var random = 0;
                             for (var i = 0; i < updateData.length; i++) {
-                                updateData[i].lat = 37;
-                                updateData[i].long = 127;
+                                random = Math.floor(Math.random() * locations.length);
+                                updateData[i].lat = locations[random][0];
+                                updateData[i].long = locations[random][1];
                             }
                             this.setState({
                                 data: updateData,

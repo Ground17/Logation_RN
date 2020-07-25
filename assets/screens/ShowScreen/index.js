@@ -383,20 +383,29 @@ export default class ShowScreen extends Component {
                       throw "Document does not exist!";
                     }
 
-                    var updateLike = data.like;
-                    updateLike[auth().currentUser.email] = false;
+                    var updateLike = this.state.like;
+                    if (updateLike.hasOwnProperty(auth().currentUser.email) && !updateLike[auth().currentUser.email]) {
+                      delete updateLike[auth().currentUser.email];
+                    } else {
+                      updateLike[auth().currentUser.email] = false;
+                    }
                     await transaction.update(sfDocRef, { like: updateLike });
                     var localLikeCount = 0;
                     var localDislikeCount = 0;
-                    Object.keys(data.like).map((key, i) => {
+
+                    this.setState({
+                      liked: false,
+                      disliked: false,
+                    });
+                    Object.keys(updateLike).map((key, i) => {
                       if (key == auth().currentUser.email) {
                         this.setState({
-                          liked: data.like[key],
-                          disliked: !data.like[key],
+                          liked: updateLike[key],
+                          disliked: !updateLike[key],
                         });
                       }
 
-                      if (data.like[key]) {
+                      if (updateLike[key]) {
                         localLikeCount++;
                       } else {
                         localDislikeCount++;
@@ -406,8 +415,6 @@ export default class ShowScreen extends Component {
                       like: updateLike,
                       likeCount: localLikeCount,
                       dislikeCount: localDislikeCount,
-                      liked: false,
-                      disliked: true,
                     });
                   }).then(async () => {
                       console.log("success");
@@ -433,20 +440,29 @@ export default class ShowScreen extends Component {
                       throw "Document does not exist!";
                     }
 
-                    var updateLike = data.like;
-                    updateLike[auth().currentUser.email] = true;
+                    var updateLike = this.state.like;
+                    if (updateLike.hasOwnProperty(auth().currentUser.email) && updateLike[auth().currentUser.email]) {
+                      delete updateLike[auth().currentUser.email];
+                    } else {
+                      updateLike[auth().currentUser.email] = true;
+                    }
                     await transaction.update(sfDocRef, { like: updateLike });
                     var localLikeCount = 0;
                     var localDislikeCount = 0;
-                    Object.keys(data.like).map((key, i) => {
+
+                    this.setState({
+                      liked: false,
+                      disliked: false,
+                    });
+                    Object.keys(updateLike).map((key, i) => {
                       if (key == auth().currentUser.email) {
                         this.setState({
-                          liked: data.like[key],
-                          disliked: !data.like[key],
+                          liked: updateLike[key],
+                          disliked: !updateLike[key],
                         });
                       }
 
-                      if (data.like[key]) {
+                      if (updateLike[key]) {
                         localLikeCount++;
                       } else {
                         localDislikeCount++;
@@ -456,8 +472,6 @@ export default class ShowScreen extends Component {
                       like: updateLike,
                       likeCount: localLikeCount,
                       dislikeCount: localDislikeCount,
-                      liked: true,
-                      disliked: false,
                     });
                   }).then(async () => {
                       console.log("success");
