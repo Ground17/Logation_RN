@@ -61,6 +61,15 @@ const LocalizationProvider = ({ children }) => {
 
   const initializeAppLanguage = async () => {
     const currentLanguage = await AsyncStorage.getItem(APP_LANGUAGE);
+    
+    const locationCheck = await AsyncStorage.getItem('location');
+    if(locationCheck === null) {
+      await AsyncStorage.setItem('location', 'true');
+    }
+    const dateCheck = await AsyncStorage.getItem('date');
+    if(dateCheck === null) {
+      await AsyncStorage.setItem('date', 'true');
+    }
 
     if (!currentLanguage) {
       const fallback = { languageTag: DEFAULT_LANGUAGE };

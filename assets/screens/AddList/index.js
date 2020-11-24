@@ -28,6 +28,8 @@ import firestore from '@react-native-firebase/firestore';
 
 import { adsFree, translate } from '../Utils';
 
+import AsyncStorage from '@react-native-community/async-storage';
+
 const adBannerUnitId = __DEV__ ? TestIds.BANNER : 
     (Platform.OS == 'ios' 
     ? 'ca-app-pub-1477690609272793/3050510769' 
@@ -78,8 +80,12 @@ export default class AddList extends Component {
     )
 
     async componentDidMount() {
+        const locationCheck = await AsyncStorage.getItem('location');
+        const dateCheck = await AsyncStorage.getItem('date');
         this.setState({
             ads: !adsFree,
+            locationChecked: locationCheck == 'true' ? true : false,
+            dateChecked: dateCheck == 'true' ? true : false,
         });
         this.props.navigation.setOptions({ title: translate("AddList") });
         if (this.state.ads && !interstitial.loaded) {
@@ -370,6 +376,11 @@ export default class AddList extends Component {
                                 data: updateData,
                             });
                         }
+
+                        await AsyncStorage.setItem('location', this.state.locationChecked ? 'true' : 'false');
+                        await AsyncStorage.setItem('date', this.state.dateChecked ? 'true' : 'false');
+
+
                         this.setState({loading: true})
                         await firestore()
                         .collection(auth().currentUser.email)
