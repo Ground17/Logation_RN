@@ -12,6 +12,7 @@ import {
   Linking,
   TouchableHighlight,
   PermissionsAndroid,
+  Appearance,
 } from 'react-native';
 
 import FastImage from 'react-native-fast-image';
@@ -51,9 +52,11 @@ export default class ShowScreen extends Component {
     renderItem = ({ item, index }) => (
         <ListItem
             title={item.title}
-            titleStyle={{ fontWeight: 'bold' }}
+            titleStyle={{ fontWeight: 'bold', color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000' }}
             subtitle={item.date.toDate().toString()}
+            subtitleStyle={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}
             leftAvatar={{ source: { uri: item.url }, rounded: false}}
+            containerStyle={{backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#fff'}}
             bottomDivider
             onPress={() => { this.props.navigation.push('ShowItem', {
                     date: item.date.toDate(),
@@ -66,6 +69,7 @@ export default class ShowScreen extends Component {
                     long: item.long,
                     photo: item.photo,
                     index: index,
+                    link: this.state.link,
                     onPop: () => this.refresh(),
                 }) 
             }}
@@ -85,6 +89,7 @@ export default class ShowScreen extends Component {
             long: item.long,
             photo: item.photo,
             index: index,
+            link: this.state.link,
             onPop: () => this.refresh(),
         })
       }} 
@@ -182,100 +187,14 @@ export default class ShowScreen extends Component {
       this.props.navigation.setOptions({
         title: translate("ShowScreen"),
         headerRight: () => 
-        <View style={{flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'center',}}>
-            <TouchableOpacity style={{
-                alignItems: 'center',
-                justifyContent: 'center',
-                paddingLeft: 4,
-                paddingRight: 4,
-              }} onPress={() => {
-                  const url = 'https://footprintwithmap.site/?email=' + this.props.route.params.userEmail + '&id=' + this.props.route.params.itemId + '&viewcode=' + this.state.viewcode;
-                  const title = 'URL Content';
-                  const message = 'Please check this out.';
-                  const options = Platform.select({
-                    ios: {
-                      activityItemSources: [
-                        { // For sharing url with custom title.
-                          placeholderItem: { type: 'url', content: url },
-                          item: {
-                            default: { type: 'url', content: url },
-                          },
-                          subject: {
-                            default: title,
-                          },
-                          linkMetadata: { originalUrl: url, url, title },
-                        },
-                      ],
-                    },
-                    default: {
-                      title,
-                      subject: title,
-                      message: `${message} ${url}`,
-                    },
-                  });
-                  Share.open(options)
-                    .then((res) => { console.log(res) })
-                    .catch((err) => { err && console.log(err); });
-            }}>
-              <Icon
-                name="share"
-                size={20}
-                color='#fff'
-              />
-            </TouchableOpacity>
-            <TouchableOpacity style={{
-                alignItems: 'center',
-                justifyContent: 'center',
-                paddingLeft: 4,
-                paddingRight: 4,
-              }} onPress={() => {
-                if (this.state.viewcode > 1) {
-                  this.setState({
-                    viewcode: 0
-                  });
-                } else {
-                  this.setState({
-                    viewcode: this.state.viewcode + 1
-                  });
-                }
-            }}>
-              <Icon
-                name="tune"
-                size={20}
-                color='#fff'
-              />
-            </TouchableOpacity>
-            <TouchableOpacity style={{
-                alignItems: 'center',
-                justifyContent: 'center',
-                paddingLeft: 4,
-                paddingRight: 4,
-              }} onPress={async () => { 
-                const supported = await Linking.canOpenURL(this.state.link);
-
-                if (supported) {
-                  // Opening the link with some app, if the URL scheme is "http" the web link should be opened
-                  // by some browser in the mobile
-                  await Linking.openURL(this.state.link);
-                } else {
-                  Alert.alert(translate("ShowItemAndShowScreen") + this.state.link);
-                }
-              }}>
-              <Icon
-                name="launch"
-                size={20}
-                color='#fff'
-              />
-            </TouchableOpacity>
+        <View style={{flexDirection: 'row',}}>
             {
               auth().currentUser.email == this.props.route.params.userEmail ? 
               <TouchableOpacity style={{
                   alignItems: 'center',
                   justifyContent: 'center',
-                  paddingLeft: 4,
-                  paddingRight: 8,
+                  paddingLeft: 5,
+                  paddingRight: 20,
                 }} onPress={() => {// 수정창(EditScreen) 열기
                   this.props.navigation.push('EditScreen', {
                     itemId: this.props.route.params.itemId,
@@ -286,11 +205,11 @@ export default class ShowScreen extends Component {
               }}>
                 <Icon
                   name="edit"
-                  size={20}
+                  size={24}
                   color='#fff'
                 />
               </TouchableOpacity>
-              : <View style={{paddingRight: 4}}></View>
+              : <View></View>
             }
         </View>
       });
@@ -321,7 +240,7 @@ export default class ShowScreen extends Component {
             }}
             showsUserLocation={true}
             showsMyLocationButton={true}
-            showsCompass={false}
+            showsCompass={true}
           >
           <Polyline
             coordinates={this.state.list.map(data => {
@@ -347,6 +266,7 @@ export default class ShowScreen extends Component {
                     long: data.long,
                     photo: data.photo,
                     index: index,
+                    link: this.state.link,
                     onPop: () => this.refresh(),
                   })
                 }
@@ -368,120 +288,203 @@ export default class ShowScreen extends Component {
 
           <View
             style={styles.floatingViewStyle}>
-            <View>
-              <Icon
-                reverse
-                name='thumb-down'
-                color={this.state.disliked ? '#bc477b' : '#bdbdbd'}
-                size={50}
-                onPress={async () => {
-                  console.log('down');
-                  var sfDocRef = firestore().collection(this.props.route.params.userEmail).doc(this.props.route.params.itemId);
-                  await firestore().runTransaction(async (transaction) => {
-                    var sfDoc = await transaction.get(sfDocRef);
-                    if (!sfDoc.exists) {
-                      throw "Document does not exist!";
-                    }
+            <TouchableOpacity onPress={async () => {
+              console.log('up');
+              var sfDocRef = firestore().collection(this.props.route.params.userEmail).doc(this.props.route.params.itemId);
+              await firestore().runTransaction(async (transaction) => {
+                var sfDoc = await transaction.get(sfDocRef);
+                if (!sfDoc.exists) {
+                  throw "Document does not exist!";
+                }
 
-                    var updateLike = this.state.like;
-                    if (updateLike.hasOwnProperty(auth().currentUser.email) && !updateLike[auth().currentUser.email]) {
-                      delete updateLike[auth().currentUser.email];
-                    } else {
-                      updateLike[auth().currentUser.email] = false;
-                    }
-                    await transaction.update(sfDocRef, { like: updateLike });
-                    var localLikeCount = 0;
-                    var localDislikeCount = 0;
+                var updateLike = this.state.like;
+                if (updateLike.hasOwnProperty(auth().currentUser.email) && updateLike[auth().currentUser.email]) {
+                  delete updateLike[auth().currentUser.email];
+                } else {
+                  updateLike[auth().currentUser.email] = true;
+                }
+                await transaction.update(sfDocRef, { like: updateLike });
+                var localLikeCount = 0;
+                var localDislikeCount = 0;
 
+                this.setState({
+                  liked: false,
+                  disliked: false,
+                });
+                Object.keys(updateLike).map((key, i) => {
+                  if (key == auth().currentUser.email) {
                     this.setState({
-                      liked: false,
-                      disliked: false,
+                      liked: updateLike[key],
+                      disliked: !updateLike[key],
                     });
-                    Object.keys(updateLike).map((key, i) => {
-                      if (key == auth().currentUser.email) {
-                        this.setState({
-                          liked: updateLike[key],
-                          disliked: !updateLike[key],
-                        });
-                      }
+                  }
 
-                      if (updateLike[key]) {
-                        localLikeCount++;
-                      } else {
-                        localDislikeCount++;
-                      }
-                    });
-                    this.setState({
-                      like: updateLike,
-                      likeCount: localLikeCount,
-                      dislikeCount: localDislikeCount,
-                    });
-                  }).then(async () => {
-                      console.log("success");
-                  }).catch(async (err) => {
-                      console.error(err);
-                  });
-                }}
-              />
-              <Text style={{textAlign: 'center'}}> {this.state.dislikeCount} </Text>
-            </View>
-            <View>
+                  if (updateLike[key]) {
+                    localLikeCount++;
+                  } else {
+                    localDislikeCount++;
+                  }
+                });
+                this.setState({
+                  like: updateLike,
+                  likeCount: localLikeCount,
+                  dislikeCount: localDislikeCount,
+                });
+              }).then(async () => {
+                  console.log("success");
+              }).catch(async (err) => {
+                  console.error(err);
+              });
+            }}>
+            <View style={{alignItems: 'center'}}>
               <Icon
                 reverse
                 name='thumb-up'
                 color={this.state.liked ? '#4f83cc' : '#bdbdbd'}
-                size={50}
-                onPress={async () => {
-                  console.log('up');
-                  var sfDocRef = firestore().collection(this.props.route.params.userEmail).doc(this.props.route.params.itemId);
-                  await firestore().runTransaction(async (transaction) => {
-                    var sfDoc = await transaction.get(sfDocRef);
-                    if (!sfDoc.exists) {
-                      throw "Document does not exist!";
-                    }
-
-                    var updateLike = this.state.like;
-                    if (updateLike.hasOwnProperty(auth().currentUser.email) && updateLike[auth().currentUser.email]) {
-                      delete updateLike[auth().currentUser.email];
-                    } else {
-                      updateLike[auth().currentUser.email] = true;
-                    }
-                    await transaction.update(sfDocRef, { like: updateLike });
-                    var localLikeCount = 0;
-                    var localDislikeCount = 0;
-
-                    this.setState({
-                      liked: false,
-                      disliked: false,
-                    });
-                    Object.keys(updateLike).map((key, i) => {
-                      if (key == auth().currentUser.email) {
-                        this.setState({
-                          liked: updateLike[key],
-                          disliked: !updateLike[key],
-                        });
-                      }
-
-                      if (updateLike[key]) {
-                        localLikeCount++;
-                      } else {
-                        localDislikeCount++;
-                      }
-                    });
-                    this.setState({
-                      like: updateLike,
-                      likeCount: localLikeCount,
-                      dislikeCount: localDislikeCount,
-                    });
-                  }).then(async () => {
-                      console.log("success");
-                  }).catch(async (err) => {
-                      console.error(err);
-                  });
-                }}
+                size={48}
               />
-              <Text style={{textAlign: 'center'}}> {this.state.likeCount} </Text>
+              <Text style={{textAlign: 'center', color: "#fff"}}> {this.state.likeCount} </Text>
             </View>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={async () => {
+            console.log('down');
+            var sfDocRef = firestore().collection(this.props.route.params.userEmail).doc(this.props.route.params.itemId);
+            await firestore().runTransaction(async (transaction) => {
+              var sfDoc = await transaction.get(sfDocRef);
+              if (!sfDoc.exists) {
+                throw "Document does not exist!";
+              }
+
+              var updateLike = this.state.like;
+              if (updateLike.hasOwnProperty(auth().currentUser.email) && !updateLike[auth().currentUser.email]) {
+                delete updateLike[auth().currentUser.email];
+              } else {
+                updateLike[auth().currentUser.email] = false;
+              }
+              await transaction.update(sfDocRef, { like: updateLike });
+              var localLikeCount = 0;
+              var localDislikeCount = 0;
+
+              this.setState({
+                liked: false,
+                disliked: false,
+              });
+              Object.keys(updateLike).map((key, i) => {
+                if (key == auth().currentUser.email) {
+                  this.setState({
+                    liked: updateLike[key],
+                    disliked: !updateLike[key],
+                  });
+                }
+
+                if (updateLike[key]) {
+                  localLikeCount++;
+                } else {
+                  localDislikeCount++;
+                }
+              });
+              this.setState({
+                like: updateLike,
+                likeCount: localLikeCount,
+                dislikeCount: localDislikeCount,
+              });
+            }).then(async () => {
+                console.log("success");
+            }).catch(async (err) => {
+                console.error(err);
+            });
+          }}>
+            <View style={{alignItems: 'center'}}>
+              <Icon
+                reverse
+                name='thumb-down'
+                color={this.state.disliked ? '#bc477b' : '#bdbdbd'}
+                size={48}
+              />
+              <Text style={{textAlign: 'center', color: "#fff"}}> {this.state.dislikeCount} </Text>
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => {
+            const url = 'https://footprintwithmap.site/?email=' + this.props.route.params.userEmail + '&id=' + this.props.route.params.itemId + '&viewcode=' + this.state.viewcode;
+            const title = 'URL Content';
+            const message = 'Please check this out.';
+            const options = Platform.select({
+              ios: {
+                activityItemSources: [
+                  { // For sharing url with custom title.
+                    placeholderItem: { type: 'url', content: url },
+                    item: {
+                      default: { type: 'url', content: url },
+                    },
+                    subject: {
+                      default: title,
+                    },
+                    linkMetadata: { originalUrl: url, url, title },
+                  },
+                ],
+              },
+              default: {
+                title,
+                subject: title,
+                message: `${message} ${url}`,
+              },
+            });
+            Share.open(options)
+              .then((res) => { console.log(res) })
+              .catch((err) => { err && console.log(err); });
+            }}>
+            <View style={{alignItems: 'center'}}>
+              <Icon
+                reverse
+                name='share'
+                color='#bdbdbd'
+                size={48}
+              />
+              <Text style={{textAlign: 'center', color: "#fff"}}> {translate("Share")} </Text>
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => {
+            if (this.state.viewcode > 1) {
+              this.setState({
+                viewcode: 0
+              });
+            } else {
+              this.setState({
+                viewcode: this.state.viewcode + 1
+              });
+            }
+          }}>
+            <View style={{alignItems: 'center'}}>
+              <Icon
+                reverse
+                name='tune'
+                color='#bdbdbd'
+                size={48}
+              />
+              <Text style={{textAlign: 'center', color: "#fff"}}> {translate("Change")} </Text>
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={async () => { 
+            const supported = await Linking.canOpenURL(this.state.link);
+
+            if (supported) {
+              // Opening the link with some app, if the URL scheme is "http" the web link should be opened
+              // by some browser in the mobile
+              await Linking.openURL(this.state.link);
+            } else {
+              Alert.alert(translate("ShowItemAndShowScreen") + this.state.link);
+            }
+          }}>
+            <View style={{alignItems: 'center'}}>
+              <Icon
+                reverse
+                name='launch'
+                color='#bdbdbd'
+                size={48}
+              />
+              <Text style={{textAlign: 'center', color: "#fff"}}> {translate("Launch")} </Text>
+            </View>
+          </TouchableOpacity>
         </View>
         </SafeAreaView>
       );
@@ -491,32 +494,18 @@ export default class ShowScreen extends Component {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#fff",
+        backgroundColor: Appearance.getColorScheme() === 'dark' ? "#002f6c" : "#fff",
         justifyContent: 'space-between',
-    },
-    cell: { width: "80%", height: 50 },
-    cellView: { 
-        width: "84%",
-        height: 60, 
-    },
-    inputs:{
-      marginLeft:15,
-      borderBottomColor: '#002f6c',
-      flex:1,
-      color: "#002f6c",
-    },
-    buttonContainer: {
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginBottom:5,
     },
     floatingViewStyle: {
       position: 'absolute',
-      width: 110,
-      height: 50,
+      width: "100%",
+      height: 88,
       flexDirection: 'row',
-      justifyContent: 'space-between',
+      alignItems: 'center',
+      justifyContent: 'space-around',
       alignSelf: 'center',
-      bottom: 50,
+      bottom: 100,
+      backgroundColor: 'rgba(52, 52, 52, 0.8)',
     },
 });

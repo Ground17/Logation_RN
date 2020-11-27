@@ -7,10 +7,10 @@ import {
   Text,
   Linking,
   ScrollView,
-  ActivityIndicator,
   Image,
   Dimensions,
   PermissionsAndroid,
+  Appearance,
 } from 'react-native';
 
 import FastImage from 'react-native-fast-image';
@@ -44,8 +44,8 @@ export default class ShowItem extends Component {
             <TouchableOpacity style={{
                 alignItems: 'center',
                 justifyContent: 'center',
-                paddingLeft: 4,
-                paddingRight: 4,
+                paddingLeft: 5,
+                paddingRight: 5,
               }} onPress={async () => { 
                 const supported = await Linking.canOpenURL(this.props.route.params.link);
 
@@ -59,7 +59,7 @@ export default class ShowItem extends Component {
               }}>
               <Icon
                 name="launch"
-                size={20}
+                size={24}
                 color='#fff'
               />
             </TouchableOpacity>
@@ -68,8 +68,8 @@ export default class ShowItem extends Component {
                 <TouchableOpacity style={{
                     alignItems: 'center',
                     justifyContent: 'center',
-                    paddingLeft: 4,
-                    paddingRight: 8,
+                    paddingLeft: 5,
+                    paddingRight: 20,
                   }} onPress={() => {
                   this.props.navigation.push('EditItem', {
                     date: this.props.route.params.date,
@@ -90,11 +90,11 @@ export default class ShowItem extends Component {
                 }}>
                   <Icon
                     name="edit"
-                    size={20}
+                    size={24}
                     color='#fff'
                   />
                 </TouchableOpacity>
-              : <View style={{paddingRight: 4}}></View>
+              : <View style={{paddingRight: 15}}></View>
             }
         </View>
       });
@@ -132,10 +132,10 @@ export default class ShowItem extends Component {
       return(
         <SafeAreaView style={styles.container}>
           <ScrollView>
-            <Text style={styles.titleText}>
+            <Text style={[styles.titleText, {color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}]}>
               {this.props.route.params.title}
             </Text>
-            <Text style={styles.text}>
+            <Text style={[styles.text, {color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}]}>
               {this.props.route.params.date.toString()}
             </Text>
             <View style={{
@@ -154,7 +154,7 @@ export default class ShowItem extends Component {
               />
               </TouchableOpacity>
             </View>
-            <Text style={[styles.text, {marginBottom: 10, marginTop: 10, fontSize: 18}]}>
+            <Text style={[styles.text, {marginBottom: 10, marginTop: 10, fontSize: 18, color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}]}>
               {this.props.route.params.subtitle}
             </Text>
             <MapView
@@ -189,30 +189,8 @@ export default class ShowItem extends Component {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#fff",
+        backgroundColor: Appearance.getColorScheme() === 'dark' ? "#002f6c" : "#fff",
         justifyContent: 'space-between',
-    },
-    cell: { width: "80%", height: 50 },
-    cellView: { 
-        width: "84%",
-        height: 60, 
-    },
-    inputs:{
-      marginLeft:15,
-      borderBottomColor: '#002f6c',
-      flex:1,
-      color: "#002f6c",
-    },
-    buttonContainer: {
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginBottom:5,
-    },
-    loginButton: {
-        backgroundColor: "#002f6c",
-    },
-    loginText: {
-        color: 'white',
     },
     titleText: {
       fontSize: 24,

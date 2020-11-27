@@ -8,7 +8,8 @@ import {
   FlatList,
   Image, 
   Linking,
-  Alert
+  Alert,
+  Appearance,
 } from 'react-native';
 
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -163,9 +164,11 @@ export default class Other extends Component {
     renderItem = ({ item }) => (
         <ListItem
             title={item.name}
-            titleStyle={{ fontWeight: 'bold' }}
+            titleStyle={{ fontWeight: 'bold', color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000' }}
             subtitle={item.subtitle}
+            subtitleStyle={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}
             leftAvatar={{ source: { uri: item.url }, rounded: false}}
+            containerStyle={{backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#fff'}}
             bottomDivider
             onPress={() => { this.props.navigation.push('ShowScreen', {
                 itemId: item.id,
@@ -263,17 +266,17 @@ export default class Other extends Component {
                             rounded
                             size="xlarge" 
                             activeOpacity={0.7}
-                            source={{
+                            source={this.state.profileURL ? {
                                 uri:
                                 this.state.profileURL,
-                            }}
+                            } : require('./../../logo/ic_launcher.png')}
                             icon={{ name: 'account-box' }} 
                         />
                     </View>
-                    <Text style={{fontWeight: 'bold', textAlign: 'center', marginTop: 10}}>
+                    <Text style={{fontWeight: 'bold', textAlign: 'center', marginTop: 10, color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}>
                         {this.state.displayName}
                     </Text>
-                    <Text style={{textAlign: 'center'}}>
+                    <Text style={{textAlign: 'center', color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}>
                         {this.props.route.params.userEmail}
                     </Text>
                     <View style={{
@@ -288,8 +291,8 @@ export default class Other extends Component {
                             alignItems: 'center',
                             justifyContent: 'center',
                         }}>
-                            <Text> {translate("Followers")} </Text>
-                            <Text> {this.state.followersLength} </Text>
+                            <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}> {translate("Followers")} </Text>
+                            <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}> {this.state.followersLength} </Text>
                         </View>
                         <View style={{
                             width: "30%",
@@ -297,8 +300,8 @@ export default class Other extends Component {
                             alignItems: 'center',
                             justifyContent: 'center',
                         }}>
-                            <Text> {translate("Followings")} </Text>
-                            <Text> {this.state.followingsLength} </Text>
+                            <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}> {translate("Followings")} </Text>
+                            <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}> {this.state.followingsLength} </Text>
                         </View>
                         <View style={{
                             width: "30%",
@@ -306,8 +309,8 @@ export default class Other extends Component {
                             alignItems: 'center',
                             justifyContent: 'center',
                         }}>
-                            <Text> {translate("Views")} </Text>
-                            <Text> {this.state.viewsLength} </Text>
+                            <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}> {translate("Views")} </Text>
+                            <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}> {this.state.viewsLength} </Text>
                         </View>
                     </View>
                     <View style={{alignItems: 'center',}}>
@@ -328,27 +331,11 @@ export default class Other extends Component {
 }
 
 const styles = StyleSheet.create({
-    item: {
-        padding: 10,
-        fontSize: 18,
-        height: 44,
-    },
     container: {
         flex: 1,
-        backgroundColor: "#fff",
+        backgroundColor: Appearance.getColorScheme() === 'dark' ? "#002f6c" : "#fff",
         justifyContent: 'space-between',
         alignItems: 'center',
-    },
-    cell: { width: "80%", height: 50 },
-    cellView: { 
-        width: "84%",
-        height: 60, 
-    },
-    inputs:{
-        marginLeft:15,
-        borderBottomColor: '#002f6c',
-        flex:1,
-        color: "#002f6c",
     },
     buttonContainer: {
         alignItems: 'center',
@@ -357,6 +344,8 @@ const styles = StyleSheet.create({
     },
     loginButton: {
         backgroundColor: "#002f6c",
+        borderColor: "#fff",
+        borderWidth: 1,
     },
     loginText: {
         color: 'white',

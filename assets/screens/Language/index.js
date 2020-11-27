@@ -1,5 +1,5 @@
 import React, { useContext, useEffect } from 'react';
-import { View, Text, TouchableOpacity, SafeAreaView, StyleSheet, Alert} from 'react-native';
+import { View, Text, TouchableOpacity, SafeAreaView, StyleSheet, Alert, Appearance } from 'react-native';
 import { translationGetters, LocalizationContext, translate } from '../Utils';
 // import * as RNLocalize from 'react-native-localize';
 import { ListItem } from 'react-native-elements';
@@ -38,13 +38,14 @@ export default Language = ({navigation}) => {
       {Object.keys(translationGetters).map(item => (
         <View key={item} style={{width: "100%"}}>
           <ListItem
+            containerStyle={{backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#fff'}}
             title={translate(item)}
-            titleStyle={{ fontWeight: 'bold' }}
+            titleStyle={{ fontWeight: 'bold', color: Appearance.getColorScheme() === 'dark' ? "#fff" : "#000" }}
             rightIcon={appLanguage == item ? (
               <Icon 
               name='check-circle'
               size={24}
-              color='#002f6c' />
+              color={Appearance.getColorScheme() === 'dark' ? "#fff" : '#002f6c'} />
             ) : null}
             bottomDivider
             onPress={() => { 
@@ -61,6 +62,6 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         alignItems: 'center',
-        backgroundColor: "#fff",
+        backgroundColor: Appearance.getColorScheme() === 'dark' ? "#002f6c" : "#fff",
     },
 });

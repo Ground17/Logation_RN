@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Alert,
   Linking,
+  Appearance,
 } from 'react-native';
 
 import { Divider, Input, Avatar } from 'react-native-elements';
@@ -128,7 +129,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         alignItems: 'center',
-        backgroundColor: "#fff",
+        backgroundColor: Appearance.getColorScheme() === 'dark' ? "#002f6c" : "#fff",
         justifyContent: 'space-between',
     },
     cell: { width: "80%", height: 50 },
@@ -138,9 +139,9 @@ const styles = StyleSheet.create({
     },
     inputs:{
         marginLeft:15,
-        borderBottomColor: '#002f6c',
+        borderBottomColor: Appearance.getColorScheme() === 'dark' ? "#fff" : '#002f6c',
         flex:1,
-        color: "#002f6c",
+        color: Appearance.getColorScheme() === 'dark' ? "#fff" : '#002f6c',
     },
     buttonContainer: {
         alignItems: 'center',
@@ -149,6 +150,8 @@ const styles = StyleSheet.create({
     },
     loginButton: {
         backgroundColor: "#002f6c",
+        borderColor: '#fff',
+        borderWidth: 1,
     },
     signUpButton: {
         backgroundColor: "#fff",

@@ -13,6 +13,7 @@ import {
   ActivityIndicator,
   TouchableHighlight,
   PermissionsAndroid,
+  Appearance,
 } from 'react-native';
 
 import FastImage from 'react-native-fast-image';
@@ -60,9 +61,11 @@ export default class EditScreen extends Component {
     renderItem = ({ item, index, drag, isActive }) => (
       <ListItem
         title={item.title}
-        titleStyle={{ fontWeight: 'bold' }}
+        titleStyle={{ fontWeight: 'bold', color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000' }}
         subtitle={item.date.toDate().toString()}
+        subtitleStyle={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}
         leftAvatar={{ source: { uri: item.url }, rounded: false}}
+        containerStyle={{backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#fff'}}
         onLongPress={drag}
         bottomDivider
         onPress={() => { 
@@ -342,104 +345,33 @@ export default class EditScreen extends Component {
       this.props.navigation.setOptions({
         title: translate("EditScreen"),
         headerRight: () => 
-        <View style={{flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'center',}}>
-            <TouchableOpacity style={{
-                alignItems: 'center',
-                justifyContent: 'center',
-                paddingLeft: 4,
-                paddingRight: 4,
-              }} onPress={() => {
-              this.setState({
-                delete: !this.state.delete,
-              });
-            }}>
-              <Icon
-                name="delete"
-                size={20}
-                color='#fff'
-              />
-            </TouchableOpacity>
-            <TouchableOpacity style={{
-                alignItems: 'center',
-                justifyContent: 'center',
-                paddingLeft: 4,
-                paddingRight: 4,
-              }} onPress={() => { // EditList로 이동
-                    if (this.state.changed) {
-                      Alert.alert(
-                        translate('Confirm'), //확인
-                        translate('EditScreenComment1'), //변경점을 저장하시겠습니까?
-                        [
-                            {text: translate('Cancel'), onPress: () => this.goEditList()},
-                            {text: translate('OK'), onPress: async () => {
-                              await this.update();
-                              this.goEditList();
-                            }},
-                        ],
-                        { cancelable: false }
-                      );
-                    } else {
-                      this.goEditList();
-                    }
-                }}>
-              <Icon
-                name="library-add"
-                size={20}
-                color='#fff'
-              />
-            </TouchableOpacity>
-            <TouchableOpacity style={{
-                alignItems: 'center',
-                justifyContent: 'center',
-                paddingLeft: 4,
-                paddingRight: 4,
-              }} onPress={() => { 
-                  if (this.state.viewcode > 1) {
-                    this.setState({
-                      viewcode: 0,
-                      changed: true,
-                    });
-                  } else {
-                    this.setState({
-                      viewcode: this.state.viewcode + 1,
-                      changed: true,
-                    });
-                  }
-                }}>
-              <Icon
-                name="tune"
-                size={20}
-                color='#fff'
-              />
-            </TouchableOpacity>
-            <TouchableOpacity style={{
-                alignItems: 'center',
-                justifyContent: 'center',
-                paddingLeft: 4,
-                paddingRight: 8,
-              }} onPress={() => {
-              if (this.state.changed) {
-                Alert.alert(
-                  translate('Confirm'), //확인
-                  translate('EditScreenComment1'), //변경점을 저장하시겠습니까?
-                  [
-                      {text: translate('Cancel'), onPress: () => this.goEditList()},
-                      {text: translate('OK'), onPress: async () => {
-                        await this.update();
-                      }},
-                  ],
-                  { cancelable: false }
-                );
-              }
-            }}>
-              <Icon
-                name="check-circle"
-                size={20}
-                color='#fff'
-              />
-            </TouchableOpacity>
+        <View style={{flexDirection: 'row',}}>
+          <TouchableOpacity style={{
+              alignItems: 'center',
+              justifyContent: 'center',
+              paddingLeft: 5,
+              paddingRight: 20,
+            }} onPress={() => {
+            if (this.state.changed) {
+              Alert.alert(
+                translate('Confirm'), //확인
+                translate('EditScreenComment1'), //변경점을 저장하시겠습니까?
+                [
+                    {text: translate('Cancel'), onPress: () => {}},
+                    {text: translate('OK'), onPress: async () => {
+                      await this.update();
+                    }},
+                ],
+                { cancelable: false }
+              );
+            }
+          }}>
+            <Icon
+              name="check-circle"
+              size={24}
+              color='#fff'
+            />
+          </TouchableOpacity>
         </View>
       });
       this.setState({
@@ -453,8 +385,8 @@ export default class EditScreen extends Component {
         <SafeAreaView style={styles.container}>
           { this.state.loading ? 
             <View style={styles.buttonContainer}>
-                <ActivityIndicator size="large" color="#002f6c" />
-                <Text> {translate('EditScreenComment4')} </Text>
+                <ActivityIndicator size="large" color={Appearance.getColorScheme() === 'dark' ? "#fff" : "#002f6c"} />
+                <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}> {translate('EditScreenComment4')} </Text>
             </View>
           : this.state.viewcode == 0 ? <MapView
             style={{flex: 1, width: "100%", marginBottom: this.state.marginBottom}}
@@ -536,7 +468,72 @@ export default class EditScreen extends Component {
           />)}
           <View
             style={styles.floatingViewStyle}>
-            <Text style={{fontSize: 18, textAlign: 'center', width: 160}}> {translate("Mode") + (this.state.delete ? translate("Delete") : translate("Edit") )} </Text>
+            <TouchableOpacity onPress={() => { 
+              this.setState({
+                delete: !this.state.delete,
+              });
+            }}>
+              <View style={{alignItems: 'center'}}>
+                <Icon
+                  reverse
+                  name='delete'
+                  color='#bdbdbd'
+                  size={48}
+                />
+                <Text style={{textAlign: 'center', color: "#fff"}}> {translate("Mode") + (this.state.delete ? translate("Delete") : translate("Edit") )} </Text>
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => { // EditList로 이동
+              if (this.state.changed) {
+                Alert.alert(
+                  translate('Confirm'), //확인
+                  translate('EditScreenComment1'), //변경점을 저장하시겠습니까?
+                  [
+                      {text: translate('Cancel'), onPress: () => this.goEditList()},
+                      {text: translate('OK'), onPress: async () => {
+                        await this.update();
+                        this.goEditList();
+                      }},
+                  ],
+                  { cancelable: false }
+                );
+              } else {
+                this.goEditList();
+              }
+            }}>
+              <View style={{alignItems: 'center'}}>
+                <Icon
+                  reverse
+                  name='library-add'
+                  color='#bdbdbd'
+                  size={48}
+                />
+                <Text style={{textAlign: 'center', color: "#fff"}}> {translate("EditList")} </Text>
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => { 
+              if (this.state.viewcode > 1) {
+                this.setState({
+                  viewcode: 0,
+                  changed: true,
+                });
+              } else {
+                this.setState({
+                  viewcode: this.state.viewcode + 1,
+                  changed: true,
+                });
+              }
+            }}>
+              <View style={{alignItems: 'center'}}>
+                <Icon
+                  reverse
+                  name='tune'
+                  color='#bdbdbd'
+                  size={48}
+                />
+                <Text style={{textAlign: 'center', color: "#fff"}}> {translate("Change")} </Text>
+              </View>
+            </TouchableOpacity>
           </View>
         </SafeAreaView>
       );
@@ -546,19 +543,14 @@ export default class EditScreen extends Component {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#fff",
+        backgroundColor: Appearance.getColorScheme() === 'dark' ? "#002f6c" : "#fff",
         justifyContent: 'space-between',
-    },
-    cell: { width: "80%", height: 50 },
-    cellView: { 
-        width: "84%",
-        height: 60, 
     },
     inputs:{
       marginLeft:15,
-      borderBottomColor: '#002f6c',
+      borderBottomColor: Appearance.getColorScheme() === 'dark' ? "#fff" : '#002f6c',
       flex:1,
-      color: "#002f6c",
+      color: Appearance.getColorScheme() === 'dark' ? "#fff" : '#002f6c',
     },
     buttonContainer: {
         alignItems: 'center',
@@ -567,9 +559,13 @@ const styles = StyleSheet.create({
     },
     floatingViewStyle: {
       position: 'absolute',
-      height: 50,
+      width: "100%",
+      height: 88,
       flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-around',
       alignSelf: 'center',
-      bottom: 15,
+      bottom: 100,
+      backgroundColor: 'rgba(52, 52, 52, 0.8)',
     },
 });

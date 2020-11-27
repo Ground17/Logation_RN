@@ -7,7 +7,8 @@ import {
   TouchableOpacity,
   FlatList,
   Image, 
-  Linking
+  Linking,
+  Appearance,
 } from 'react-native';
 
 import FastImage from 'react-native-fast-image'
@@ -50,7 +51,7 @@ export default class Home extends Component {
             .collection("Users")
             .where("follower", "array-contains", auth().currentUser.email)
             .orderBy("modifyDate", "desc")
-            .limit(7)
+            .limit(20)
             .get()
             .then(async (querySnapshot) => {
                 console.log("collectionPath", querySnapshot.docs);
@@ -161,11 +162,13 @@ export default class Home extends Component {
             </TouchableOpacity>
             <ListItem
                 title={item.name}
-                titleStyle={{ fontWeight: 'bold', width: '100%' }}
+                titleStyle={{ fontWeight: 'bold', width: '100%', color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000' }}
                 subtitle={`${item.displayName}\n${item.email}`}
+                subtitleStyle={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}
+                containerStyle={{backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#fff'}}
                 leftAvatar={{ 
                     size: "small", 
-                    source: { uri: item.profileURL }, 
+                    source: item.profileURL ? { uri: item.profileURL } : require('./../../logo/ic_launcher.png'), 
                     rounded: true,
                     onPress: () => {
                         if (auth().currentUser.email != item.email) {
@@ -201,23 +204,25 @@ export default class Home extends Component {
         console.log(this.state.list);
         return(
             <SafeAreaView style={styles.container}>
-                <View style={styles.buttonContainer, {marginTop:10, width: '84%' }}>
-                    <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-                        <View style={{justifyContent: 'flex-start'}}>
+                <View style={styles.title}>
+                    <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', height: "100%"}}>
+                        <View style={{justifyContent: 'flex-start', marginLeft: 10}}>
                             <Image
-                                style={{flex: 1, width: 120, height: 120,resizeMode: 'contain'}}
-                                source={require('./../../logo/graphicImage1.png')}/>
+                                style={{flex: 1, width: 120, height: 120,resizeMode: 'cover'}}
+                                source={Appearance.getColorScheme() === 'dark' ? require('./../../logo/graphicImage2.png') : require('./../../logo/graphicImage1.png')}/>
                         </View>
-                        <View style={{flexDirection: 'row', justifyContent: 'flex-end'}}>
+                        <View style={{flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', marginRight: 10}}>
                             <TouchableOpacity style={{marginRight:10}} onPress={() => { this.refresh() }}>
                                 <Icon
                                     name='refresh'
-                                    size={36}
-                                    color='#002f6c'
+                                    size={24}
+                                    color={ Appearance.getColorScheme() === 'dark' ? '#ffffff' : '#002f6c' }
                                 />
                             </TouchableOpacity>
                         </View>
                     </View>
+                </View>
+                <View style={styles.buttonContainer, {marginTop:10, width: '84%' }}>
                     <View style={{alignItems: 'center'}}>
                         {this.state.ads && <BannerAd 
                             unitId={adBannerUnitId} 
@@ -237,27 +242,17 @@ export default class Home extends Component {
 }
 
 const styles = StyleSheet.create({
-    item: {
-        padding: 10,
-        fontSize: 18,
-        height: 44,
-    },
     container: {
         flex: 1,
-        backgroundColor: "#fff",
+        backgroundColor: Appearance.getColorScheme() === 'dark' ? "#002f6c" : "#fff",
         justifyContent: 'space-between',
         alignItems: 'center',
     },
-    cell: { width: "90%", height: 50 },
-    cellView: { 
+    title: { 
         width: "100%",
-        height: 60, 
-    },
-    inputs:{
-        marginLeft:15,
-        borderBottomColor: '#002f6c',
-        flex:1,
-        color: "#002f6c",
+        height: 50,
+        justifyContent: 'space-between',
+        backgroundColor: Appearance.getColorScheme() === 'dark' ? "#01579b" : "#fff"
     },
     buttonContainer: {
         alignItems: 'center',

@@ -6,6 +6,7 @@ import {
   Text,
   TouchableOpacity,
   Alert,
+  Appearance,
 } from 'react-native';
 
 import { Divider, Input } from 'react-native-elements';
@@ -114,7 +115,7 @@ export default class SignUp extends Component {
                     <Icon
                     name='email'
                     size={24}
-                    color='#002f6c'
+                    color={Appearance.getColorScheme() === 'dark' ? '#ffffff' : '#002f6c'}
                     />
                 }
                 inputStyle={styles.inputs}
@@ -130,7 +131,7 @@ export default class SignUp extends Component {
                     <Icon
                     name='lock'
                     size={24}
-                    color='#002f6c'
+                    color={Appearance.getColorScheme() === 'dark' ? '#ffffff' : '#002f6c'}
                     />
                 }
                 inputStyle={styles.inputs}
@@ -146,7 +147,7 @@ export default class SignUp extends Component {
                     <Icon
                     name='lock'
                     size={24}
-                    color='#002f6c'
+                    color={Appearance.getColorScheme() === 'dark' ? '#ffffff' : '#002f6c'}
                     />
                 }
                 inputStyle={styles.inputs}
@@ -167,7 +168,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: "#fff",
+        backgroundColor: Appearance.getColorScheme() === 'dark' ? "#002f6c" : "#fff"
     },
     cell: { width: "80%", height: 50 },
     cellView: { 
@@ -176,9 +177,9 @@ const styles = StyleSheet.create({
     },
     inputs:{
         marginLeft:15,
-        borderBottomColor: '#002f6c',
+        borderBottomColor: Appearance.getColorScheme() === 'dark' ? "#fff" : '#002f6c',
         flex:1,
-        color: "#002f6c",
+        color: Appearance.getColorScheme() === 'dark' ? "#fff" : '#002f6c',
     },
     buttonContainer: {
         height:45,
@@ -189,16 +190,10 @@ const styles = StyleSheet.create({
         width: "80%",
         borderRadius:5,
     },
-    loginButton: {
-        backgroundColor: "#002f6c",
-    },
     signUpButton: {
         backgroundColor: "#fff",
         borderColor: '#002f6c',
         borderWidth: 1,
-    },
-    loginText: {
-        color: 'white',
     },
     signUpText: {
         color: '#002f6c',

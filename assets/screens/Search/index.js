@@ -7,6 +7,8 @@ import {
   TouchableOpacity,
   Alert,
   FlatList,
+  Appearance,
+  Platform,
 } from 'react-native';
 
 import { Divider, Input, Avatar, SearchBar, ListItem } from 'react-native-elements';
@@ -30,7 +32,7 @@ export default class Search extends Component {
   };
 
   async search() {
-    if (this.state.search.length < 4) {
+    if (this.state.search.length < 1) {
       return;
     }
 
@@ -97,9 +99,11 @@ export default class Search extends Component {
   renderItem = ({ item, index }) => (
     <ListItem
       title={item.displayName ?? ''}
-      titleStyle={{ fontWeight: 'bold' }}
+      titleStyle={{ fontWeight: 'bold', color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000' }}
       subtitle={item.email}
-      leftAvatar={{ source: { uri: item.profileURL ?? '' }, rounded: true}}
+      subtitleStyle={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}
+      leftAvatar={{ source: item.profileURL ? { uri: item.profileURL } : require('./../../logo/ic_launcher.png'), rounded: true}}
+      containerStyle={{backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#fff'}}
       bottomDivider
       onPress={() => { 
         if (auth().currentUser.email != item.email) {
@@ -124,7 +128,7 @@ export default class Search extends Component {
     return(
       <SafeAreaView style={styles.container}>
         <SearchBar
-            lightTheme
+            platform={Platform.OS}
             autoCapitalize='none'
             containerStyle={styles.cellView}
             placeholder={translate("SearchComment1")} //사용자의 이름을 입력해주세요...
@@ -158,16 +162,10 @@ const styles = StyleSheet.create({
         flex: 1,
         alignItems: 'center',
         justifyContent: 'space-between',
-        backgroundColor: "#fff",
+        backgroundColor: Appearance.getColorScheme() === 'dark' ? "#002f6c" : "#fff",
     },
-    cellView: { 
+    cellView: {
+      backgroundColor: Appearance.getColorScheme() === 'dark' ? "#002f6c" : "#fff",
       width: "95%",
-    },
-    buttonContainer: {
-        width: "100%",
-        height: "100%",
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginBottom:5,
     },
 });

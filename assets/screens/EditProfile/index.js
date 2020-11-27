@@ -9,6 +9,7 @@ import {
   Image, 
   Linking,
   ActivityIndicator,
+  Appearance,
 } from 'react-native';
 
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -65,8 +66,8 @@ export default class EditProfile extends Component {
                 alignItems: 'center',
                 justifyContent: 'center',
                 marginBottom:5,}}>
-                <ActivityIndicator size="large" color="#002f6c" />
-                <Text> {translate("EditProfileComment1")} </Text>
+                <ActivityIndicator size="large" color={Appearance.getColorScheme() === 'dark' ? "#fff" : "#002f6c"} />
+                <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}> {translate("EditProfileComment1")} </Text>
             </View>
             : <View style={{
                 alignItems: 'center',
@@ -81,13 +82,12 @@ export default class EditProfile extends Component {
                         rounded
                         size="xlarge" 
                         activeOpacity={0.7}
-                        source={{
+                        source={this.state.profileURL ? {
                             uri:
                             this.state.profileURL,
-                        }}
+                        } : require('./../../logo/ic_launcher.png')}
                         icon={{ name: 'account-box' }}
-                        showEditButton
-                        onEditPress={() => {
+                        onPress={() => {
                             ImagePicker.openPicker({
                                 mediaType: 'photo',
                             }).then(image => {
@@ -107,11 +107,11 @@ export default class EditProfile extends Component {
                         <Icon
                             name='account-circle'
                             size={24}
-                            color='#002f6c'
+                            color={Appearance.getColorScheme() === 'dark' ? '#ffffff' : '#002f6c'}
                         />
                     }
                 />
-                <Text style={{textAlign: 'center'}}>
+                <Text style={{textAlign: 'center', color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}>
                     {auth().currentUser.email}
                 </Text>
                 <TouchableOpacity style={[styles.buttonContainer, styles.loginButton, {marginTop: 70, height:45, width: "80%", borderRadius:5,}]} onPress={async () => { 
@@ -172,26 +172,16 @@ export default class EditProfile extends Component {
 }
 
 const styles = StyleSheet.create({
-    item: {
-        padding: 10,
-        fontSize: 18,
-        height: 44,
-    },
     container: {
         flex: 1,
-        backgroundColor: "#fff",
+        backgroundColor: Appearance.getColorScheme() === 'dark' ? "#002f6c" : "#fff",
         justifyContent: 'space-between',
-    },
-    cell: { width: "80%", height: 50 },
-    cellView: { 
-        width: "84%",
-        height: 60, 
     },
     inputs:{
         marginLeft:15,
-        borderBottomColor: '#002f6c',
+        borderBottomColor: Appearance.getColorScheme() === 'dark' ? "#fff" : '#002f6c',
         flex:1,
-        color: "#002f6c",
+        color: Appearance.getColorScheme() === 'dark' ? "#fff" : '#002f6c',
     },
     buttonContainer: {
         height:45,
@@ -204,6 +194,8 @@ const styles = StyleSheet.create({
     },
     loginButton: {
         backgroundColor: "#002f6c",
+        borderColor: "#fff",
+        borderWidth: 1,
     },
     loginText: {
         color: 'white',

@@ -10,6 +10,8 @@ import {
   Image,
   Alert,
   ActivityIndicator,
+  Platform,
+  Appearance,
 } from 'react-native';
 
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -67,17 +69,61 @@ export default class EditList extends Component {
 
     renderItem = ({ item, index, drag, isActive }) => (
       <ListItem
-        title={item.title}
-        titleStyle={{ fontWeight: 'bold' }}
-        subtitle={item.subtitle}
+        title={
+            <TextInput
+                defaultValue={item.title}
+                style={{
+                    fontWeight: 'bold', 
+                    borderBottomColor: Appearance.getColorScheme() === 'dark' ? "#fff" : '#002f6c',
+                    flex:1,
+                    color: Appearance.getColorScheme() === 'dark' ? "#fff" : "#002f6c",
+                }}
+                maxLength={40}
+                onChangeText={(title) => {
+                    if (title.length < 1) {
+                        return;
+                    }
+                    var updateData = this.state.data;
+                    updateData[index].title = title;
+                    this.setState({data: updateData});
+                }}
+            />  
+        }
+        subtitle={
+            <TextInput
+                defaultValue={item.subtitle}
+                style={{
+                    borderBottomColor: Appearance.getColorScheme() === 'dark' ? "#fff" : '#002f6c',
+                    flex:1,
+                    color: Appearance.getColorScheme() === 'dark' ? "#fff" : "#002f6c",
+                }}
+                maxLength={40}
+                onChangeText = {(subtitle) => {
+                    if (subtitle.length < 1) {
+                        return;
+                    }
+                    var updateData = this.state.data;
+                    updateData[index].subtitle = subtitle;
+                    this.setState({data: updateData});
+                }}
+            />  
+        }
         leftAvatar={{ source: { uri: item.photo }, rounded: false}}
         onLongPress={drag}
+        rightElement={
+            <TouchableOpacity style={{marginRight:5}} onPress={() => { 
+                var updateData = this.state.data;
+                updateData.splice(index, 1);
+                this.setState({data: updateData}); }}>
+                <Icon
+                    name='cancel'
+                    size={24}
+                    color='#ff0000'
+                />
+            </TouchableOpacity>
+        }
         bottomDivider
-        onPress={() => { 
-            var updateData = this.state.data;
-            updateData.splice(index, 1);
-            this.setState({data: updateData})
-        }}
+        onPress={() => {}}
       />
     )
 
@@ -135,48 +181,49 @@ export default class EditList extends Component {
             <SafeAreaView style={styles.container}>
                 {this.state.loading ? 
                 <View style={styles.buttonContainer}>
-                    <ActivityIndicator size="large" color="#002f6c" />
-                    <Text> {translate("AddListComment1")} </Text>
+                    <ActivityIndicator size="large" color={Appearance.getColorScheme() === 'dark' ? '#fff' : "#002f6c"} />
+                    <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}> {translate("AddListComment1")} </Text>
                 </View>
                 : <ScrollView 
                     contentContainerStyle={styles.viewContainer}
                     style={{flex: 1, width: "100%"}}
                 >
                     <View style={{height: 200, width: 100, alignItems: 'center', justifyContent: 'center', flexDirection: 'row'}}>
-                        <Text> {translate("Category")} </Text>
+                        <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}> {translate("Category")} </Text>
                         <Picker
                             selectedValue={this.state.category}
                             style={{width: 130}}
                             onValueChange={(itemValue, itemIndex) =>
                                 this.setState({category: itemValue})
                             }>
-                            <Picker.Item label={translate("Travel")} value="Travel" />
-                            <Picker.Item label={translate("DailyLife")} value="Daily Life" />
-                            <Picker.Item label={translate("Entertainment")} value="Entertainment" />
-                            <Picker.Item label={translate("Sports")} value="Sports" />
-                            <Picker.Item label={translate("News")} value="News" />
-                            <Picker.Item label={translate("Education")} value="Education" />
-                            <Picker.Item label={translate("Other")} value="Other" />
+                            <Picker.Item label={translate("Travel")} value="Travel" color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
+                            <Picker.Item label={translate("DailyLife")} value="Daily Life" color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
+                            <Picker.Item label={translate("Entertainment")} value="Entertainment" color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
+                            <Picker.Item label={translate("Sports")} value="Sports" color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
+                            <Picker.Item label={translate("News")} value="News" color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
+                            <Picker.Item label={translate("Education")} value="Education" color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
+                            <Picker.Item label={translate("Other")} value="Other" color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
                         </Picker>
-                        <Text> {translate("ViewMode")} </Text>
+                        <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}> {translate("ViewMode")} </Text>
                         <Picker
                             selectedValue={this.state.viewmode}
                             style={{width: 90}}
                             onValueChange={(itemValue, itemIndex) =>
                                 this.setState({viewmode: itemValue})
                             }>
-                            <Picker.Item label={translate("Map")} value="Map" />
-                            <Picker.Item label={translate("List")} value="List" />
-                            <Picker.Item label={translate("Grid")} value="Grid" />
+                            <Picker.Item label={translate("Map")} value="Map" color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
+                            <Picker.Item label={translate("List")} value="List" color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
+                            <Picker.Item label={translate("Grid")} value="Grid" color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
                         </Picker>
                     </View>
                     <Text
                         onPress={() => this.setState({show: !this.state.show})}
+                        style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}
                     > 
                         {this.state.date.toString()} 
                     </Text>
                     {this.state.show && <DateTimePicker
-                        style={{width:'110%'}}
+                        style={{width:'100%'}}
                         mode="date"
                         value={this.state.date}
                         is24Hour={true}
@@ -195,7 +242,7 @@ export default class EditList extends Component {
                         }}
                     />}
                     {this.state.show && <DateTimePicker
-                        style={{width:'110%'}}
+                        style={{width:'100%'}}
                         mode="time"
                         value={this.state.date}
                         is24Hour={true}
@@ -225,7 +272,7 @@ export default class EditList extends Component {
                                 <Icon
                                     name='title'
                                     size={24}
-                                    color='#002f6c'
+                                    color={Appearance.getColorScheme() === 'dark' ? '#ffffff' : '#002f6c'}
                                 />
                             }
                         />
@@ -243,7 +290,7 @@ export default class EditList extends Component {
                                 <Icon
                                     name='subtitles'
                                     size={24}
-                                    color='#002f6c'
+                                    color={Appearance.getColorScheme() === 'dark' ? '#ffffff' : '#002f6c'}
                                 />
                             }
                         />
@@ -260,12 +307,12 @@ export default class EditList extends Component {
                                 <Icon
                                     name='launch'
                                     size={24}
-                                    color='#002f6c'
+                                    color={Appearance.getColorScheme() === 'dark' ? '#ffffff' : '#002f6c'}
                                 />
                             }
                         />
                     </View>
-                    <Text style={{textAlign: 'center'}}> {translate("AddListComment2")} </Text>
+                    {this.state.data.length > 0 && <Text style={{textAlign: 'center', color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}> {translate("AddListComment2")} </Text>}
                     <View style={{ flex: 1, width: "84%" }}>
                         <DraggableFlatList
                             keyExtractor={this.keyExtractor}
@@ -373,7 +420,7 @@ export default class EditList extends Component {
                         checked={this.state.dateChecked}
                         onPress={() => this.setState({dateChecked: !this.state.dateChecked})}
                     />
-                    <TouchableOpacity style={[styles.buttonContainer, styles.loginButton, {height:45, width: "80%", borderRadius:5,}]} onPress={() => {
+                    <TouchableOpacity style={[styles.buttonContainer, styles.loginButton, {height:45, width: "80%", borderRadius:5,}]} onPress={async () => {
                         if (this.state.title.length < 1 || this.state.title.subtitle < 1 || this.state.title.link < 1) {
                             Alert.alert(
                                 translate("Error"),
@@ -404,6 +451,12 @@ export default class EditList extends Component {
                             }
                             this.setState({
                                 data: updateData,
+                            });
+                        }
+
+                        if (this.state.link.length > 0 && this.state.link.substring(0, 4) !== 'http') {
+                            this.setState({
+                                link: "https://" + this.state.link,
                             });
                         }
 
@@ -476,7 +529,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         alignItems: 'center',
-        backgroundColor: "#fff",
+        backgroundColor: Appearance.getColorScheme() === 'dark' ? "#002f6c" : "#fff",
         width: "100%"
     },
     viewContainer: {
@@ -491,9 +544,9 @@ const styles = StyleSheet.create({
     },
     inputs:{
         marginLeft:15,
-        borderBottomColor: '#002f6c',
+        borderBottomColor: Appearance.getColorScheme() === 'dark' ? "#fff" : '#002f6c',
         flex:1,
-        color: "#002f6c",
+        color: Appearance.getColorScheme() === 'dark' ? "#fff" : "#002f6c",
     },
     buttonContainer: {
         alignItems: 'center',
@@ -502,16 +555,10 @@ const styles = StyleSheet.create({
     },
     loginButton: {
         backgroundColor: "#002f6c",
-    },
-    signUpButton: {
-        backgroundColor: "#fff",
-        borderColor: '#002f6c',
+        borderColor: "#fff",
         borderWidth: 1,
     },
     loginText: {
         color: 'white',
     },
-    signUpText: {
-        color: '#002f6c',
-    }
 });

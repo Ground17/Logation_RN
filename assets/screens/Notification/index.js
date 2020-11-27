@@ -5,7 +5,8 @@ import {
   View,
   Text,
   TouchableOpacity,
-  Alert
+  Alert,
+  Appearance,
 } from 'react-native';
 
 import { Divider, Input, Avatar } from 'react-native-elements';
@@ -35,7 +36,7 @@ const styles = StyleSheet.create({
     container: {
       flex: 1,
       alignItems: 'center',
-      backgroundColor: "#fff",
+      backgroundColor: Appearance.getColorScheme() === 'dark' ? "#002f6c" : "#fff",
       justifyContent: 'space-between',
     },
     cell: { width: "80%", height: 50 },

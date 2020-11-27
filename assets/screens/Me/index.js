@@ -7,7 +7,8 @@ import {
   TouchableOpacity,
   FlatList,
   Image, 
-  Linking
+  Linking,
+  Appearance,
 } from 'react-native';
 
 import { adsFree, translate, } from '../Utils';
@@ -210,9 +211,11 @@ export default class Me extends Component {
     renderItem = ({ item }) => (
         <ListItem
             title={item.name}
-            titleStyle={{ fontWeight: 'bold' }}
+            titleStyle={{ fontWeight: 'bold', color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000' }}
             subtitle={item.subtitle}
+            subtitleStyle={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}
             leftAvatar={{ source: { uri: item.url }, rounded: false}}
+            containerStyle={{backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#fff'}}
             bottomDivider
             onPress={() => { this.props.navigation.push('ShowScreen', {
                 itemId: item.id,
@@ -226,46 +229,48 @@ export default class Me extends Component {
     render() {
         return(
             <SafeAreaView style={styles.container}>
-                <View style={styles.buttonContainer, {marginTop:10, width: '84%' }}>
-                    <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-                        <View style={{justifyContent: 'flex-start'}}>
+                <View style={styles.title}>
+                    <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', height: "100%"}}>
+                        <View style={{justifyContent: 'flex-start', marginLeft: 10}}>
                             <Image
-                                style={{flex: 1, width: 120, height: 120,resizeMode: 'contain'}}
-                                source={require('./../../logo/graphicImage1.png')}/>
-                        </View>
-                        <View style={{flexDirection: 'row', justifyContent: 'flex-end'}}>
-                            <TouchableOpacity onPress={() => { this.refresh() }}>
-                                <Icon
-                                    name='refresh'
-                                    size={36}
-                                    color='#002f6c'
-                                />
-                            </TouchableOpacity>
-                            <TouchableOpacity onPress={() => { this.props.navigation.push('Notification') }}>
-                                <Icon
-                                    name='notifications'
-                                    size={36}
-                                    color='#002f6c'
-                                />
-                            </TouchableOpacity>
-                            <TouchableOpacity onPress={() => { this.props.navigation.push('AddList', {
-                                onPop: () => this.refresh(),
-                            }) }}>
-                                <Icon
-                                    name='add-circle-outline'
-                                    size={36}
-                                    color='#002f6c'
-                                />
-                            </TouchableOpacity>
-                            <TouchableOpacity style={{marginRight:10}} onPress={() => { this.props.navigation.push('Settings') }}>
-                                <Icon
-                                    name='settings'
-                                    size={36}
-                                    color='#002f6c'
-                                />
-                            </TouchableOpacity>
+                                style={{flex: 1, width: 120, height: 120, resizeMode: 'cover'}}
+                                source={Appearance.getColorScheme() === 'dark' ? require('./../../logo/graphicImage2.png') : require('./../../logo/graphicImage1.png')}/>
                         </View>
                     </View>
+                    <View style={{flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', marginRight: 10}}>
+                        <TouchableOpacity style={{marginRight:5}} onPress={() => { this.refresh() }}>
+                            <Icon
+                                name='refresh'
+                                size={24}
+                                color={ Appearance.getColorScheme() === 'dark' ? '#ffffff' : '#002f6c' }
+                            />
+                        </TouchableOpacity>
+                        <TouchableOpacity style={{marginRight:5}} onPress={() => { this.props.navigation.push('Notification') }}>
+                            <Icon
+                                name='notifications'
+                                size={24}
+                                color={ Appearance.getColorScheme() === 'dark' ? '#ffffff' : '#002f6c' }
+                            />
+                        </TouchableOpacity>
+                        <TouchableOpacity style={{marginRight:5}} onPress={() => { this.props.navigation.push('AddList', {
+                            onPop: () => this.refresh(),
+                        }) }}>
+                            <Icon
+                                name='add-circle-outline'
+                                size={24}
+                                color={ Appearance.getColorScheme() === 'dark' ? '#ffffff' : '#002f6c' }
+                            />
+                        </TouchableOpacity>
+                        <TouchableOpacity style={{marginRight:10}} onPress={() => { this.props.navigation.push('Settings') }}>
+                            <Icon
+                                name='settings'
+                                size={24}
+                                color={ Appearance.getColorScheme() === 'dark' ? '#ffffff' : '#002f6c' }
+                            />
+                        </TouchableOpacity>
+                    </View>
+                </View>
+                <View style={[styles.buttonContainer, {marginTop:10, width: '84%' }]}>
                     <View style={{
                         flexDirection: 'row',
                         alignItems: 'center',
@@ -276,13 +281,12 @@ export default class Me extends Component {
                             rounded
                             size="xlarge" 
                             activeOpacity={0.7}
-                            source={{
+                            source={this.state.profileURL ? {
                                 uri:
                                 this.state.profileURL,
-                            }}
+                            } : require('./../../logo/ic_launcher.png')}
                             icon={{ name: 'account-box' }} 
-                            showEditButton
-                            onEditPress={() => {
+                            onPress={() => {
                                 this.props.navigation.push('EditProfile', {
                                     profileURL: this.state.profileURL,
                                     localProfileURL: this.state.localProfileURL, // 상대 위치 참조 URL
@@ -291,10 +295,10 @@ export default class Me extends Component {
                             }}
                         />
                     </View>
-                    <Text style={{fontWeight: 'bold', textAlign: 'center', marginTop: 10}}>
+                    <Text style={{fontWeight: 'bold', textAlign: 'center', marginTop: 10, color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}>
                         {auth().currentUser.displayName}
                     </Text>
-                    <Text style={{textAlign: 'center'}}>
+                    <Text style={{textAlign: 'center', color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}>
                         {auth().currentUser.email}
                     </Text>
                     <View style={{
@@ -309,8 +313,8 @@ export default class Me extends Component {
                             alignItems: 'center',
                             justifyContent: 'center',
                         }}>
-                            <Text> {translate("Followers")} </Text>
-                            <Text> {this.state.followers.length} </Text>
+                            <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}> {translate("Followers")} </Text>
+                            <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}> {this.state.followers.length} </Text>
                         </View>
                         <TouchableOpacity 
                         style={{
@@ -326,8 +330,8 @@ export default class Me extends Component {
                                 alignItems: 'center',
                                 justifyContent: 'center',
                             }}>
-                                <Text> {translate("Followings")} </Text>
-                                <Text> {this.state.followings.length} </Text>
+                                <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}> {translate("Followings")} </Text>
+                                <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}> {this.state.followings.length} </Text>
                             </View>
                         </TouchableOpacity>
                         <View style={{
@@ -336,8 +340,8 @@ export default class Me extends Component {
                             alignItems: 'center',
                             justifyContent: 'center',
                         }}>
-                            <Text> {translate("Views")} </Text>
-                            <Text> {this.state.views.length} </Text>
+                            <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}> {translate("Views")} </Text>
+                            <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}> {this.state.views.length} </Text>
                         </View>
                     </View>
                     <View style={{alignItems: 'center',}}>
@@ -359,27 +363,18 @@ export default class Me extends Component {
 }
 
 const styles = StyleSheet.create({
-    item: {
-        padding: 10,
-        fontSize: 18,
-        height: 44,
-    },
     container: {
         flex: 1,
-        backgroundColor: "#fff",
+        backgroundColor: Appearance.getColorScheme() === 'dark' ? "#002f6c" : "#fff",
         justifyContent: 'space-between',
         alignItems: 'center',
     },
-    cell: { width: "90%", height: 50 },
-    cellView: { 
+    title: { 
         width: "100%",
-        height: 60, 
-    },
-    inputs:{
-        marginLeft:15,
-        borderBottomColor: '#002f6c',
-        flex:1,
-        color: "#002f6c",
+        height: 50,
+        justifyContent: 'space-between',
+        flexDirection: 'row',
+        backgroundColor: Appearance.getColorScheme() === 'dark' ? "#01579b" : "#fff"
     },
     buttonContainer: {
         alignItems: 'center',

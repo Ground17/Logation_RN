@@ -12,6 +12,7 @@ import {
   Dimensions,
   Alert,
   PermissionsAndroid,
+  Appearance,
 } from 'react-native';
 
 import FastImage from 'react-native-fast-image';
@@ -59,8 +60,8 @@ export default class EditItem extends Component {
             <TouchableOpacity style={{
                 alignItems: 'center',
                 justifyContent: 'center',
-                paddingLeft: 4,
-                paddingRight: 4,
+                paddingLeft: 5,
+                paddingRight: 5,
               }} onPress={async () => { // 이 사진 삭제
                 if (this.state.list.length < 2) {
                   Alert.alert(
@@ -137,15 +138,15 @@ export default class EditItem extends Component {
             }}>
               <Icon
                 name="delete"
-                size={20}
+                size={24}
                 color='#fff'
               />
             </TouchableOpacity>
             <TouchableOpacity style={{
                 alignItems: 'center',
                 justifyContent: 'center',
-                paddingLeft: 4,
-                paddingRight: 8,
+                paddingLeft: 5,
+                paddingRight: 20,
               }} onPress={async () => { // 수정 완료, 기존 창 복귀
                 if (this.state.title.length < 1 || this.state.title.subtitle < 1) {
                   Alert.alert(
@@ -220,7 +221,7 @@ export default class EditItem extends Component {
             }}>
               <Icon
                 name="check-circle"
-                size={20}
+                size={24}
                 color='#fff'
               />
             </TouchableOpacity>
@@ -271,8 +272,8 @@ export default class EditItem extends Component {
         <SafeAreaView style={styles.container}>
         {this.state.loading ? 
           <View style={styles.buttonContainer}>
-              <ActivityIndicator size="large" color="#002f6c" />
-              <Text> {translate("EditItemComment4")} </Text>
+              <ActivityIndicator size="large" color={Appearance.getColorScheme() === 'dark' ? "#fff" : "#002f6c"} />
+              <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}> {translate("EditItemComment4")} </Text>
           </View>
           : <ScrollView 
               contentContainerStyle={styles.viewContainer}
@@ -286,24 +287,25 @@ export default class EditItem extends Component {
                 })}
                 inputStyle={styles.inputs}
                 maxLength={40}
-                placeholder='Title'
+                placeholder={translate('Title')}
                 placeholderTextColor="#bdbdbd"
                 leftIcon={
                   <Icon
                     name='title'
                     size={24}
-                    color='#002f6c'
+                    color={Appearance.getColorScheme() === 'dark' ? '#ffffff' : '#002f6c'}
                   />
                 }
               />
             </View>
             <Text
               onPress={() => this.setState({show: !this.state.show})}
+              style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}
             > 
               {this.state.date.toString()} 
             </Text>
             {this.state.show && <DateTimePicker
-              style={{width: "110%"}}
+              style={{width: "100%"}}
               mode="date"
               value={this.state.date}
               is24Hour={true}
@@ -323,7 +325,7 @@ export default class EditItem extends Component {
               }}
             />}
             {this.state.show && <DateTimePicker
-              style={{width: "110%"}}
+              style={{width: "100%"}}
               mode="time"
               value={this.state.date}
               is24Hour={true}
@@ -416,13 +418,13 @@ export default class EditItem extends Component {
                 })}
                 inputStyle={styles.inputs}
                 maxLength={140}
-                placeholder='Subtitle'
+                placeholder={translate('Subtitle')}
                 placeholderTextColor="#bdbdbd"
                 leftIcon={
                   <Icon
                     name='subtitles'
                     size={24}
-                    color='#002f6c'
+                    color={Appearance.getColorScheme() === 'dark' ? '#ffffff' : '#002f6c'}
                   />
                 }
               />
@@ -465,7 +467,7 @@ export default class EditItem extends Component {
 const styles = StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: "#fff",
+      backgroundColor: Appearance.getColorScheme() === 'dark' ? "#002f6c" : "#fff",
       justifyContent: 'space-between',
     },
     viewContainer: {
@@ -480,20 +482,14 @@ const styles = StyleSheet.create({
     },
     inputs:{
       marginLeft:15,
-      borderBottomColor: '#002f6c',
+      borderBottomColor: Appearance.getColorScheme() === 'dark' ? "#fff" : '#002f6c',
       flex:1,
-      color: "#002f6c",
+      color: Appearance.getColorScheme() === 'dark' ? "#fff" : '#002f6c',
     },
     buttonContainer: {
       alignItems: 'center',
       justifyContent: 'center',
       marginBottom:5,
-    },
-    loginButton: {
-      backgroundColor: "#002f6c",
-    },
-    loginText: {
-      color: 'white',
     },
     titleText: {
       fontSize: 24,

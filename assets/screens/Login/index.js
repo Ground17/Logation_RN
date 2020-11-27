@@ -7,6 +7,8 @@ import {
   TouchableOpacity,
   Alert,
   Platform,
+  Image,
+  Appearance,
 } from 'react-native';
 
 import { Divider, Input, Overlay } from 'react-native-elements';
@@ -24,6 +26,8 @@ import appleAuth, {
 import { InterstitialAd, BannerAd, TestIds, BannerAdSize } from '@react-native-firebase/admob';
 
 import { adsFree, translate } from '../Utils';
+
+import { ColorSchemeContext } from 'react-native-dynamic'
 
 const adBannerUnitId = __DEV__ ? TestIds.BANNER : 
     (Platform.OS == 'ios' 
@@ -161,85 +165,101 @@ export default class Login extends Component {
       password: '',
       ads: !adsFree,
     });
+
+    this.props.navigation.setOptions({ title: translate("SignIn") });
   }
 
   render() {
     return (
       <SafeAreaView style={styles.container}>
-        <View style={styles.cellView}>
-            <Input
-            autoCapitalize='none'
-            placeholder={translate('Email')} //이메일
-            placeholderTextColor="#bdbdbd"
-            onChangeText = {(email) => this.setState({email})}
-            leftIcon={
-                <Icon
-                name='email'
-                size={24}
-                color='#002f6c'
-                />
-            }
-            inputStyle={styles.inputs}
-            />
+        <View style={styles.title}>
+          <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', height: "100%"}}>
+              <View style={{justifyContent: 'flex-start', marginLeft: 10}}>
+                  <Image
+                      style={{flex: 1, width: 120, height: 120, resizeMode: 'cover'}}
+                      source={Appearance.getColorScheme() === 'dark' ? require('./../../logo/graphicImage2.png') : require('./../../logo/graphicImage1.png')}/>
+              </View>
+              <View style={{flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginRight: 10}}>
+                <TouchableOpacity style={{marginRight:10, }} onPress={() => { this.props.navigation.push('Language') }}>
+                    <Icon
+                      name='translate'
+                      size={24}
+                      color={ Appearance.getColorScheme() === 'dark' ? '#ffffff' : '#002f6c' }
+                    />
+                </TouchableOpacity>
+              </View>
+          </View>
         </View>
-        <View style={styles.cellView}>
-            <Input
-            autoCapitalize='none'
-            placeholder={translate('Password')} //비밀번호
-            placeholderTextColor="#bdbdbd"
-            secureTextEntry={true}
-            onChangeText = {(password) => this.setState({password})}
-            leftIcon={
-                <Icon
-                name='lock'
-                size={24}
-                color='#002f6c'
-                />
-            }
-            inputStyle={styles.inputs}
-            />
-        </View>
-        <TouchableOpacity style={[styles.buttonContainer, styles.loginButton]} onPress={() => { 
-          console.log(this.state.email)
-          this.emailLogin(this.state.email, this.state.password) }}>
-            <Text style={styles.loginText}>{translate("SignIn")}</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={[styles.buttonContainer, styles.signUpButton]} onPress={() => { this.props.navigation.push('SignUp') }}>
-            <Text style={styles.signUpText}>{translate("SignUp")}</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={{marginBottom: 15}} onPress={() => { this.props.navigation.push('ResetPassword') }}>
-            <Text>{translate("LoginComment3")}</Text>
-        </TouchableOpacity>
-        <View style={{marginBottom: 15}}>
-            <View style={{alignSelf:'center', position:'absolute', borderBottomColor:'gray', borderBottomWidth:1, height:'50%', width:'80%'}}/>
-            <Text style={{alignSelf:'center', paddingHorizontal:5, backgroundColor: "#fff", color: 'gray'}}>Or</Text>
-        </View>
-        <GoogleSigninButton
-            style={styles.cell}
-            size={GoogleSigninButton.Size.Wide}
-            color={GoogleSigninButton.Color.Dark}
-            onPress={() => this.googleLogin()}
-        />
-        {Platform.OS == 'ios' && <AppleButton
-            style={styles.cell}
-            buttonStyle={AppleButton.Style.BLACK}
-            buttonType={AppleButton.Type.SIGN_IN}
-            onPress={() => this.appleLogin()}
-        />}
-        <View style={{marginTop: 10, marginBottom: 10}}>
-            <View style={{alignSelf:'center', position:'absolute', borderBottomColor:'gray', borderBottomWidth:1, height:'50%', width:'80%'}}/>
-        </View>
-        <TouchableOpacity style={[styles.buttonContainer, styles.loginButton]} onPress={() => { this.props.navigation.push('Language') }}>
-            <Text style={styles.loginText}>{translate("Language")}</Text>
-        </TouchableOpacity>
-        <View style={{marginTop: 5, marginBottom: 10}}>
-            <View style={{alignSelf:'center', position:'absolute', borderBottomColor:'gray', borderBottomWidth:1, height:'50%', width:'80%'}}/>
-        </View>
-        <View style={{width: "80%", alignItems: "center"}}>
-          {this.state.ads && <BannerAd 
-            unitId={adBannerUnitId} 
-            size={BannerAdSize.BANNER}
+        <View style={{flex: 1, width: "100%", alignItems: 'center', justifyContent: 'center'}}>
+          <View style={styles.cellView}>
+              <Input
+              autoCapitalize='none'
+              placeholder={translate('Email')} //이메일
+              placeholderTextColor="#bdbdbd"
+              onChangeText = {(email) => this.setState({email})}
+              leftIcon={
+                  <Icon
+                  name='email'
+                  size={24}
+                  color={Appearance.getColorScheme() === 'dark' ? '#ffffff' : '#002f6c'}
+                  />
+              }
+              inputStyle={styles.inputs}
+              />
+          </View>
+          <View style={styles.cellView}>
+              <Input
+              autoCapitalize='none'
+              placeholder={translate('Password')} //비밀번호
+              placeholderTextColor="#bdbdbd"
+              secureTextEntry={true}
+              onChangeText = {(password) => this.setState({password})}
+              leftIcon={
+                  <Icon
+                  name='lock'
+                  size={24}
+                  color={Appearance.getColorScheme() === 'dark' ? '#ffffff' : '#002f6c'}
+                  />
+              }
+              inputStyle={styles.inputs}
+              />
+          </View>
+          <TouchableOpacity style={[styles.buttonContainer, styles.loginButton]} onPress={() => { 
+            console.log(this.state.email)
+            this.emailLogin(this.state.email, this.state.password) }}>
+              <Text style={styles.loginText}>{translate("SignIn")}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.buttonContainer, styles.signUpButton]} onPress={() => { this.props.navigation.push('SignUp') }}>
+              <Text style={styles.signUpText}>{translate("SignUp")}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={{marginBottom: 15}} onPress={() => { this.props.navigation.push('ResetPassword') }}>
+              <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}>{translate("LoginComment3")}</Text>
+          </TouchableOpacity>
+          <View style={{marginBottom: 15}}>
+              <View style={{alignSelf:'center', position:'absolute', borderBottomColor:'gray', borderBottomWidth:1, height:'50%', width:'80%'}}/>
+              <Text style={{alignSelf:'center', paddingHorizontal:5, backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#fff', color: 'gray'}}>Or</Text>
+          </View>
+          <GoogleSigninButton
+              style={styles.cell}
+              size={GoogleSigninButton.Size.Wide}
+              color={GoogleSigninButton.Color.Dark}
+              onPress={() => this.googleLogin()}
+          />
+          {Platform.OS == 'ios' && <AppleButton
+              style={styles.cell}
+              buttonStyle={AppleButton.Style.BLACK}
+              buttonType={AppleButton.Type.SIGN_IN}
+              onPress={() => this.appleLogin()}
           />}
+          <View style={{marginTop: 10, marginBottom: 10}}>
+              <View style={{alignSelf:'center', position:'absolute', borderBottomColor:'gray', borderBottomWidth:1, height:'50%', width:'80%'}}/>
+          </View>
+          <View style={{width: "80%", alignItems: "center"}}>
+            {this.state.ads && <BannerAd 
+              unitId={adBannerUnitId} 
+              size={BannerAdSize.BANNER}
+            />}
+          </View>
         </View>
       </SafeAreaView>
     );
@@ -249,20 +269,26 @@ export default class Login extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: "#fff",
+    backgroundColor: Appearance.getColorScheme() === 'dark' ? "#002f6c" : "#fff"
   },
   cell: { width: "80%", height: 50 },
+  title: { 
+    width: "100%",
+    height: 50,
+    justifyContent: 'space-between',
+    backgroundColor: Appearance.getColorScheme() === 'dark' ? "#01579b" : "#fff"
+  },
   cellView: { 
     width: "84%",
     height: 60, 
   },
   inputs:{
     marginLeft:15,
-    borderBottomColor: '#002f6c',
+    borderBottomColor: Appearance.getColorScheme() === 'dark' ? "#fff" : '#002f6c',
     flex:1,
-    color: "#002f6c",
+    color: Appearance.getColorScheme() === 'dark' ? "#fff" : "#002f6c",
   },
   buttonContainer: {
     height:45,
@@ -275,6 +301,8 @@ const styles = StyleSheet.create({
   },
   loginButton: {
     backgroundColor: "#002f6c",
+    borderColor: "#fff",
+    borderWidth: 1,
   },
   signUpButton: {
     backgroundColor: "#fff",
