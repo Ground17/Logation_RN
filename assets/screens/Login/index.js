@@ -19,8 +19,6 @@ import auth from '@react-native-firebase/auth';
 import { GoogleSignin, GoogleSigninButton, statusCodes } from '@react-native-community/google-signin';
 import appleAuth, {
   AppleButton,
-  AppleAuthRequestScope,
-  AppleAuthRequestOperation
 } from '@invertase/react-native-apple-authentication';
 
 import { InterstitialAd, BannerAd, TestIds, BannerAdSize } from '@react-native-firebase/admob';
@@ -49,8 +47,8 @@ export default class Login extends Component {
     try {
       // 1). start a apple sign-in request
       const appleAuthRequestResponse = await appleAuth.performRequest({
-        requestedOperation: AppleAuthRequestOperation.LOGIN,
-        requestedScopes: [AppleAuthRequestScope.EMAIL, AppleAuthRequestScope.FULL_NAME],
+        requestedOperation: appleAuth.Operation.LOGIN,
+        requestedScopes: [appleAuth.Scope.EMAIL, appleAuth.Scope.FULL_NAME],
       });
       // 2). if the request was successful, extract the token and nonce
       const { identityToken, nonce } = appleAuthRequestResponse;

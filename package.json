@@ -1,13 +1,14 @@
 {
   "name": "Trevelog",
-  "version": "0.0.1",
+  "version": "1.1.3",
   "private": true,
   "scripts": {
     "android": "react-native run-android",
     "ios": "react-native run-ios",
     "start": "react-native start",
     "test": "jest",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "build:ios": "react-native bundle --entry-file='index.js' --bundle-output='./ios/main.jsbundle' --dev=false --platform='ios'"
   },
   "dependencies": {
     "@invertase/react-native-apple-authentication": "^2.1.0",
