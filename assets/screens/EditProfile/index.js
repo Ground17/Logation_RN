@@ -63,16 +63,21 @@ export default class EditProfile extends Component {
         <SafeAreaView style={styles.container}>
             {this.state.loading ? 
             <View style={{
+                backgroundColor: Appearance.getColorScheme() === 'dark' ? '#121212' : '#fff',
                 alignItems: 'center',
                 justifyContent: 'center',
+                height: "100%",
+                width: "100%", 
                 marginBottom:5,}}>
-                <ActivityIndicator size="large" color={Appearance.getColorScheme() === 'dark' ? "#fff" : "#002f6c"} />
+                <ActivityIndicator size="large" color={Appearance.getColorScheme() === 'dark' ? '#01579b' : '#002f6c'} />
                 <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}> {translate("EditProfileComment1")} </Text>
             </View>
             : <View style={{
                 alignItems: 'center',
                 justifyContent: 'center',
-                marginTop:10}}>
+                height: "100%",
+                backgroundColor: Appearance.getColorScheme() === 'dark' ? '#121212' : '#fff',
+            }}>
                 <View style={{
                     flexDirection: 'row',
                     alignItems: 'center',
@@ -194,7 +199,7 @@ const styles = StyleSheet.create({
     },
     loginButton: {
         backgroundColor: "#002f6c",
-        borderColor: "#fff",
+        borderColor: "#002f6c",
         borderWidth: 1,
     },
     loginText: {

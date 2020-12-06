@@ -135,6 +135,7 @@ export default class EditScreen extends Component {
               title: data.title,
               subtitle: data.subtitle,
               link: data.link,
+              viewcode: data.viewcode,
             });
             for (var i=0; i < data.data.length; i++) {
               try {
@@ -360,10 +361,13 @@ export default class EditScreen extends Component {
                     {text: translate('Cancel'), onPress: () => {}},
                     {text: translate('OK'), onPress: async () => {
                       await this.update();
+                      this.props.navigation.pop();
                     }},
                 ],
                 { cancelable: false }
               );
+            } else {
+              this.props.navigation.pop();
             }
           }}>
             <Icon
@@ -374,9 +378,6 @@ export default class EditScreen extends Component {
           </TouchableOpacity>
         </View>
       });
-      this.setState({
-        viewcode: this.props.route.params.viewcode,
-      });
       this.refresh();
     }
     render() {
@@ -384,18 +385,18 @@ export default class EditScreen extends Component {
       return(
         <SafeAreaView style={styles.container}>
           { this.state.loading ? 
-            <View style={styles.buttonContainer}>
-                <ActivityIndicator size="large" color={Appearance.getColorScheme() === 'dark' ? "#fff" : "#002f6c"} />
+            <View style={[styles.buttonContainer, {backgroundColor: Appearance.getColorScheme() === 'dark' ? '#121212' : '#fff', width: "100%", height: "100%"}]}>
+                <ActivityIndicator size="large" color={Appearance.getColorScheme() === 'dark' ? '#01579b' : '#002f6c'} />
                 <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}> {translate('EditScreenComment4')} </Text>
             </View>
           : this.state.viewcode == 0 ? <MapView
             style={{flex: 1, width: "100%", marginBottom: this.state.marginBottom}}
             provider={PROVIDER_GOOGLE} // remove if not using Google Maps
-            region={{
-              latitude: this.state.lat,
-              longitude: this.state.long,
-              latitudeDelta: this.state.latDelta,
-              longitudeDelta: this.state.longDelta,
+            initialRegion={{
+              latitude: this.props.route.params.latitude,
+              longitude: this.props.route.params.longitude,
+              latitudeDelta: 0.922,
+              longitudeDelta: 0.421,
             }}
             onMapReady={() => {
               this.setState({marginBottom: 0})
@@ -405,14 +406,14 @@ export default class EditScreen extends Component {
             showsUserLocation={true}
             showsMyLocationButton={true}
             showsCompass={true}
-            onRegionChangeComplete={(e) => {
-              this.setState({ 
-                lat: e.latitude,
-                long: e.longitude,
-                latDelta: e.latitudeDelta,
-                longDelta: e.longitudeDelta,
-              });
-            }}
+            // onRegionChangeComplete={(e) => {
+            //   this.setState({ 
+            //     lat: e.latitude,
+            //     long: e.longitude,
+            //     latDelta: e.latitudeDelta,
+            //     longDelta: e.longitudeDelta,
+            //   });
+            // }}
           >
           <Polyline
             coordinates={this.state.list.map(data => {
@@ -452,6 +453,7 @@ export default class EditScreen extends Component {
           ))}
           </MapView>
           : (this.state.viewcode == 1 ? <DraggableFlatList
+              style={{backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff"}}
               keyExtractor={this.keyExtractor}
               data={this.state.list}
               renderItem={this.renderItem}
@@ -461,6 +463,7 @@ export default class EditScreen extends Component {
               })}
           />
           : <FlatList
+              style={{backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff"}}
               key={3}
               data={this.state.list}
               renderItem={this.renderGrid}

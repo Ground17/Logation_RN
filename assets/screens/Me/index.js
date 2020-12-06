@@ -11,7 +11,7 @@ import {
   Appearance,
 } from 'react-native';
 
-import { adsFree, translate, } from '../Utils';
+import { adsFree, translate, screenId, screenEmail, } from '../Utils';
 
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
@@ -129,13 +129,13 @@ export default class Me extends Component {
             }
         }
 
-        if (Platform.OS === 'android') {
-            Linking.getInitialURL().then(url => {
-                this.navigate(url);
-            });
-        } Linking.addEventListener('url', this.handleOpenURL);
+        // Linking.getInitialURL().then(url => {
+        //     this.navigate(url);
+        // });
         
-        firestore()
+        Linking.addEventListener('url', this.handleOpenURL);
+        
+        await firestore()
             .collection(auth().currentUser.email)
             .orderBy("modifyDate", "desc")
             .get()
@@ -170,6 +170,14 @@ export default class Me extends Component {
         });
         await requestUserPermission();
         await this.refresh();
+
+        if (screenId != '' && screenEmail != '') {
+            this.props.navigation.push('ShowScreen', {
+                itemId: screenId,
+                userEmail: screenEmail,
+                onPop: () => this.refresh(),
+            });
+        }
     }
 
     componentWillUnmount() {
@@ -180,7 +188,7 @@ export default class Me extends Component {
         this.navigate(event.url);
     }
 
-    navigate = (url) => { // url scheme settings (ex: https://travelog-4e274.web.app/?email=hyla981020@naver.com&&id=2EgGSgGMVzHFzq8oErBi&&viewcode=1)
+    navigate = (url) => { // url scheme settings (ex: https://travelog-4e274.web.app/?email=hyla981020@naver.com&&id=2EgGSgGMVzHFzq8oErBi)
         var regex = /[?&]([^=#]+)=([^&#]*)/g,
             params = {},
             match;
@@ -196,7 +204,6 @@ export default class Me extends Component {
         this.props.navigation.push('ShowScreen', {
             itemId: params['id'],
             userEmail: params['email'],
-            viewcode: params['viewcode'] ? parseInt(params['viewcode']) : 0,
             onPop: () => this.refresh(),
         });
     }
@@ -215,12 +222,11 @@ export default class Me extends Component {
             subtitle={item.subtitle}
             subtitleStyle={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}
             leftAvatar={{ source: { uri: item.url }, rounded: false}}
-            containerStyle={{backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#fff'}}
+            containerStyle={{backgroundColor: Appearance.getColorScheme() === 'dark' ? '#121212' : '#fff'}}
             bottomDivider
             onPress={() => { this.props.navigation.push('ShowScreen', {
                 itemId: item.id,
                 userEmail: auth().currentUser.email,
-                viewcode: item.viewcode,
                 onPop: () => this.refresh(),
             }) }}
         />
@@ -270,8 +276,9 @@ export default class Me extends Component {
                         </TouchableOpacity>
                     </View>
                 </View>
-                <View style={[styles.buttonContainer, {marginTop:10, width: '84%' }]}>
+                <View style={[{width: '100%', backgroundColor: Appearance.getColorScheme() === 'dark' ? '#121212' : '#fff' }]}>
                     <View style={{
+                        marginTop:10,
                         flexDirection: 'row',
                         alignItems: 'center',
                         justifyContent: 'space-around',
@@ -344,7 +351,7 @@ export default class Me extends Component {
                             <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}> {this.state.views.length} </Text>
                         </View>
                     </View>
-                    <View style={{alignItems: 'center',}}>
+                    <View style={{alignItems: 'center', marginBottom: 5}}>
                         {this.state.ads && <BannerAd 
                             unitId={adBannerUnitId} 
                             size={BannerAdSize.BANNER}
@@ -352,7 +359,7 @@ export default class Me extends Component {
                     </View>
                 </View>
                 <FlatList
-                    style={{width: "100%"}}
+                    style={{width: "100%", backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff" }}
                     keyExtractor={this.keyExtractor}
                     data={this.state.list}
                     renderItem={this.renderItem}
@@ -374,7 +381,7 @@ const styles = StyleSheet.create({
         height: 50,
         justifyContent: 'space-between',
         flexDirection: 'row',
-        backgroundColor: Appearance.getColorScheme() === 'dark' ? "#01579b" : "#fff"
+        backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#fff'
     },
     buttonContainer: {
         alignItems: 'center',

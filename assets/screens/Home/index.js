@@ -114,7 +114,7 @@ export default class Home extends Component {
         this.navigate(event.url);
     }
 
-    navigate = (url) => { // url scheme settings (ex: https://travelog-4e274.web.app/?email=hyla981020@naver.com&&id=2EgGSgGMVzHFzq8oErBi&&viewcode=1)
+    navigate = (url) => { // url scheme settings (ex: https://travelog-4e274.web.app/?email=hyla981020@naver.com&&id=2EgGSgGMVzHFzq8oErBi)
         var regex = /[?&]([^=#]+)=([^&#]*)/g,
             params = {},
             match;
@@ -130,7 +130,6 @@ export default class Home extends Component {
         this.props.navigation.push('ShowScreen', {
             itemId: params['id'],
             userEmail: params['email'],
-            viewcode: params['viewcode'] ? parseInt(params['viewcode']) : 0,
             onPop: () => this.refresh(),
         });
     }
@@ -147,7 +146,6 @@ export default class Home extends Component {
                     this.props.navigation.push('ShowScreen', {
                         itemId: item.id,
                         userEmail: item.email,
-                        viewcode: item.viewcode,
                         onPop: () => this.refresh(),
                     }) 
                 }}>
@@ -165,7 +163,7 @@ export default class Home extends Component {
                 titleStyle={{ fontWeight: 'bold', width: '100%', color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000' }}
                 subtitle={`${item.displayName}\n${item.email}`}
                 subtitleStyle={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}
-                containerStyle={{backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#fff'}}
+                containerStyle={{backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff"}}
                 leftAvatar={{ 
                     size: "small", 
                     source: item.profileURL ? { uri: item.profileURL } : require('./../../logo/ic_launcher.png'), 
@@ -192,7 +190,6 @@ export default class Home extends Component {
                     this.props.navigation.push('ShowScreen', {
                         itemId: item.id,
                         userEmail: item.email,
-                        viewcode: item.viewcode,
                         onPop: () => this.refresh(),
                     }) 
                 }}
@@ -222,8 +219,8 @@ export default class Home extends Component {
                         </View>
                     </View>
                 </View>
-                <View style={styles.buttonContainer, {marginTop:10, width: '84%' }}>
-                    <View style={{alignItems: 'center'}}>
+                <View style={{ marginTop: 5, marginButtom:5, width: '100%' }}>
+                    <View style={{alignItems: 'center', backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff"}}>
                         {this.state.ads && <BannerAd 
                             unitId={adBannerUnitId} 
                             size={BannerAdSize.BANNER}
@@ -231,7 +228,7 @@ export default class Home extends Component {
                     </View>
                 </View>
                 <FlatList
-                    style={{width: "100%"}}
+                    style={{width: "100%", backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff"}}
                     keyExtractor={this.keyExtractor}
                     data={this.state.list}
                     renderItem={this.renderItem}
@@ -252,11 +249,6 @@ const styles = StyleSheet.create({
         width: "100%",
         height: 50,
         justifyContent: 'space-between',
-        backgroundColor: Appearance.getColorScheme() === 'dark' ? "#01579b" : "#fff"
-    },
-    buttonContainer: {
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginBottom:5,
+        backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#fff'
     },
 });

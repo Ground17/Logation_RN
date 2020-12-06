@@ -5,6 +5,7 @@ import {
   StyleSheet,
   View,
   Text,
+  TextInput,
   TouchableOpacity,
   ScrollView,
   Image,
@@ -74,9 +75,9 @@ export default class EditList extends Component {
                 defaultValue={item.title}
                 style={{
                     fontWeight: 'bold', 
-                    borderBottomColor: Appearance.getColorScheme() === 'dark' ? "#fff" : '#002f6c',
+                    borderBottomColor: Appearance.getColorScheme() === 'dark' ? "#fff" : '#000',
                     flex:1,
-                    color: Appearance.getColorScheme() === 'dark' ? "#fff" : "#002f6c",
+                    color: Appearance.getColorScheme() === 'dark' ? "#fff" : "#000",
                 }}
                 maxLength={40}
                 onChangeText={(title) => {
@@ -93,9 +94,9 @@ export default class EditList extends Component {
             <TextInput
                 defaultValue={item.subtitle}
                 style={{
-                    borderBottomColor: Appearance.getColorScheme() === 'dark' ? "#fff" : '#002f6c',
+                    borderBottomColor: Appearance.getColorScheme() === 'dark' ? "#fff" : '#000',
                     flex:1,
-                    color: Appearance.getColorScheme() === 'dark' ? "#fff" : "#002f6c",
+                    color: Appearance.getColorScheme() === 'dark' ? "#fff" : "#000",
                 }}
                 maxLength={40}
                 onChangeText = {(subtitle) => {
@@ -109,6 +110,7 @@ export default class EditList extends Component {
             />  
         }
         leftAvatar={{ source: { uri: item.photo }, rounded: false}}
+        containerStyle={{backgroundColor: Appearance.getColorScheme() === 'dark' ? '#121212' : '#fff'}}
         onLongPress={drag}
         rightElement={
             <TouchableOpacity style={{marginRight:5}} onPress={() => { 
@@ -180,13 +182,13 @@ export default class EditList extends Component {
         return(
             <SafeAreaView style={styles.container}>
                 {this.state.loading ? 
-                <View style={styles.buttonContainer}>
-                    <ActivityIndicator size="large" color={Appearance.getColorScheme() === 'dark' ? '#fff' : "#002f6c"} />
+                <View style={[styles.buttonContainer, {backgroundColor: Appearance.getColorScheme() === 'dark' ? '#121212' : '#fff', width: "100%", height: "100%"}]}>
+                    <ActivityIndicator size="large" color={Appearance.getColorScheme() === 'dark' ? '#01579b' : '#002f6c'} />
                     <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}> {translate("AddListComment1")} </Text>
                 </View>
                 : <ScrollView 
                     contentContainerStyle={styles.viewContainer}
-                    style={{flex: 1, width: "100%"}}
+                    style={{flex: 1, width: "100%", backgroundColor: Appearance.getColorScheme() === 'dark' ? '#121212' : '#fff',}}
                 >
                     <View style={{height: 200, width: 100, alignItems: 'center', justifyContent: 'center', flexDirection: 'row'}}>
                         <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}> {translate("Category")} </Text>
@@ -313,7 +315,7 @@ export default class EditList extends Component {
                         />
                     </View>
                     {this.state.data.length > 0 && <Text style={{textAlign: 'center', color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}> {translate("AddListComment2")} </Text>}
-                    <View style={{ flex: 1, width: "84%" }}>
+                    <View style={{ flex: 1, width: "80%", marginBottom: 5, backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#ffffff' }}>
                         <DraggableFlatList
                             keyExtractor={this.keyExtractor}
                             data={this.state.data}
@@ -555,7 +557,7 @@ const styles = StyleSheet.create({
     },
     loginButton: {
         backgroundColor: "#002f6c",
-        borderColor: "#fff",
+        borderColor: "#002f6c",
         borderWidth: 1,
     },
     loginText: {

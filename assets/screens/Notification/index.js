@@ -24,7 +24,7 @@ export default class Notification extends Component {
   render() {
     return(
       <SafeAreaView style={styles.container}>
-        <View style={styles.buttonContainer, {marginTop:10}}>
+        <View style={{width: "100%", height: "100%", backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff"}}>
           
         </View>
       </SafeAreaView>
@@ -55,18 +55,4 @@ const styles = StyleSheet.create({
       justifyContent: 'center',
       marginBottom:5,
     },
-    loginButton: {
-      backgroundColor: "#002f6c",
-    },
-    signUpButton: {
-      backgroundColor: "#fff",
-      borderColor: '#002f6c',
-      borderWidth: 1,
-    },
-    loginText: {
-      color: 'white',
-    },
-    signUpText: {
-      color: '#002f6c',
-    }
 });

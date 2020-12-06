@@ -8,7 +8,9 @@ import {
   Alert,
   ActivityIndicator,
   Appearance,
+  Linking,
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 
 import messaging, { AuthorizationStatus } from '@react-native-firebase/messaging';
 
@@ -31,7 +33,7 @@ import EditItem from './assets/screens/EditItem';
 import Following from './assets/screens/Following';
 import Purchase from './assets/screens/Purchase';
 import Language from './assets/screens/Language';
-import { translate, LocalizationProvider, LocalizationContext } from './assets/screens/Utils';
+import { translate, LocalizationProvider, LocalizationContext, screenId, screenEmail, setId, setEmail, } from './assets/screens/Utils';
 
 
 import admob, { MaxAdContentRating } from '@react-native-firebase/admob';
@@ -74,7 +76,7 @@ function Main({ navigation }) {
         tabBarOptions={{
           activeTintColor: Appearance.getColorScheme() === 'dark' ? '#fff' : '#002f6c',
           inactiveTintColor: 'gray',
-          style: {backgroundColor: Appearance.getColorScheme() === 'dark' ? '#01579b' : '#fff',},
+          style: {backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#fff',},
         }}
     >
       <Tab.Screen 
@@ -101,8 +103,44 @@ function Main({ navigation }) {
 const SplashScreen = ({navigation}) => {
   const {appLanguage, initializeAppLanguage} = useContext(LocalizationContext);
 
+  const handleOpenURL = (event) => {
+    console.log(event.url);
+    navigate(event.url);
+  }
+
+  const navigate = (url) => { // url scheme settings (ex: https://travelog-4e274.web.app/?email=hyla981020@naver.com&&id=2EgGSgGMVzHFzq8oErBi&&viewcode=1)
+    var regex = /[?&]([^=#]+)=([^&#]*)/g,
+      params = {},
+      match;
+    var i = 0;
+    try {
+      while (match = regex.exec(url)) {
+        params[match[1]] = match[2];
+        i++;
+      }
+      console.log(params)
+      if (!params['email'] || !params['id']) {
+        return;
+      }
+
+      setId(params['id']);
+      setEmail(params['email']);
+      console.log(screenId);
+      console.log(screenEmail);
+    } catch (e) {
+      console.log(e);
+      return;
+    }
+  }
+
   useEffect(() => {
+    Linking.getInitialURL().then(url => {
+      navigate(url);
+    });
+    Linking.addEventListener('url', this.handleOpenURL);
+
     initializeAppLanguage();
+
     const timer = setTimeout(() => {
       if (!auth().currentUser || !auth().currentUser.emailVerified) {
         navigation.replace('Login');
@@ -110,12 +148,15 @@ const SplashScreen = ({navigation}) => {
         navigation.replace('Main');
       }
     }, 2000);
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      Linking.removeEventListener('url', this.handleOpenURL);
+    }
   }, [navigation, initializeAppLanguage]);
 
   return (
-    <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
-      <ActivityIndicator size="large" color="#002f6c" />
+    <View style={{flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: Appearance.getColorScheme() === 'dark' ? '#000' : '#fff'}}>
+      <ActivityIndicator size="large" color={Appearance.getColorScheme() === 'dark' ? '#01579b' : '#002f6c'} />
     </View>
   );
 };
@@ -152,7 +193,7 @@ export default class App extends Component {
             <Stack.Screen options={{headerShown: false}} name="Login" component={Login} />
             <Stack.Screen name="SignUp" component={SignUp} options={{
               headerStyle: {
-                backgroundColor: Appearance.getColorScheme() === 'dark' ? '#01579b' : '#002f6c',
+                backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#01579b',
               },
               headerTintColor: '#fff',
               headerTitleStyle: {
@@ -161,7 +202,7 @@ export default class App extends Component {
             }}/>
             <Stack.Screen name="ResetPassword" component={ResetPassword}  options={{
               headerStyle: {
-                backgroundColor: Appearance.getColorScheme() === 'dark' ? '#01579b' : '#002f6c',
+                backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#01579b',
               },
               headerTintColor: '#fff',
               headerTitleStyle: {
@@ -171,7 +212,7 @@ export default class App extends Component {
             <Stack.Screen options={{headerShown: false}} name="Main" component={Main} />
             <Stack.Screen name="Notification" component={Notification} options={{
               headerStyle: {
-                backgroundColor: Appearance.getColorScheme() === 'dark' ? '#01579b' : '#002f6c',
+                backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#01579b',
               },
               headerTintColor: '#fff',
               headerTitleStyle: {
@@ -180,7 +221,7 @@ export default class App extends Component {
             }}/>
             <Stack.Screen name="ShowScreen" component={ShowScreen} options={{
               headerStyle: {
-                backgroundColor: Appearance.getColorScheme() === 'dark' ? '#01579b' : '#002f6c',
+                backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#01579b',
               },
               headerTintColor: '#fff',
               headerTitleStyle: {
@@ -189,7 +230,7 @@ export default class App extends Component {
             }}/>
             <Stack.Screen name="ShowItem" component={ShowItem} options={{
               headerStyle: {
-                backgroundColor: Appearance.getColorScheme() === 'dark' ? '#01579b' : '#002f6c',
+                backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#01579b',
               },
               headerTintColor: '#fff',
               headerTitleStyle: {
@@ -198,7 +239,7 @@ export default class App extends Component {
             }}/>
             <Stack.Screen name="AddList" component={AddList} options={{
               headerStyle: {
-                backgroundColor: Appearance.getColorScheme() === 'dark' ? '#01579b' : '#002f6c',
+                backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#01579b',
               },
               headerTintColor: '#fff',
               headerTitleStyle: {
@@ -207,7 +248,7 @@ export default class App extends Component {
             }}/>
             <Stack.Screen name="EditProfile" component={EditProfile} options={{
               headerStyle: {
-                backgroundColor: Appearance.getColorScheme() === 'dark' ? '#01579b' : '#002f6c',
+                backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#01579b',
               },
               headerTintColor: '#fff',
               headerTitleStyle: {
@@ -216,7 +257,7 @@ export default class App extends Component {
             }}/>
             <Stack.Screen name="EditScreen" component={EditScreen} options={{
               headerStyle: {
-                backgroundColor: Appearance.getColorScheme() === 'dark' ? '#01579b' : '#002f6c',
+                backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#01579b',
               },
               headerTintColor: '#fff',
               headerTitleStyle: {
@@ -225,7 +266,7 @@ export default class App extends Component {
             }}/>
             <Stack.Screen name="EditList" component={EditList} options={{
               headerStyle: {
-                backgroundColor: Appearance.getColorScheme() === 'dark' ? '#01579b' : '#002f6c',
+                backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#01579b',
               },
               headerTintColor: '#fff',
               headerTitleStyle: {
@@ -234,7 +275,7 @@ export default class App extends Component {
             }}/>
             <Stack.Screen name="EditItem" component={EditItem} options={{
               headerStyle: {
-                backgroundColor: Appearance.getColorScheme() === 'dark' ? '#01579b' : '#002f6c',
+                backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#01579b',
               },
               headerTintColor: '#fff',
               headerTitleStyle: {
@@ -243,7 +284,7 @@ export default class App extends Component {
             }}/>
             <Stack.Screen name="Settings" component={UserSetting} options={{
               headerStyle: {
-                backgroundColor: Appearance.getColorScheme() === 'dark' ? '#01579b' : '#002f6c',
+                backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#01579b',
               },
               headerTintColor: '#fff',
               headerTitleStyle: {
@@ -252,7 +293,7 @@ export default class App extends Component {
             }}/>
             <Stack.Screen name="Other" component={Other} options={{
               headerStyle: {
-                backgroundColor: Appearance.getColorScheme() === 'dark' ? '#01579b' : '#002f6c',
+                backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#01579b',
               },
               headerTintColor: '#fff',
               headerTitleStyle: {
@@ -261,7 +302,7 @@ export default class App extends Component {
             }}/>
             <Stack.Screen name="Following" component={Following} options={{
               headerStyle: {
-                backgroundColor: Appearance.getColorScheme() === 'dark' ? '#01579b' : '#002f6c',
+                backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#01579b',
               },
               headerTintColor: '#fff',
               headerTitleStyle: {
@@ -270,7 +311,7 @@ export default class App extends Component {
             }}/>
             <Stack.Screen name="Purchase" component={Purchase} options={{
               headerStyle: {
-                backgroundColor: Appearance.getColorScheme() === 'dark' ? '#01579b' : '#002f6c',
+                backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#01579b',
               },
               headerTintColor: '#fff',
               headerTitleStyle: {
@@ -279,7 +320,7 @@ export default class App extends Component {
             }}/>
             <Stack.Screen name="Language" component={Language} options={{
               headerStyle: {
-                backgroundColor: Appearance.getColorScheme() === 'dark' ? '#01579b' : '#002f6c',
+                backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#01579b',
               },
               headerTintColor: '#fff',
               headerTitleStyle: {

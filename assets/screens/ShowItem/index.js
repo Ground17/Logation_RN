@@ -131,7 +131,7 @@ export default class ShowItem extends Component {
       console.log(this.props.route.params.url);
       return(
         <SafeAreaView style={styles.container}>
-          <ScrollView>
+          <ScrollView style={{backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff"}}>
             <Text style={[styles.titleText, {color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}]}>
               {this.props.route.params.title}
             </Text>

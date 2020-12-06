@@ -35,25 +35,27 @@ export default Language = ({navigation}) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      {Object.keys(translationGetters).map(item => (
-        <View key={item} style={{width: "100%"}}>
-          <ListItem
-            containerStyle={{backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#fff'}}
-            title={translate(item)}
-            titleStyle={{ fontWeight: 'bold', color: Appearance.getColorScheme() === 'dark' ? "#fff" : "#000" }}
-            rightIcon={appLanguage == item ? (
-              <Icon 
-              name='check-circle'
-              size={24}
-              color={Appearance.getColorScheme() === 'dark' ? "#fff" : '#002f6c'} />
-            ) : null}
-            bottomDivider
-            onPress={() => { 
-              alert(item);
-            }}
-          />
-        </View>
-      ))}
+      <View style={{width: "100%", height: "100%", backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff"}}>
+        {Object.keys(translationGetters).map(item => (
+          <View key={item} style={{width: "100%"}}>
+            <ListItem
+              containerStyle={{backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff"}}
+              title={translate(item)}
+              titleStyle={{ fontWeight: 'bold', color: Appearance.getColorScheme() === 'dark' ? "#fff" : "#000" }}
+              rightIcon={appLanguage == item ? (
+                <Icon 
+                name='check-circle'
+                size={24}
+                color={Appearance.getColorScheme() === 'dark' ? "#fff" : '#002f6c'} />
+              ) : null}
+              bottomDivider
+              onPress={() => { 
+                alert(item);
+              }}
+            />
+          </View>
+        ))}
+      </View>
     </SafeAreaView>
   );
 };

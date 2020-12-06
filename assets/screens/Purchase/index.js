@@ -220,6 +220,8 @@ const styles = StyleSheet.create({
     },
     loginButton: {
         backgroundColor: "#002f6c",
+        borderColor: "#002f6c",
+        borderWidth: 1,
     },
     signUpButton: {
         backgroundColor: "#fff",

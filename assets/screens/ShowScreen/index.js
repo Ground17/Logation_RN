@@ -30,7 +30,7 @@ import MapView, { Polyline, Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import storage from '@react-native-firebase/storage';
 import firestore from '@react-native-firebase/firestore';
 
-import { translate } from '../Utils';
+import { translate, setId, setEmail, } from '../Utils';
 
 export default class ShowScreen extends Component {
     state = {
@@ -56,7 +56,7 @@ export default class ShowScreen extends Component {
             subtitle={item.date.toDate().toString()}
             subtitleStyle={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}
             leftAvatar={{ source: { uri: item.url }, rounded: false}}
-            containerStyle={{backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#fff'}}
+            containerStyle={{backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff"}}
             bottomDivider
             onPress={() => { this.props.navigation.push('ShowItem', {
                     date: item.date.toDate(),
@@ -122,7 +122,7 @@ export default class ShowScreen extends Component {
 
       var storageRef = storage().ref();
       
-      firestore()
+      await firestore()
         .collection(this.props.route.params.userEmail)
         .doc(this.props.route.params.itemId)
         .get()
@@ -180,7 +180,6 @@ export default class ShowScreen extends Component {
             }
           }
         });
-      console.log(this.props.route.params.viewcode);
     }
     
     async componentDidMount() {
@@ -199,7 +198,8 @@ export default class ShowScreen extends Component {
                   this.props.navigation.push('EditScreen', {
                     itemId: this.props.route.params.itemId,
                     userEmail: this.props.route.params.userEmail,
-                    viewcode: this.props.route.params.viewcode,
+                    latitude: this.state.list[0].lat,
+                    longitude: this.state.list[0].long,
                     onPop: () => this.refresh(),
                   })
               }}>
@@ -213,10 +213,11 @@ export default class ShowScreen extends Component {
             }
         </View>
       });
-      console.log(this.props.route.params.viewcode);
-      this.setState({
-        viewcode: this.props.route.params.viewcode
-      });
+      console.log("itemId: ", this.props.route.params.itemId);
+      console.log("userEmail: ", this.props.route.params.userEmail);
+
+      setId('');
+      setEmail('');
 
       this.refresh();
     }
@@ -275,11 +276,13 @@ export default class ShowScreen extends Component {
           ))}
           </MapView>
           : (this.state.viewcode == 1 ? <FlatList
+              style={{backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff"}}
               keyExtractor={this.keyExtractor}
               data={this.state.list}
               renderItem={this.renderItem}
           />
           : <FlatList
+              style={{backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff"}}
               key={3}
               data={this.state.list}
               renderItem={this.renderGrid}
@@ -405,7 +408,7 @@ export default class ShowScreen extends Component {
             </View>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => {
-            const url = 'https://footprintwithmap.site/?email=' + this.props.route.params.userEmail + '&id=' + this.props.route.params.itemId + '&viewcode=' + this.state.viewcode;
+            const url = 'https://footprintwithmap.site/?email=' + this.props.route.params.userEmail + '&id=' + this.props.route.params.itemId;
             const title = 'URL Content';
             const message = 'Please check this out.';
             const options = Platform.select({

@@ -106,58 +106,60 @@ export default class SignUp extends Component {
     render() {
         return (
         <SafeAreaView style={styles.container}>
-            <View style={styles.cellView}>
-                <Input
-                placeholder={translate('Email')}
-                placeholderTextColor="#bdbdbd"
-                onChangeText = {(email) => this.setState({email})}
-                leftIcon={
-                    <Icon
-                    name='email'
-                    size={24}
-                    color={Appearance.getColorScheme() === 'dark' ? '#ffffff' : '#002f6c'}
+            <View style={{justifyContent: 'center', alignItems: 'center', width: "100%", height: "100%", backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff"}}>
+                <View style={styles.cellView}>
+                    <Input
+                    placeholder={translate('Email')}
+                    placeholderTextColor="#bdbdbd"
+                    onChangeText = {(email) => this.setState({email})}
+                    leftIcon={
+                        <Icon
+                        name='email'
+                        size={24}
+                        color={Appearance.getColorScheme() === 'dark' ? '#ffffff' : '#002f6c'}
+                        />
+                    }
+                    inputStyle={styles.inputs}
                     />
-                }
-                inputStyle={styles.inputs}
-                />
-            </View>
-            <View style={styles.cellView}>
-                <Input
-                placeholder={translate('Password')}
-                placeholderTextColor="#bdbdbd"
-                secureTextEntry={true}
-                onChangeText = {(password) => this.setState({password})}
-                leftIcon={
-                    <Icon
-                    name='lock'
-                    size={24}
-                    color={Appearance.getColorScheme() === 'dark' ? '#ffffff' : '#002f6c'}
+                </View>
+                <View style={styles.cellView}>
+                    <Input
+                    placeholder={translate('Password')}
+                    placeholderTextColor="#bdbdbd"
+                    secureTextEntry={true}
+                    onChangeText = {(password) => this.setState({password})}
+                    leftIcon={
+                        <Icon
+                        name='lock'
+                        size={24}
+                        color={Appearance.getColorScheme() === 'dark' ? '#ffffff' : '#002f6c'}
+                        />
+                    }
+                    inputStyle={styles.inputs}
                     />
-                }
-                inputStyle={styles.inputs}
-                />
-            </View>
-            <View style={styles.cellView}>
-                <Input
-                placeholder={translate('ConfirmPassword')}
-                placeholderTextColor="#bdbdbd"
-                secureTextEntry={true}
-                onChangeText = {(passwordConfirm) => this.setState({passwordConfirm})}
-                leftIcon={
-                    <Icon
-                    name='lock'
-                    size={24}
-                    color={Appearance.getColorScheme() === 'dark' ? '#ffffff' : '#002f6c'}
+                </View>
+                <View style={styles.cellView}>
+                    <Input
+                    placeholder={translate('ConfirmPassword')}
+                    placeholderTextColor="#bdbdbd"
+                    secureTextEntry={true}
+                    onChangeText = {(passwordConfirm) => this.setState({passwordConfirm})}
+                    leftIcon={
+                        <Icon
+                        name='lock'
+                        size={24}
+                        color={Appearance.getColorScheme() === 'dark' ? '#ffffff' : '#002f6c'}
+                        />
+                    }
+                    inputStyle={styles.inputs}
                     />
-                }
-                inputStyle={styles.inputs}
-                />
+                </View>
+                <TouchableOpacity style={[styles.buttonContainer, styles.signUpButton]} onPress={() => { 
+                    this.createEmail(this.state.email, this.state.password, this.state.passwordConfirm)
+                }}>
+                    <Text style={styles.signUpText}>{translate('SignUp')}</Text>
+                </TouchableOpacity>
             </View>
-            <TouchableOpacity style={[styles.buttonContainer, styles.signUpButton]} onPress={() => { 
-                this.createEmail(this.state.email, this.state.password, this.state.passwordConfirm)
-            }}>
-                <Text style={styles.signUpText}>{translate('SignUp')}</Text>
-            </TouchableOpacity>
         </SafeAreaView>
         );
     }

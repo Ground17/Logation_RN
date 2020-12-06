@@ -24,6 +24,16 @@ const DEFAULT_LANGUAGE = 'en';
 
 var adsFree = false;
 
+var screenId = '';
+var screenEmail = '';
+
+const setId = (data) => {
+  screenId = data;
+};
+const setEmail = (data) => {
+  screenEmail = data;
+};
+
 const translationGetters = {
   en: () => require('../../translations/en.json'), // 영어
   ko: () => require('../../translations/ko.json'), // 한국어
@@ -167,4 +177,8 @@ export {
   LocalizationContext,
   LocalizationProvider,
   adsFree,
+  screenId,
+  screenEmail,
+  setId,
+  setEmail,
 }

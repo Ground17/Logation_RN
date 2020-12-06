@@ -103,7 +103,7 @@ export default class Search extends Component {
       subtitle={item.email}
       subtitleStyle={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}
       leftAvatar={{ source: item.profileURL ? { uri: item.profileURL } : require('./../../logo/ic_launcher.png'), rounded: true}}
-      containerStyle={{backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#fff'}}
+      containerStyle={{backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff"}}
       bottomDivider
       onPress={() => { 
         if (auth().currentUser.email != item.email) {
@@ -147,7 +147,7 @@ export default class Search extends Component {
             }
           />
           <FlatList
-            style={{width: "100%"}}
+            style={{width: "100%", backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff"}}
             keyExtractor={this.keyExtractor}
             data={this.state.list}
             renderItem={this.renderItem}
@@ -165,7 +165,7 @@ const styles = StyleSheet.create({
         backgroundColor: Appearance.getColorScheme() === 'dark' ? "#002f6c" : "#fff",
     },
     cellView: {
-      backgroundColor: Appearance.getColorScheme() === 'dark' ? "#002f6c" : "#fff",
-      width: "95%",
+      backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff",
+      width: "100%",
     },
 });

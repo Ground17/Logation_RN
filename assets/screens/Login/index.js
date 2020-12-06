@@ -17,9 +17,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import auth from '@react-native-firebase/auth';
 
 import { GoogleSignin, GoogleSigninButton, statusCodes } from '@react-native-community/google-signin';
-import appleAuth, {
-  AppleButton,
-} from '@invertase/react-native-apple-authentication';
+import appleAuth, { AppleButton, } from '@invertase/react-native-apple-authentication';
 
 import { InterstitialAd, BannerAd, TestIds, BannerAdSize } from '@react-native-firebase/admob';
 
@@ -188,7 +186,7 @@ export default class Login extends Component {
               </View>
           </View>
         </View>
-        <View style={{flex: 1, width: "100%", alignItems: 'center', justifyContent: 'center'}}>
+        <View style={{flex: 1, width: "100%", alignItems: 'center', justifyContent: 'center', backgroundColor: Appearance.getColorScheme() === 'dark' ? '#121212' : '#fff'}}>
           <View style={styles.cellView}>
               <Input
               autoCapitalize='none'
@@ -235,7 +233,7 @@ export default class Login extends Component {
           </TouchableOpacity>
           <View style={{marginBottom: 15}}>
               <View style={{alignSelf:'center', position:'absolute', borderBottomColor:'gray', borderBottomWidth:1, height:'50%', width:'80%'}}/>
-              <Text style={{alignSelf:'center', paddingHorizontal:5, backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#fff', color: 'gray'}}>Or</Text>
+              <Text style={{alignSelf:'center', paddingHorizontal:5, backgroundColor: Appearance.getColorScheme() === 'dark' ? '#121212' : '#fff', color: 'gray'}}>Or</Text>
           </View>
           <GoogleSigninButton
               style={styles.cell}
@@ -276,7 +274,7 @@ const styles = StyleSheet.create({
     width: "100%",
     height: 50,
     justifyContent: 'space-between',
-    backgroundColor: Appearance.getColorScheme() === 'dark' ? "#01579b" : "#fff"
+    backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#fff',
   },
   cellView: { 
     width: "84%",
@@ -299,7 +297,7 @@ const styles = StyleSheet.create({
   },
   loginButton: {
     backgroundColor: "#002f6c",
-    borderColor: "#fff",
+    borderColor: "#002f6c",
     borderWidth: 1,
   },
   signUpButton: {

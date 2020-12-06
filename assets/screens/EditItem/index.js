@@ -271,13 +271,13 @@ export default class EditItem extends Component {
       return(
         <SafeAreaView style={styles.container}>
         {this.state.loading ? 
-          <View style={styles.buttonContainer}>
-              <ActivityIndicator size="large" color={Appearance.getColorScheme() === 'dark' ? "#fff" : "#002f6c"} />
+          <View style={[styles.buttonContainer, {backgroundColor: Appearance.getColorScheme() === 'dark' ? '#121212' : '#fff', width: "100%", height: "100%"}]}>
+              <ActivityIndicator size="large" color={Appearance.getColorScheme() === 'dark' ? '#01579b' : '#002f6c'} />
               <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}> {translate("EditItemComment4")} </Text>
           </View>
           : <ScrollView 
               contentContainerStyle={styles.viewContainer}
-              style={{flex: 1, width: "100%"}}>
+              style={{backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff"}}>
             <View style={styles.cellView}>
               <Input
                 value = {this.state.title}
