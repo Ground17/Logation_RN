@@ -11,11 +11,11 @@ import {
   Appearance,
 } from 'react-native';
 
-import FastImage from 'react-native-fast-image'
+import FastImage from 'react-native-fast-image';
 
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
-import { ListItem, Avatar, Button, } from 'react-native-elements'
+import { ListItem, Button, } from 'react-native-elements';
 
 import auth from '@react-native-firebase/auth';
 import { InterstitialAd, BannerAd, TestIds, BannerAdSize } from '@react-native-firebase/admob';
@@ -28,11 +28,6 @@ const adBannerUnitId = __DEV__ ? TestIds.BANNER :
     (Platform.OS == 'ios' 
     ? 'ca-app-pub-1477690609272793/3050510769' 
     : 'ca-app-pub-1477690609272793/8274029234');
-
-const adInterstitialUnitId = __DEV__ ? TestIds.INTERSTITIAL : 
-    (Platform.OS == 'ios' 
-    ? 'ca-app-pub-1477690609272793/3775880012' 
-    : 'ca-app-pub-1477690609272793/9626786110');
 
 export default class Home extends Component {
     state = {
@@ -159,32 +154,7 @@ export default class Home extends Component {
                 />
             </TouchableOpacity>
             <ListItem
-                title={item.name}
-                titleStyle={{ fontWeight: 'bold', width: '100%', color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000' }}
-                subtitle={`${item.displayName}\n${item.email}`}
-                subtitleStyle={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}
                 containerStyle={{backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff"}}
-                leftAvatar={{ 
-                    size: "small", 
-                    source: item.profileURL ? { uri: item.profileURL } : require('./../../logo/ic_launcher.png'), 
-                    rounded: true,
-                    onPress: () => {
-                        if (auth().currentUser.email != item.email) {
-                            this.props.navigation.push('Other', {
-                                userEmail: item.email,
-                            }); 
-                            return;
-                        }
-                        Alert.alert(
-                            'My account',
-                            item.email,
-                        [
-                            {text: translate('OK'), onPress: () => console.log('OK Pressed')},
-                        ],
-                            { cancelable: false }
-                        );
-                    },
-                }}
                 bottomDivider
                 onPress={() => { 
                     this.props.navigation.push('ShowScreen', {
@@ -193,7 +163,40 @@ export default class Home extends Component {
                         onPop: () => this.refresh(),
                     }) 
                 }}
-            />
+            >
+                <TouchableOpacity style={{flex:1/7, aspectRatio:1}} onPress={() => { 
+                    if (auth().currentUser.email != item.email) {
+                        this.props.navigation.push('Other', {
+                            userEmail: item.email,
+                        }); 
+                        return;
+                    }
+                    Alert.alert(
+                        'My account',
+                        item.email,
+                    [
+                        {text: translate('OK'), onPress: () => console.log('OK Pressed')},
+                    ],
+                        { cancelable: false }
+                    );
+                }}>
+                    <FastImage
+                        style={{flex: 1, borderRadius: 100}}
+                        source={item.profileURL ? {
+                            uri:
+                            item.profileURL,
+                        } : require('./../../logo/ic_launcher.png')}
+                    />
+                </TouchableOpacity>
+                <ListItem.Content>
+                <ListItem.Title style={{ fontWeight: 'bold', width: '100%', color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000' }}>
+                    {item.name}
+                </ListItem.Title>
+                <ListItem.Subtitle style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}>
+                    {`${item.displayName}\n${item.email}`}
+                </ListItem.Subtitle>
+                </ListItem.Content>
+            </ListItem>
         </View>
     )
 
@@ -219,9 +222,10 @@ export default class Home extends Component {
                         </View>
                     </View>
                 </View>
-                <View style={{ marginTop: 5, marginButtom:5, width: '100%' }}>
+                <View style={{ width: '100%' }}>
                     <View style={{alignItems: 'center', backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff"}}>
                         {this.state.ads && <BannerAd 
+                            style={{marginTop: 10}}
                             unitId={adBannerUnitId} 
                             size={BannerAdSize.BANNER}
                         />}

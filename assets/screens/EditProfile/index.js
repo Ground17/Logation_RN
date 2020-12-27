@@ -12,11 +12,13 @@ import {
   Appearance,
 } from 'react-native';
 
+import FastImage from 'react-native-fast-image';
+
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
 import ImagePicker from 'react-native-image-crop-picker';
 
-import { ListItem, Avatar, Button, Input } from 'react-native-elements'
+import { ListItem, Button, Input } from 'react-native-elements'
 
 import auth from '@react-native-firebase/auth';
 import { InterstitialAd, TestIds, } from '@react-native-firebase/admob';
@@ -83,23 +85,21 @@ export default class EditProfile extends Component {
                     alignItems: 'center',
                     justifyContent: 'space-around',
                 }}>
-                    <Avatar 
-                        rounded
-                        size="xlarge" 
-                        activeOpacity={0.7}
-                        source={this.state.profileURL ? {
-                            uri:
-                            this.state.profileURL,
-                        } : require('./../../logo/ic_launcher.png')}
-                        icon={{ name: 'account-box' }}
-                        onPress={() => {
-                            ImagePicker.openPicker({
-                                mediaType: 'photo',
-                            }).then(image => {
-                                this.setState({profileURL: image.path})
-                            });
-                        }}
-                    />
+                    <TouchableOpacity style={{flex:1/3, aspectRatio:1}} onPress={() => { 
+                        ImagePicker.openPicker({
+                            mediaType: 'photo',
+                        }).then(image => {
+                            this.setState({profileURL: image.path})
+                        });
+                    }}>
+                        <FastImage
+                            style={{flex: 1, borderRadius: 100}}
+                            source={this.state.profileURL ? {
+                                uri:
+                                this.state.profileURL,
+                            } : require('./../../logo/ic_launcher.png')}
+                        />
+                    </TouchableOpacity>
                 </View>
                 <Input
                     onChangeText = {(nickname) => this.setState({nickname})}

@@ -28,7 +28,7 @@ import { InterstitialAd, TestIds } from '@react-native-firebase/admob';
 import storage from '@react-native-firebase/storage';
 import firestore from '@react-native-firebase/firestore';
 
-import { adsFree, translate } from '../Utils';
+import { adsFree, translate, ProgressBar } from '../Utils';
 
 import AsyncStorage from '@react-native-community/async-storage';
 
@@ -61,6 +61,7 @@ export default class AddList extends Component {
         thumbnail: '',
         loading: false,
         ads: true,
+        completed: 0.0,
     };
 
     keyExtractor = (item, index) => index.toString()
@@ -146,7 +147,10 @@ export default class AddList extends Component {
                 {this.state.loading ? 
                 <View style={[styles.buttonContainer, {backgroundColor: Appearance.getColorScheme() === 'dark' ? '#121212' : '#fff', width: "100%", height: "100%"}]}>
                     <ActivityIndicator size="large" color={Appearance.getColorScheme() === 'dark' ? '#01579b' : '#002f6c'} />
-                    <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}> {translate("AddListComment1")} </Text> 
+                    <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}> {translate("AddListComment1")} </Text>
+                    <View style={{alignItems: 'center', justifyContent: 'center', width: "90%"}}>
+                        <ProgressBar bgcolor={Appearance.getColorScheme() === 'dark' ? '#01579b' : '#002f6c'} completed={this.state.completed} />
+                    </View>
                 </View>
                 : <ScrollView 
                     contentContainerStyle={styles.viewContainer}
@@ -273,7 +277,7 @@ export default class AddList extends Component {
                         />
                     </View>
                     {this.state.data.length > 0 && <Text style={{textAlign: 'center', color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}> {translate("AddListComment2")} </Text>}
-                    <View style={{ flex: 1, width: "80%", marginBottom: 5, backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#ffffff' }}>
+                    <View style={{ flex: 1, width: "80%", marginBottom: 5, backgroundColor: Appearance.getColorScheme() === 'dark' ? '#121212' : '#ffffff' }}>
                         <DraggableFlatList
                             keyExtractor={this.keyExtractor}
                             data={this.state.data}
@@ -470,6 +474,7 @@ export default class AddList extends Component {
                                 await storageChildRef.putFile(this.state.data[i].photo);
 
                                 updateData[i].photo = filename[filename.length - 1];
+                                this.setState({completed: Math.round((i + 1) * 1000 / this.state.data.length) / 10});
                             }
                             this.setState({data: updateData});
 

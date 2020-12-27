@@ -47,18 +47,30 @@ export default class ShowItem extends Component {
                 paddingLeft: 5,
                 paddingRight: 5,
               }} onPress={async () => { 
-                const supported = await Linking.canOpenURL(this.props.route.params.link);
+                try {
+                  const supported = await Linking.canOpenURL(this.props.route.params.link);
 
-                if (supported) {
-                  // Opening the link with some app, if the URL scheme is "http" the web link should be opened
-                  // by some browser in the mobile
-                  await Linking.openURL(this.props.route.params.link);
-                } else {
-                  Alert.alert(translate("ShowItemAndShowScreen") + this.props.route.params.link);
+                  if (supported) {
+                    Alert.alert(
+                      translate("Confirm"),
+                      translate("LaunchConfirm") + this.props.route.params.link,
+                      [
+                      {text: translate('Cancel'), onPress: () => { }},
+                      {text: translate('OK'), onPress: async () => {
+                        await Linking.openURL(this.props.route.params.link);
+                      }},
+                      ],
+                      { cancelable: false }
+                    );
+                  } else {
+                    Alert.alert(translate("ShowItemAndShowScreen") + (this.props.route.params.link || "undefined"));
+                  }
+                } catch (e) {
+                  Alert.alert(translate("ShowItemAndShowScreen") + (this.props.route.params.link || "undefined"));
                 }
               }}>
               <Icon
-                name="launch"
+                name='launch'
                 size={24}
                 color='#fff'
               />

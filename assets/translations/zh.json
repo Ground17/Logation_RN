@@ -102,6 +102,7 @@
     "PurchaseComment1":"如果是在其他平台结算的话，请按下这个文本。",
     "PurchaseComment2" : "已成功完成购买，按'确认'键后，App将重新启动并反映购买情况。",
     "LanguageComment1" : "为了换成下面的语言，APP会再次启动。 要继续吗？\n",
+    "LaunchConfirm" : "您要转到作者设置的以下URL吗？\n", 
     "en" : "English",
     "ko" : "한국어",
     "ja" : "日本語",

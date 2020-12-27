@@ -26,7 +26,7 @@ import Share from 'react-native-share';
 
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
-import { ListItem, Avatar, Button } from 'react-native-elements'
+import { ListItem, Button } from 'react-native-elements'
 
 import auth from '@react-native-firebase/auth';
 import MapView, { Polyline, Marker, PROVIDER_GOOGLE } from 'react-native-maps';
@@ -60,12 +60,7 @@ export default class EditScreen extends Component {
 
     renderItem = ({ item, index, drag, isActive }) => (
       <ListItem
-        title={item.title}
-        titleStyle={{ fontWeight: 'bold', color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000' }}
-        subtitle={item.date.toDate().toString()}
-        subtitleStyle={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}
-        leftAvatar={{ source: { uri: item.url }, rounded: false}}
-        containerStyle={{backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#fff'}}
+        containerStyle={{backgroundColor: Appearance.getColorScheme() === 'dark' ? '#121212' : '#fff'}}
         onLongPress={drag}
         bottomDivider
         onPress={() => { 
@@ -75,7 +70,25 @@ export default class EditScreen extends Component {
             this.goEditItem(item, index);
           }
         }}
-      />
+      >
+        <View style={{flex:1/5, aspectRatio:1}}>
+          <FastImage
+            style={{flex: 1}}
+            source={{ 
+              uri: item.url,
+              priority: FastImage.priority.high,
+              }}
+          />
+        </View>
+        <ListItem.Content>
+          <ListItem.Title style={{fontWeight: 'bold', color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}>
+            {item.title}
+          </ListItem.Title>
+          <ListItem.Subtitle style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}>
+            {item.subtitle}
+          </ListItem.Subtitle>
+        </ListItem.Content>
+      </ListItem>
     )
 
     renderGrid = ({ item, index }) => (
@@ -104,7 +117,7 @@ export default class EditScreen extends Component {
         list: [],
         data: [],
         changed: false, // 변경된 사항이 있을 경우 true, 이 화면 나갈 때 Alert로 물어보기
-        loading: false,
+        loading: true,
         delete: false, // true: delete, false: edit
         lat: 37,
         long: 127,
@@ -127,43 +140,40 @@ export default class EditScreen extends Component {
         .get()
         .then(async (documentSnapshot) => {
           if (documentSnapshot.exists) {
-            console.log('data: ', documentSnapshot.data());
             data = documentSnapshot.data();
-            this.setState({
-              category: data.category,
-              date: data.date.toDate(),
-              title: data.title,
-              subtitle: data.subtitle,
-              link: data.link,
-              viewcode: data.viewcode,
-            });
+            var modifiedList = [];
             for (var i=0; i < data.data.length; i++) {
               try {
                 var URL = await storageRef.child(this.props.route.params.userEmail + "/" + this.props.route.params.itemId + "/" + data.data[i].photo).getDownloadURL();
-                // console.log(data.data);
-                // console.log(i);
-                console.log(data.data[i].date.toDate());
-                this.setState({
-                  list: this.state.list.concat({ 
-                    date: data.data[i].date,
-                    title: data.data[i].title,
-                    subtitle: data.data[i].subtitle,
-                    photo: data.data[i].photo,
-                    url: URL,
-                    lat: data.data[i].lat,
-                    long: data.data[i].long,
-                  }),
+                modifiedList = modifiedList.concat({ 
+                  date: data.data[i].date,
+                  title: data.data[i].title,
+                  subtitle: data.data[i].subtitle,
+                  url: URL,
+                  photo: data.data[i].photo,
+                  lat: data.data[i].lat,
+                  long: data.data[i].long,
                 });
-                if (this.state.list.length > 0) {
-                  this.setState({ 
-                    lat: this.state.list[0].lat,
-                    long: this.state.list[0].long,
-                  });
-                }
               } catch (error) {
                   console.log(error);
               }
             }
+
+            if (modifiedList.length > 0) {
+              this.setState({ 
+                list: modifiedList,
+                category: data.category,
+                date: data.date.toDate(),
+                title: data.title,
+                subtitle: data.subtitle,
+                link: data.link,
+                viewcode: data.viewcode,
+                lat: modifiedList[0].lat,
+                long: modifiedList[0].long,
+                loading: false,
+              });
+            }
+
           }
       });
 
@@ -387,7 +397,6 @@ export default class EditScreen extends Component {
           { this.state.loading ? 
             <View style={[styles.buttonContainer, {backgroundColor: Appearance.getColorScheme() === 'dark' ? '#121212' : '#fff', width: "100%", height: "100%"}]}>
                 <ActivityIndicator size="large" color={Appearance.getColorScheme() === 'dark' ? '#01579b' : '#002f6c'} />
-                <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}> {translate('EditScreenComment4')} </Text>
             </View>
           : this.state.viewcode == 0 ? <MapView
             style={{flex: 1, width: "100%", marginBottom: this.state.marginBottom}}
@@ -464,11 +473,12 @@ export default class EditScreen extends Component {
           />
           : <FlatList
               style={{backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff"}}
-              key={3}
+              key={20}
               data={this.state.list}
               renderItem={this.renderGrid}
               numColumns={3}
           />)}
+
           <View
             style={styles.floatingViewStyle}>
             <TouchableOpacity onPress={() => { 
@@ -479,7 +489,7 @@ export default class EditScreen extends Component {
               <View style={{alignItems: 'center'}}>
                 <Icon
                   reverse
-                  name='delete'
+                  name={this.state.delete ? 'delete' : 'edit'}
                   color='#bdbdbd'
                   size={48}
                 />

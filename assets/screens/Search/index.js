@@ -11,7 +11,9 @@ import {
   Platform,
 } from 'react-native';
 
-import { Divider, Input, Avatar, SearchBar, ListItem } from 'react-native-elements';
+import FastImage from 'react-native-fast-image';
+
+import { Divider, Input, SearchBar, ListItem } from 'react-native-elements';
 
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import storage from '@react-native-firebase/storage';
@@ -98,11 +100,6 @@ export default class Search extends Component {
 
   renderItem = ({ item, index }) => (
     <ListItem
-      title={item.displayName ?? ''}
-      titleStyle={{ fontWeight: 'bold', color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000' }}
-      subtitle={item.email}
-      subtitleStyle={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}
-      leftAvatar={{ source: item.profileURL ? { uri: item.profileURL } : require('./../../logo/ic_launcher.png'), rounded: true}}
       containerStyle={{backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff"}}
       bottomDivider
       onPress={() => { 
@@ -121,7 +118,22 @@ export default class Search extends Component {
           { cancelable: false }
         );
       }}
-    />
+    >
+      <View style={{flex:1/7, aspectRatio:1}}>
+        <FastImage
+          style={{flex: 1, borderRadius: 100}}
+          source={item.profileURL ? { uri: item.profileURL } : require('./../../logo/ic_launcher.png')}
+        />
+      </View>
+      <ListItem.Content>
+        <ListItem.Title style={{fontWeight: 'bold', color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}>
+          {item.displayName ?? ''}
+        </ListItem.Title>
+        <ListItem.Subtitle style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}>
+          {item.email}
+        </ListItem.Subtitle>
+      </ListItem.Content>
+    </ListItem>
   )
 
   render() {

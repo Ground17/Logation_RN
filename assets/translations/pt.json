@@ -102,6 +102,7 @@
     "PurchaseComment1" : "Se você pagou em uma plataforma, por favor, aperte este texto.",
     "PurchaseComment2" : "A compra foi concluída com sucesso e, se você pressionar 'Está bem', o aplicativo será reiniciado e refletirá a compra.",
     "LanguageComment1" : "O pedido será reiniciado para mudar para a língua abaixo. Deseja continuar?\n",
+    "LaunchConfirm" : "Quer ir para o URL abaixo definido pelo autor?\n", 
     "en" : "English",
     "ko" : "한국어",
     "ja" : "日本語",

@@ -2,7 +2,7 @@ import React, { Component, createContext, useState, useEffect }  from 'react';
 import * as RNLocalize from 'react-native-localize';
 import i18n from 'i18n-js';
 import memoize from 'lodash.memoize';
-import { SafeAreaView, StyleSheet, Text, Alert, Platform } from 'react-native';
+import { SafeAreaView, StyleSheet, View, Text, Alert, Platform } from 'react-native';
 import RNIap, {
   purchaseErrorListener,
   purchaseUpdatedListener,
@@ -169,6 +169,40 @@ const getlocalizedPrice = async () => {
   }
 };
 
+const ProgressBar = (props) => {
+  const { bgcolor, completed } = props;
+
+  const containerStyles = {
+    height: 20,
+    width: '100%',
+    backgroundColor: "#e0e0de",
+    borderRadius: 50,
+    margin: 50
+  }
+
+  const fillerStyles = {
+    height: '100%',
+    width: `${completed}%`,
+    backgroundColor: bgcolor,
+    borderRadius: 50,
+  }
+
+  const labelStyles = {
+    padding: 5,
+    color: 'white',
+    fontWeight: 'bold',
+    textAlign: 'right'
+  }
+
+  return (
+    <View style={containerStyles}>
+      <View style={fillerStyles}>
+        <Text style={labelStyles}>{`${completed}%`}</Text>
+      </View>
+    </View>
+  );
+};
+
 export {
   translationGetters,
   translate,
@@ -181,4 +215,5 @@ export {
   screenEmail,
   setId,
   setEmail,
+  ProgressBar
 }

@@ -12,6 +12,8 @@ import {
   Appearance,
 } from 'react-native';
 
+import FastImage from 'react-native-fast-image';
+
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
 import { ListItem, Avatar, Button } from 'react-native-elements'
@@ -179,11 +181,6 @@ export default class Other extends Component {
 
     renderItem = ({ item }) => (
         <ListItem
-            title={item.name}
-            titleStyle={{ fontWeight: 'bold', color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000' }}
-            subtitle={item.subtitle}
-            subtitleStyle={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}
-            leftAvatar={{ source: { uri: item.url }, rounded: false}}
             containerStyle={{backgroundColor: Appearance.getColorScheme() === 'dark' ? '#121212' : '#fff'}}
             bottomDivider
             onPress={() => { this.props.navigation.push('ShowScreen', {
@@ -191,7 +188,25 @@ export default class Other extends Component {
                 userEmail: this.props.route.params.userEmail,
                 onPop: () => this.refresh(),
             }) }}
-        />
+        >
+        <View style={{flex:1/5, aspectRatio:1}}>
+            <FastImage
+                style={{flex: 1}}
+                source={{ 
+                uri: item.url,
+                priority: FastImage.priority.high,
+                }}
+            />
+        </View>
+            <ListItem.Content>
+            <ListItem.Title style={{fontWeight: 'bold', color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}>
+                {item.name}
+            </ListItem.Title>
+            <ListItem.Subtitle style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}>
+                {item.subtitle}
+            </ListItem.Subtitle>
+            </ListItem.Content>
+      </ListItem>
     )
 
     render() {
@@ -269,16 +284,15 @@ export default class Other extends Component {
                             justifyContent: 'space-around',
                             // marginTop:-30,
                         }}>
-                            <Avatar 
-                                rounded
-                                size="xlarge" 
-                                activeOpacity={0.7}
-                                source={this.state.profileURL ? {
-                                    uri:
-                                    this.state.profileURL,
-                                } : require('./../../logo/ic_launcher.png')}
-                                icon={{ name: 'account-box' }} 
-                            />
+                            <View style={{flex:1/3, aspectRatio:1}}>
+                                <FastImage
+                                    style={{flex: 1, borderRadius: 100}}
+                                    source={this.state.profileURL ? {
+                                        uri:
+                                        this.state.profileURL,
+                                    } : require('./../../logo/ic_launcher.png')}
+                                />
+                            </View>
                         </View>
                         <Text style={{fontWeight: 'bold', textAlign: 'center', marginTop: 10, color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}>
                             {this.state.displayName}

@@ -11,11 +11,13 @@ import {
   Appearance,
 } from 'react-native';
 
+import FastImage from 'react-native-fast-image';
+
 import { adsFree, translate, screenId, screenEmail, } from '../Utils';
 
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
-import { ListItem, Avatar, Button } from 'react-native-elements'
+import { ListItem, Button } from 'react-native-elements'
 
 import auth from '@react-native-firebase/auth';
 import { BannerAd, TestIds, BannerAdSize } from '@react-native-firebase/admob';
@@ -103,12 +105,14 @@ export default class Me extends Component {
             });
         } else {
             data = (await user.get()).data();
-            this.setState({
+            console.log("before User Data", new Date().getTime());
+            await this.setState({
                 followers : data.follower,
                 followings : data.following,
                 views : data.view,
                 localProfileURL : data.profile
             });
+            console.log("after User Data", new Date().getTime());
 
             if (!data.displayName || !auth().currentUser.displayName || data.displayName != auth().currentUser.displayName) {
                 const update = {
@@ -122,11 +126,13 @@ export default class Me extends Component {
                 });
             }
 
+            console.log("before profile photo", new Date().getTime());
             try {
                 this.setState({profileURL : await storageRef.child(auth().currentUser.email + "/" + data.profile).getDownloadURL()});
             } catch (e) {
                 this.setState({profileURL : ''});
             }
+            console.log("after profile photo", new Date().getTime());
         }
 
         // Linking.getInitialURL().then(url => {
@@ -134,7 +140,9 @@ export default class Me extends Component {
         // });
         
         Linking.addEventListener('url', this.handleOpenURL);
-        
+
+
+        console.log("before data", new Date().getTime());
         await firestore()
             .collection(auth().currentUser.email)
             .orderBy("modifyDate", "desc")
@@ -161,6 +169,7 @@ export default class Me extends Component {
                     }
                 }
             });
+        console.log("before data", new Date().getTime());
     }
 
     async componentDidMount() {
@@ -217,11 +226,6 @@ export default class Me extends Component {
 
     renderItem = ({ item }) => (
         <ListItem
-            title={item.name}
-            titleStyle={{ fontWeight: 'bold', color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000' }}
-            subtitle={item.subtitle}
-            subtitleStyle={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}
-            leftAvatar={{ source: { uri: item.url }, rounded: false}}
             containerStyle={{backgroundColor: Appearance.getColorScheme() === 'dark' ? '#121212' : '#fff'}}
             bottomDivider
             onPress={() => { this.props.navigation.push('ShowScreen', {
@@ -229,7 +233,25 @@ export default class Me extends Component {
                 userEmail: auth().currentUser.email,
                 onPop: () => this.refresh(),
             }) }}
-        />
+        >
+        <View style={{flex:1/5, aspectRatio:1}}>
+          <FastImage
+            style={{flex: 1}}
+            source={{ 
+              uri: item.url,
+              priority: FastImage.priority.high,
+              }}
+          />
+        </View>
+        <ListItem.Content>
+          <ListItem.Title style={{fontWeight: 'bold', color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}>
+            {item.name}
+          </ListItem.Title>
+          <ListItem.Subtitle style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}>
+            {item.subtitle}
+          </ListItem.Subtitle>
+        </ListItem.Content>
+      </ListItem>
     )
 
     render() {
@@ -284,23 +306,21 @@ export default class Me extends Component {
                         justifyContent: 'space-around',
                         // marginTop:-30,
                     }}>
-                        <Avatar 
-                            rounded
-                            size="xlarge" 
-                            activeOpacity={0.7}
-                            source={this.state.profileURL ? {
-                                uri:
-                                this.state.profileURL,
-                            } : require('./../../logo/ic_launcher.png')}
-                            icon={{ name: 'account-box' }} 
-                            onPress={() => {
-                                this.props.navigation.push('EditProfile', {
-                                    profileURL: this.state.profileURL,
-                                    localProfileURL: this.state.localProfileURL, // 상대 위치 참조 URL
-                                    onPop: () => this.refresh(),
-                                })
-                            }}
-                        />
+                        <TouchableOpacity style={{flex:1/3, aspectRatio:1}} onPress={() => { 
+                            this.props.navigation.push('EditProfile', {
+                                profileURL: this.state.profileURL,
+                                localProfileURL: this.state.localProfileURL, // 상대 위치 참조 URL
+                                onPop: () => this.refresh(),
+                            })
+                        }}>
+                            <FastImage
+                                style={{flex: 1, borderRadius: 100}}
+                                source={this.state.profileURL ? {
+                                    uri:
+                                    this.state.profileURL,
+                                } : require('./../../logo/ic_launcher.png')}
+                            />
+                        </TouchableOpacity>
                     </View>
                     <Text style={{fontWeight: 'bold', textAlign: 'center', marginTop: 10, color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}>
                         {auth().currentUser.displayName}
