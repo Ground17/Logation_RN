@@ -51,6 +51,9 @@ const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
 function Main({ navigation }) {
+  navigation.setOptions({
+    title: Object.keys(i18n.translations).length === 0 ? "" : translate("Main"),
+  });
   return (
     <Tab.Navigator
         screenOptions={({ route }) => ({
