@@ -1,7 +1,7 @@
 {
     "Share" : "Share",
-    "Change" : "Change\nView Mode",
-    "Launch" : "Move\nrelated URL",
+    "Change" : "Change View Mode",
+    "Launch" : "Move related URL",
     "Main" : "Main",
     "Error" : "Error",
     "Confirm" : "Confirm",
@@ -36,7 +36,7 @@
     "ViewMode" : "View Mode",
     "Map" : "Map",
     "List" : "List",
-    "Grid" : "Grid",
+    "Grid" : "Photo",
     "Title" : "Title",
     "Subtitle" : "Subtitle",
     "URLLink" : "URL Link (options)",
@@ -110,5 +110,6 @@
     "es" : "español",
     "pt" : "Português",
     "fr" : "Français",
-    "de" : "Deutsch"
+    "de" : "Deutsch",
+    "LoginOpenURL" : "Please log in and access the URL again."
 }

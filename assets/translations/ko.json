@@ -1,7 +1,7 @@
 {
     "Share" : "공유",
-    "Change" : "보기 모드\n변경",
-    "Launch" : "관련 URL\n이동",
+    "Change" : "보기 모드 변경",
+    "Launch" : "관련 URL 이동",
     "Main" : "메인",
     "Error" : "에러",
     "Confirm" : "확인",
@@ -33,10 +33,10 @@
     "News" : "뉴스",
     "Education" : "교육",
     "Other" : "기타",
-    "ViewMode" : "보기 모드",
+    "ViewMode" : "기본화면",
     "Map" : "지도",
     "List" : "리스트",
-    "Grid" : "표",
+    "Grid" : "사진",
     "Title" : "제목",
     "Subtitle" : "부제목",
     "URLLink" : "URL Link (선택사항)",
@@ -110,5 +110,6 @@
     "es" : "español",
     "pt" : "Português",
     "fr" : "Français",
-    "de" : "Deutsch"
+    "de" : "Deutsch",
+    "LoginOpenURL" : "로그인 후 URL에 다시 접속해주세요."
 }

@@ -14,6 +14,9 @@ import {
   TouchableHighlight,
   PermissionsAndroid,
   Appearance,
+  Dimensions,
+  Animated,
+  ImageBackground,
 } from 'react-native';
 
 import FastImage from 'react-native-fast-image';
@@ -35,6 +38,13 @@ import firestore from '@react-native-firebase/firestore';
 
 import { translate } from '../Utils';
 
+const { width, height } = Dimensions.get("window");
+const CARD_HEIGHT = 200;
+const CARD_WIDTH = width * 0.8;
+const SPACING_FOR_CARD_INSET = width * 0.1 - 10;
+
+const TAB_ITEM_WIDTH = width / 3;
+
 export default class EditScreen extends Component {
     state = {
       viewcode: 0,
@@ -54,9 +64,45 @@ export default class EditScreen extends Component {
       link: '',
       photoNumber: 0,
       marginBottom: 1,
+      _map: React.createRef(),
+      _scrollView: React.createRef(),
+      mapAnimation: new Animated.Value(0),
     };
 
     keyExtractor = (item, index) => index.toString()
+    keyExtractorForMap = (item, index) => `M${index.toString()}`
+
+    renderMap = ({ item, index, drag, isActive }) => (
+      <TouchableOpacity
+        style={styles.card}
+        onPress={() => { 
+          if (this.state.delete) {
+            this.alertDelete(item);
+          } else {
+            this.goEditItem(item, index);
+          }
+        }}
+        onLongPress={drag}
+      >
+        <View style={{flex:1, aspectRatio: CARD_WIDTH / CARD_HEIGHT}}>
+          <FastImage
+            style={{flex: 1}}
+            source={{ 
+              uri: item.url,
+              priority: FastImage.priority.high,
+              }}
+          />
+          <View style={styles.stock}>
+            <Text style={{fontWeight: 'bold', color: '#fff', marginLeft: 10}}>
+              {item.title}
+            </Text>
+            <Text style={{color: '#fff', marginLeft: 10}}>
+              {item.subtitle}
+            </Text>
+          </View>
+        </View>
+      </TouchableOpacity>
+    )
 
     renderItem = ({ item, index, drag, isActive }) => (
       <ListItem
@@ -389,7 +435,35 @@ export default class EditScreen extends Component {
         </View>
       });
       this.refresh();
+
+      this.state.mapAnimation.addListener(({ value }) => {
+        let index = Math.floor(value / CARD_WIDTH + 0.3); // animate 30% away from landing on the next item
+        if (index >= this.state.list.length) {
+          index = this.state.list.length - 1;
+        }
+        if (index <= 0) {
+          index = 0;
+        }
+
+        if( this.state.mapIndex !== index ) {
+          this.setState({mapIndex: index});
+          this.state._map.current.animateCamera(
+            {
+              center: {
+                latitude: this.state.list[index].lat,
+                longitude: this.state.list[index].long,
+              }
+            },
+            350
+          );
+        }
+      });
     }
+
+    componentWillUnmount() {
+      this.state.mapAnimation.removeAllListeners();
+    }
+
     render() {
       console.log(this.state.list);
       return(
@@ -398,70 +472,119 @@ export default class EditScreen extends Component {
             <View style={[styles.buttonContainer, {backgroundColor: Appearance.getColorScheme() === 'dark' ? '#121212' : '#fff', width: "100%", height: "100%"}]}>
                 <ActivityIndicator size="large" color={Appearance.getColorScheme() === 'dark' ? '#01579b' : '#002f6c'} />
             </View>
-          : this.state.viewcode == 0 ? <MapView
-            style={{flex: 1, width: "100%", marginBottom: this.state.marginBottom}}
-            provider={PROVIDER_GOOGLE} // remove if not using Google Maps
-            initialRegion={{
-              latitude: this.props.route.params.latitude,
-              longitude: this.props.route.params.longitude,
-              latitudeDelta: 0.922,
-              longitudeDelta: 0.421,
-            }}
-            onMapReady={() => {
-              this.setState({marginBottom: 0})
-              Platform.OS === 'android' ? PermissionsAndroid.request(
-                PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION) : ''
-            }}
-            showsUserLocation={true}
-            showsMyLocationButton={true}
-            showsCompass={true}
-            // onRegionChangeComplete={(e) => {
-            //   this.setState({ 
-            //     lat: e.latitude,
-            //     long: e.longitude,
-            //     latDelta: e.latitudeDelta,
-            //     longDelta: e.longitudeDelta,
-            //   });
-            // }}
-          >
-          <Polyline
-            coordinates={this.state.list.map(data => {
-              return {latitude: data.lat, longitude: data.long}
-            })}
-            strokeColor="#002f6c" // fallback for when `strokeColors` is not supported by the map-provider
-            strokeWidth={6}
-          />
-          {this.state.list.map((data, index) => (
-            <Marker
-              draggable
-              onDragEnd={(e) => {
-                console.log(e);
-                var updateList = this.state.list;
-                updateList[index].lat = e.nativeEvent.coordinate.latitude;
-                updateList[index].long = e.nativeEvent.coordinate.longitude;
-                this.setState({ 
-                  list: updateList,
-                  changed: true,
-                  lat: e.nativeEvent.coordinate.latitude,
-                  long: e.nativeEvent.coordinate.longitude,
-                });
-                return;
+          : this.state.viewcode == 0 ? 
+          <View style={{width: "100%", height: "91%"}}>
+            <MapView
+              ref={this.state._map}
+              style={{flex: 1, width: "100%", marginBottom: this.state.marginBottom}}
+              provider={PROVIDER_GOOGLE} // remove if not using Google Maps
+              initialRegion={{
+                latitude: this.props.route.params.latitude,
+                longitude: this.props.route.params.longitude,
+                latitudeDelta: 0.922,
+                longitudeDelta: 0.421,
               }}
-              coordinate={ {latitude: data.lat, longitude: data.long} }
-              title={data.title}
-              onPress={e => {
-                  console.log(e.nativeEvent);
-                  if (this.state.delete) {
-                    this.alertDelete(data);
-                  } else {
-                    this.goEditItem(data, index);
-                  }
-                }
-              }
-            />
-          ))}
-          </MapView>
-          : (this.state.viewcode == 1 ? <DraggableFlatList
+              onMapReady={() => {
+                this.setState({marginBottom: 0})
+                Platform.OS === 'android' ? PermissionsAndroid.request(
+                  PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION) : ''
+              }}
+              showsUserLocation={true}
+              showsMyLocationButton={true}
+              showsCompass={true}
+              // onRegionChangeComplete={(e) => {
+              //   this.setState({ 
+              //     lat: e.latitude,
+              //     long: e.longitude,
+              //     latDelta: e.latitudeDelta,
+              //     longDelta: e.longitudeDelta,
+              //   });
+              // }}
+            >
+              <Polyline
+                coordinates={this.state.list.map(data => {
+                  return {latitude: data.lat, longitude: data.long}
+                })}
+                strokeColor="#002f6c" // fallback for when `strokeColors` is not supported by the map-provider
+                strokeWidth={6}
+              />
+                {this.state.list.map((data, index) => (
+                  <Marker
+                    draggable
+                    title={data.title}
+                    description={data.subtitle}
+                    onDragEnd={(e) => {
+                      console.log(e);
+                      var updateList = this.state.list;
+                      updateList[index].lat = e.nativeEvent.coordinate.latitude;
+                      updateList[index].long = e.nativeEvent.coordinate.longitude;
+                      this.setState({ 
+                        list: updateList,
+                        changed: true,
+                        lat: e.nativeEvent.coordinate.latitude,
+                        long: e.nativeEvent.coordinate.longitude,
+                      });
+                      return;
+                    }}
+                    coordinate={ {latitude: data.lat, longitude: data.long} }
+                    anchor={{x: 0.5, y: 0.5}}
+                    onPress={e => {
+                      let x = (index * CARD_WIDTH) + (index * 20); 
+                      if (Platform.OS === 'ios') {
+                        x = x - SPACING_FOR_CARD_INSET;
+                      }
+
+                      this.state._map.current.animateCamera(
+                        {
+                          center: {
+                            latitude: data.lat,
+                            longitude: data.long,
+                          }
+                        },
+                        350
+                      );
+                    }}
+                  >
+                    <View>
+                        <ImageBackground source={require('./../../logo/marker.png')} style={{height:64, width:64, justifyContent:'center'}}>
+                            <Text style={{textAlign: 'center', fontWeight: 'bold', fontSize: 20}}>{index + 1}</Text>
+                        </ImageBackground>
+                    </View>
+                  </Marker>
+                ))}
+            </MapView>
+            <View style={[styles.scrollView, {backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff"}]}>
+              <DraggableFlatList
+                onRef={(flatList) => (this.setState({ 
+                  _scrollView: flatList,
+                }))}
+                contentInset={{
+                  top: 0,
+                  left: SPACING_FOR_CARD_INSET,
+                  bottom: 0,
+                  right: SPACING_FOR_CARD_INSET
+                }}
+                contentOffset={{x: Platform.OS === 'ios' ? -SPACING_FOR_CARD_INSET : 0, y: 0}}
+                contentContainerStyle={{
+                  paddingHorizontal: Platform.OS === 'android' ? SPACING_FOR_CARD_INSET : 0
+                }}
+                snapToAlignment="center"
+                decelerationRate="fast"
+                pagingEnabled
+                snapToInterval={CARD_WIDTH + 20}
+                data={this.state.list}
+                keyExtractor={this.keyExtractorForMap}
+                renderItem={this.renderMap}
+                onDragEnd={({ data }) => this.setState({ 
+                  list: data,
+                  changed: true,
+                })}
+                horizontal
+              />
+            </View>
+          </View> : (
+            // this.state.viewcode == 1 ? 
+            <DraggableFlatList
               style={{backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff"}}
               keyExtractor={this.keyExtractor}
               data={this.state.list}
@@ -470,15 +593,15 @@ export default class EditScreen extends Component {
                 list: data,
                 changed: true,
               })}
-          />
-          : <FlatList
-              style={{backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff"}}
-              key={20}
-              data={this.state.list}
-              renderItem={this.renderGrid}
-              numColumns={3}
-          />)}
-
+            />
+          // : <FlatList
+          //     style={{backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff"}}
+          //     key={20}
+          //     data={this.state.list}
+          //     renderItem={this.renderGrid}
+          //     numColumns={3}
+          // />
+          )}
           <View
             style={styles.floatingViewStyle}>
             <TouchableOpacity onPress={() => { 
@@ -486,14 +609,14 @@ export default class EditScreen extends Component {
                 delete: !this.state.delete,
               });
             }}>
-              <View style={{alignItems: 'center'}}>
+              <View style={{alignItems: 'center', justifyContent: 'space-around', height: "100%", width: TAB_ITEM_WIDTH}}>
                 <Icon
                   reverse
                   name={this.state.delete ? 'delete' : 'edit'}
                   color='#bdbdbd'
-                  size={48}
+                  size={25}
                 />
-                <Text style={{textAlign: 'center', color: "#fff"}}> {translate("Mode") + (this.state.delete ? translate("Delete") : translate("Edit") )} </Text>
+                <Text style={{textAlign: 'center', color: "#fff", fontSize: 10}}> {translate("Mode") + (this.state.delete ? translate("Delete") : translate("Edit") )} </Text>
               </View>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => { // EditList로 이동
@@ -514,37 +637,37 @@ export default class EditScreen extends Component {
                 this.goEditList();
               }
             }}>
-              <View style={{alignItems: 'center'}}>
+              <View style={{alignItems: 'center', justifyContent: 'space-around', height: "100%", width: TAB_ITEM_WIDTH}}>
                 <Icon
                   reverse
                   name='library-add'
                   color='#bdbdbd'
-                  size={48}
+                  size={25}
                 />
-                <Text style={{textAlign: 'center', color: "#fff"}}> {translate("EditList")} </Text>
+                <Text style={{textAlign: 'center', color: "#fff", fontSize: 10}}> {translate("EditList")} </Text>
               </View>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => { 
-              if (this.state.viewcode > 1) {
+              if (this.state.viewcode > 0) {
                 this.setState({
                   viewcode: 0,
                   changed: true,
                 });
               } else {
                 this.setState({
-                  viewcode: this.state.viewcode + 1,
+                  viewcode: 1,
                   changed: true,
                 });
               }
             }}>
-              <View style={{alignItems: 'center'}}>
+              <View style={{alignItems: 'center', justifyContent: 'space-around', height: "100%", width: TAB_ITEM_WIDTH}}>
                 <Icon
                   reverse
                   name='tune'
                   color='#bdbdbd'
-                  size={48}
+                  size={25}
                 />
-                <Text style={{textAlign: 'center', color: "#fff"}}> {translate("Change")} </Text>
+                <Text style={{textAlign: 'center', color: "#fff", fontSize: 10}}> {translate("Change")} </Text>
               </View>
             </TouchableOpacity>
           </View>
@@ -571,14 +694,38 @@ const styles = StyleSheet.create({
         marginBottom:5,
     },
     floatingViewStyle: {
-      position: 'absolute',
       width: "100%",
-      height: 88,
+      height: "9%",
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-around',
-      alignSelf: 'center',
-      bottom: 100,
+      backgroundColor: 'rgba(52, 52, 52, 0.8)',
+    },
+    card: {
+      elevation: 2,
+      backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff",
+      borderTopLeftRadius: 5,
+      borderTopRightRadius: 5,
+      marginHorizontal: 10,
+      shadowColor: "#000",
+      shadowRadius: 5,
+      shadowOpacity: 0.3,
+      shadowOffset: { x: 2, y: -2 },
+      height: CARD_HEIGHT,
+      width: CARD_WIDTH,
+      overflow: "hidden",
+    },
+    scrollView: {
+      bottom: 0,
+      left: 0,
+      right: 0,
+      paddingVertical: 5,
+      height: CARD_HEIGHT + 10,
+    },
+    stock: { // 사진 밑 제목과 소제목
+      position: 'absolute',
+      bottom: 0,
+      width: "100%",
       backgroundColor: 'rgba(52, 52, 52, 0.8)',
     },
 });

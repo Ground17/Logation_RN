@@ -1,7 +1,7 @@
 {
     "Share" : "分享",
-    "Change" : "变更检\n视模式",
-    "Launch" : "移动相\n关网址",
+    "Change" : "变更检视模式",
+    "Launch" : "移动相关网址",
     "Main" : "主屏幕",
     "Error":"啊",
     "Confirm":"确认",
@@ -33,10 +33,10 @@
     "News":"新闻",
     "Education":"教育",
     "Other":"其他",
-    "ViewMode":"观看模式",
+    "ViewMode":"基本画面",
     "Map":"地图",
     "List":"清单",
-    "Grid":"表",
+    "Grid":"相片儿",
     "Title":"标题",
     "Subtitle":"副标题",
     "URLink":"URL Link (选项)",
@@ -110,5 +110,6 @@
     "es" : "español",
     "pt" : "Português",
     "fr" : "Français",
-    "de" : "Deutsch"
+    "de" : "Deutsch",
+    "LoginOpenURL" : "登录后请重新连接URL。"
 }

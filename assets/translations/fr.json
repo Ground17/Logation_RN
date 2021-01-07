@@ -1,7 +1,7 @@
 {
     "Share" : "Partager",
-    "Change" : "Changer le\nmode d'affichage",
-    "Launch" : "Déplacer\nl'URL associée",
+    "Change" : "Changer le mode d'affichage",
+    "Launch" : "Déplacer l'URL associée",
     "Main" : "Principal(e)",
     "Error" : "Erreur",
     "Confirm" : "Confirmer",
@@ -33,10 +33,10 @@
     "News" : "Nouvelles",
     "Education" : "Éducation",
     "Other" : "Autre",
-    "ViewMode" : "Mode d'affichage",
+    "ViewMode" : "Écran par défaut",
     "Map" : "Carte",
     "List" : "Liste",
-    "Grid" : "Grille",
+    "Grid" : "Photo",
     "Title" : "Titre",
     "Subtitle" : "Sous-titre",
     "URLLink" : "Lien URL (options)",
@@ -110,5 +110,6 @@
     "es" : "español",
     "pt" : "Português",
     "fr" : "Français",
-    "de" : "Deutsch"
+    "de" : "Deutsch",
+    "LoginOpenURL" : "Veuillez vous connecter et accéder à nouveau à l'URL."
 }

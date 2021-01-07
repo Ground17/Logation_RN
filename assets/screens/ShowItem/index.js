@@ -11,6 +11,7 @@ import {
   Dimensions,
   PermissionsAndroid,
   Appearance,
+  ImageBackground,
 } from 'react-native';
 
 import FastImage from 'react-native-fast-image';
@@ -170,7 +171,7 @@ export default class ShowItem extends Component {
               {this.props.route.params.subtitle}
             </Text>
             <MapView
-              style={{flex: 1, width: "100%", height: 500}}
+              style={{flex: 1, aspectRatio: 1, width: "100%"}}
               provider={PROVIDER_GOOGLE} // remove if not using Google Maps
               onMapReady={() => {
                 Platform.OS === 'android' ? PermissionsAndroid.request(
@@ -187,10 +188,16 @@ export default class ShowItem extends Component {
               }}
             >
               <Marker
+                anchor={{x: 0.5, y: 0.5}}
                 coordinate={ {latitude: this.props.route.params.lat, longitude: this.props.route.params.long} }
                 title={this.props.route.params.title}
                 onPress={e => console.log(e.nativeEvent)}
-              />
+              >
+                <View>
+                    <ImageBackground source={require('./../../logo/marker.png')} style={{height:64, width:64, justifyContent:'center'}}>
+                    </ImageBackground>
+                </View>
+              </Marker>
             </MapView>
           </ScrollView>
         </SafeAreaView>

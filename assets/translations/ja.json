@@ -1,7 +1,7 @@
 {
     "Share" : "共有",
-    "Change" : "表示モードの\n変更",
-    "Launch" : "関連URLに\n移動",
+    "Change" : "表示モードの変更",
+    "Launch" : "関連URLに移動",
     "Main" : "メイン画面",
     "Error":"エラー",
     "Confirm":"確認",
@@ -33,10 +33,10 @@
     "News":"ニュース",
     "Education":"教育",
     "Other":"ギター",
-    "ViewMode":"表示モード",
+    "ViewMode":"基本画面",
     "Map":"地図",
     "List":"リスト",
-    "Grid":"表",
+    "Grid":"砂塵",
     "Title":"タイトル",
     "Subtitle":"サブタイトル",
     "URLLink":"URL Link (オプション)",
@@ -110,5 +110,6 @@
     "es" : "español",
     "pt" : "Português",
     "fr" : "Français",
-    "de" : "Deutsch"
+    "de" : "Deutsch",
+    "LoginOpenURL" : "ログイン後、URLに再度アクセスしてください。"
 }

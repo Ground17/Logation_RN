@@ -9,6 +9,8 @@ import {
   Platform,
   Image,
   Appearance,
+  Linking,
+  ActivityIndicator
 } from 'react-native';
 
 import { Divider, Input, Overlay } from 'react-native-elements';
@@ -21,7 +23,7 @@ import appleAuth, { AppleButton, } from '@invertase/react-native-apple-authentic
 
 import { InterstitialAd, BannerAd, TestIds, BannerAdSize } from '@react-native-firebase/admob';
 
-import { adsFree, translate } from '../Utils';
+import { adsFree, translate, LocalizationContext } from '../Utils';
 
 import { ColorSchemeContext } from 'react-native-dynamic'
 
@@ -36,11 +38,15 @@ const adInterstitialUnitId = __DEV__ ? TestIds.INTERSTITIAL :
     : 'ca-app-pub-1477690609272793/9626786110');
 
 export default class Login extends Component {
+  static contextType = LocalizationContext
+
   state = {
     email: '',
     password: '',
     ads: true,
+    loading: false,
   }
+
   async appleLogin() {
     try {
       // 1). start a apple sign-in request
@@ -97,6 +103,7 @@ export default class Login extends Component {
       );
     }
   }
+
   async emailLogin(email, password) {
       if (email == null || !email.includes('@') || password == null) {
           Alert.alert(
@@ -156,13 +163,43 @@ export default class Login extends Component {
   }
 
   async componentDidMount() {
+    const {initializeAppLanguage} = this.context;
     this.setState({
       email: '',
       password: '',
       ads: !adsFree,
+      loading: true,
+    });
+
+    await initializeAppLanguage();
+
+    this.setState({
+      loading: false,
     });
 
     this.props.navigation.setOptions({ title: translate("SignIn") });
+
+    Linking.getInitialURL().then(url => {
+        this.navigate(url);
+    });
+    
+    Linking.addEventListener('url', this.handleOpenURL);
+  }
+
+  handleOpenURL = (event) => {
+    console.log(event.url);
+    this.navigate(event.url);
+  }
+
+  navigate = (url) => {
+    Alert.alert(
+      translate('LoginOpenURL'), // 로그인 후 URL에 다시 접속해주세요.
+      e.toString(),
+      [
+        {text: translate('OK'), onPress: () => console.log('OK Pressed')},
+      ],
+      { cancelable: false }
+    );
   }
 
   render() {
@@ -186,7 +223,7 @@ export default class Login extends Component {
               </View>
           </View>
         </View>
-        <View style={{flex: 1, width: "100%", alignItems: 'center', justifyContent: 'center', backgroundColor: Appearance.getColorScheme() === 'dark' ? '#121212' : '#fff'}}>
+        {!this.state.loading ? <View style={{flex: 1, width: "100%", alignItems: 'center', justifyContent: 'center', backgroundColor: Appearance.getColorScheme() === 'dark' ? '#121212' : '#fff'}}>
           <View style={styles.cellView}>
               <Input
               autoCapitalize='none'
@@ -257,6 +294,9 @@ export default class Login extends Component {
             />}
           </View>
         </View>
+        : <View style={{flex: 1, width: "100%", height: "100%", alignItems: 'center', justifyContent: 'center', backgroundColor: Appearance.getColorScheme() === 'dark' ? '#000' : '#fff'}}>
+            <ActivityIndicator size="large" color={Appearance.getColorScheme() === 'dark' ? '#01579b' : '#002f6c'} />
+        </View>}
       </SafeAreaView>
     );
   }

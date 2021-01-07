@@ -129,7 +129,13 @@ export default class AddList extends Component {
 
     async componentDidMount() {
         const locationCheck = await AsyncStorage.getItem('location');
+        if(locationCheck === null) {
+            await AsyncStorage.setItem('location', 'true');
+        }
         const dateCheck = await AsyncStorage.getItem('date');
+        if(dateCheck === null) {
+            await AsyncStorage.setItem('date', 'true');
+        }
         this.setState({
             ads: !adsFree,
             locationChecked: locationCheck == 'true' ? true : false,
@@ -160,7 +166,7 @@ export default class AddList extends Component {
                         <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}> {translate("Category")} </Text>
                         <Picker
                             selectedValue={this.state.category}
-                            style={{width: 130}}
+                            style={{width: 150}}
                             onValueChange={(itemValue, itemIndex) =>
                                 this.setState({category: itemValue})
                             }>
@@ -180,7 +186,6 @@ export default class AddList extends Component {
                                 this.setState({viewmode: itemValue})
                             }>
                             <Picker.Item label={translate("Map")} value="Map"  color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
-                            <Picker.Item label={translate("List")} value="List"  color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
                             <Picker.Item label={translate("Grid")} value="Grid"  color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
                         </Picker>
                     </View>
@@ -451,7 +456,7 @@ export default class AddList extends Component {
                             subtitle: this.state.subtitle,
                             like: {},
                             view: [],
-                            viewcode: this.state.viewmode == 'Map' ? 0 : (this.state.viewmode == 'List' ? 1 : 2),
+                            viewcode: this.state.viewmode == 'Map' ? 0 : 1,
                         })
                         .then(async (documentSnapshot) => {
                             await firestore()

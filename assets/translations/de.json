@@ -1,7 +1,7 @@
 {
     "Share" : "Teilen",
-    "Change" : "Ansichtsmodus\nändern",
-    "Launch" : "Verschieben Sie\ndie zugehörige URL",
+    "Change" : "Ansichtsmodus ändern",
+    "Launch" : "Verschieben Sie die zugehörige URL",
     "Main" : "Main",
     "Error" : "Error",
     "Confirm" : "Bestätigen",
@@ -36,7 +36,7 @@
     "ViewMode" : "Ansichtsmodus",
     "Map" : "Karte",
     "List" : "Aufführen",
-    "Grid" : "Gitter",
+    "Grid" : "Foto",
     "Title" : "Titel",
     "Subtitle" : "Untertitel",
     "URLLink" : "URL-Link (Optionen)",
@@ -110,5 +110,6 @@
     "es" : "español",
     "pt" : "Português",
     "fr" : "Français",
-    "de" : "Deutsch"
+    "de" : "Deutsch",
+    "LoginOpenURL" : "Bitte melden Sie sich an und greifen Sie erneut auf die URL zu."
 }

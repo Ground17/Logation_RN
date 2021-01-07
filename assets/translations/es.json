@@ -1,7 +1,7 @@
 {
     "Share" : "Compartir",
-    "Change" : "Cambiar modo\nde vista",
-    "Launch" : "Mover URL\nrelacionada",
+    "Change" : "Cambiar modo de vista",
+    "Launch" : "Mover URL relacionada",
     "Main" : "principal",
     "Error" : "Error",
     "Confirm" : "Confirmar",
@@ -36,7 +36,7 @@
     "ViewMode" : "Modo de vista",
     "Map" : "Mapa",
     "List" : "Lista",
-    "Grid" : "Cuadrícula",
+    "Grid" : "Foto",
     "Title" : "Título",
     "Subtitle" : "Subtitular",
     "URLLink" : "Enlace URL (opciones)",
@@ -110,5 +110,6 @@
     "es" : "español",
     "pt" : "Português",
     "fr" : "Français",
-    "de" : "Deutsch"
+    "de" : "Deutsch",
+    "LoginOpenURL" : "Inicie sesión y vuelva a acceder a la URL."
 }

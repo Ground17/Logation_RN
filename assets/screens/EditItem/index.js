@@ -13,6 +13,7 @@ import {
   Alert,
   PermissionsAndroid,
   Appearance,
+  ImageBackground,
 } from 'react-native';
 
 import FastImage from 'react-native-fast-image';
@@ -430,7 +431,7 @@ export default class EditItem extends Component {
               />
             </View>
             <MapView
-              style={{flex: 1, width: "100%", height: 500}}
+              style={{flex: 1, aspectRatio: 1, width: "100%"}}
               provider={PROVIDER_GOOGLE} // remove if not using Google Maps
               onMapReady={() => {
                 Platform.OS === 'android' ? PermissionsAndroid.request(
@@ -453,10 +454,16 @@ export default class EditItem extends Component {
                   long: e.nativeEvent.coordinate.longitude, 
                   changed: true,
                 })}
+                anchor={{x: 0.5, y: 0.5}}
                 coordinate={ {latitude: this.state.lat, longitude: this.state.long} }
                 title={this.props.route.params.title}
                 onPress={e => console.log(e.nativeEvent)}
-              />
+              >
+                <View>
+                    <ImageBackground source={require('./../../logo/marker.png')} style={{height:64, width:64, justifyContent:'center'}}>
+                    </ImageBackground>
+                </View>
+              </Marker>
             </MapView>
           </ScrollView>}
         </SafeAreaView>

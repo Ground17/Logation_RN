@@ -9,11 +9,12 @@ import {
   Image, 
   Linking,
   Appearance,
+  ActivityIndicator,
 } from 'react-native';
 
 import FastImage from 'react-native-fast-image';
 
-import { adsFree, translate, screenId, screenEmail, } from '../Utils';
+import { adsFree, translate, LocalizationContext } from '../Utils';
 
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
@@ -24,6 +25,8 @@ import { BannerAd, TestIds, BannerAdSize } from '@react-native-firebase/admob';
 import storage from '@react-native-firebase/storage';
 import firestore from '@react-native-firebase/firestore';
 import messaging from '@react-native-firebase/messaging';
+
+import { TabActions } from '@react-navigation/native';
 
 const adBannerUnitId = __DEV__ ? TestIds.BANNER : 
     (Platform.OS == 'ios' 
@@ -61,6 +64,8 @@ async function requestUserPermission() {
 }
 
 export default class Me extends Component {
+    static contextType = LocalizationContext
+
     state = {
         followers: [],
         followings: [],
@@ -69,9 +74,11 @@ export default class Me extends Component {
         profileURL: '', // 사진 URL
         localProfileURL: '', // 상대 위치 참조 URL
         ads: true,
+        loading: true,
     }
 
     async refresh() {
+        const {initializeAppLanguage} = this.context;
         this.setState({
             followers: [],
             followings: [],
@@ -79,7 +86,10 @@ export default class Me extends Component {
             list: [],
             profileURL: '', // 사진 URL
             localProfileURL: '', // 상대 위치 참조 URL
+            loading: true,
         });
+
+        await initializeAppLanguage();
 
         const user = await firestore().collection("Users").doc(auth().currentUser.email);
         var storageRef = await storage().ref();
@@ -105,14 +115,12 @@ export default class Me extends Component {
             });
         } else {
             data = (await user.get()).data();
-            console.log("before User Data", new Date().getTime());
             await this.setState({
                 followers : data.follower,
                 followings : data.following,
                 views : data.view,
                 localProfileURL : data.profile
             });
-            console.log("after User Data", new Date().getTime());
 
             if (!data.displayName || !auth().currentUser.displayName || data.displayName != auth().currentUser.displayName) {
                 const update = {
@@ -125,24 +133,13 @@ export default class Me extends Component {
                     displayName: auth().currentUser.email,
                 });
             }
-
-            console.log("before profile photo", new Date().getTime());
             try {
                 this.setState({profileURL : await storageRef.child(auth().currentUser.email + "/" + data.profile).getDownloadURL()});
             } catch (e) {
                 this.setState({profileURL : ''});
             }
-            console.log("after profile photo", new Date().getTime());
         }
 
-        // Linking.getInitialURL().then(url => {
-        //     this.navigate(url);
-        // });
-        
-        Linking.addEventListener('url', this.handleOpenURL);
-
-
-        console.log("before data", new Date().getTime());
         await firestore()
             .collection(auth().currentUser.email)
             .orderBy("modifyDate", "desc")
@@ -169,7 +166,11 @@ export default class Me extends Component {
                     }
                 }
             });
-        console.log("before data", new Date().getTime());
+        const jumpToAction = TabActions.jumpTo('Me');
+        this.props.navigation.dispatch(jumpToAction);
+        this.setState({
+            loading: false,
+        });
     }
 
     async componentDidMount() {
@@ -180,18 +181,17 @@ export default class Me extends Component {
         await requestUserPermission();
         await this.refresh();
 
-        if (screenId != '' && screenEmail != '') {
-            this.props.navigation.push('ShowScreen', {
-                itemId: screenId,
-                userEmail: screenEmail,
-                onPop: () => this.refresh(),
-            });
-        }
+        Linking.getInitialURL().then(url => {
+            this.navigate(url);
+        });
+        
+        Linking.addEventListener('url', this.handleOpenURL);
     }
 
     componentWillUnmount() {
         Linking.removeEventListener('url', this.handleOpenURL);
     }
+
     handleOpenURL = (event) => {
         console.log(event.url);
         this.navigate(event.url);
@@ -298,7 +298,8 @@ export default class Me extends Component {
                         </TouchableOpacity>
                     </View>
                 </View>
-                <View style={[{width: '100%', backgroundColor: Appearance.getColorScheme() === 'dark' ? '#121212' : '#fff' }]}>
+                { !this.state.loading ? 
+                <View style={[{width: '100%', height: "100%", backgroundColor: Appearance.getColorScheme() === 'dark' ? '#121212' : '#fff' }]}>
                     <View style={{
                         marginTop:10,
                         flexDirection: 'row',
@@ -377,13 +378,18 @@ export default class Me extends Component {
                             size={BannerAdSize.BANNER}
                         />}
                     </View>
+                    <FlatList
+                        style={{width: "100%", backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff" }}
+                        keyExtractor={this.keyExtractor}
+                        data={this.state.list}
+                        renderItem={this.renderItem}
+                        onRefresh={() => this.refresh()}
+                        refreshing={this.state.loading}
+                    />
                 </View>
-                <FlatList
-                    style={{width: "100%", backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff" }}
-                    keyExtractor={this.keyExtractor}
-                    data={this.state.list}
-                    renderItem={this.renderItem}
-                />
+                : <View style={{flex: 1, width: "100%", height: "100%", alignItems: 'center', justifyContent: 'center', backgroundColor: Appearance.getColorScheme() === 'dark' ? '#000' : '#fff'}}>
+                     <ActivityIndicator size="large" color={Appearance.getColorScheme() === 'dark' ? '#01579b' : '#002f6c'} />
+                </View>}
             </SafeAreaView>
         );
     }

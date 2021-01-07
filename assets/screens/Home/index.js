@@ -33,11 +33,13 @@ export default class Home extends Component {
     state = {
         list: [],
         ads: true,
+        loading: false,
     }
 
     async refresh() {
         this.setState({
             list: [],
+            loading: true,
         });
 
         var storageRef = await storage().ref();
@@ -85,6 +87,10 @@ export default class Home extends Component {
                     });
                 }
             });
+
+        this.setState({
+            loading: false,
+        });
 
         if (Platform.OS === 'android') {
             Linking.getInitialURL().then(url => {
@@ -236,6 +242,8 @@ export default class Home extends Component {
                     keyExtractor={this.keyExtractor}
                     data={this.state.list}
                     renderItem={this.renderItem}
+                    onRefresh={() => this.refresh()}
+                    refreshing={this.state.loading}
                 />
             </SafeAreaView>
         );

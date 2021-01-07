@@ -24,16 +24,6 @@ const DEFAULT_LANGUAGE = 'en';
 
 var adsFree = false;
 
-var screenId = '';
-var screenEmail = '';
-
-const setId = (data) => {
-  screenId = data;
-};
-const setEmail = (data) => {
-  screenEmail = data;
-};
-
 const translationGetters = {
   en: () => require('../../translations/en.json'), // 영어
   ko: () => require('../../translations/ko.json'), // 한국어
@@ -71,15 +61,6 @@ const LocalizationProvider = ({ children }) => {
 
   const initializeAppLanguage = async () => {
     const currentLanguage = await AsyncStorage.getItem(APP_LANGUAGE);
-    
-    const locationCheck = await AsyncStorage.getItem('location');
-    if(locationCheck === null) {
-      await AsyncStorage.setItem('location', 'true');
-    }
-    const dateCheck = await AsyncStorage.getItem('date');
-    if(dateCheck === null) {
-      await AsyncStorage.setItem('date', 'true');
-    }
 
     if (!currentLanguage) {
       const fallback = { languageTag: DEFAULT_LANGUAGE };
@@ -211,9 +192,5 @@ export {
   LocalizationContext,
   LocalizationProvider,
   adsFree,
-  screenId,
-  screenEmail,
-  setId,
-  setEmail,
-  ProgressBar
+  ProgressBar,
 }

@@ -14,6 +14,9 @@ import {
   TouchableHighlight,
   PermissionsAndroid,
   Appearance,
+  Animated,
+  Dimensions,
+  ImageBackground,
 } from 'react-native';
 
 import FastImage from 'react-native-fast-image';
@@ -31,7 +34,14 @@ import MapView, { Polyline, Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import storage from '@react-native-firebase/storage';
 import firestore from '@react-native-firebase/firestore';
 
-import { translate, setId, setEmail, } from '../Utils';
+import { translate, } from '../Utils';
+
+const { width, height } = Dimensions.get("window");
+const CARD_HEIGHT = 200;
+const CARD_WIDTH = width * 0.8;
+const SPACING_FOR_CARD_INSET = width * 0.1 - 10;
+
+const TAB_ITEM_WIDTH = width / 5;
 
 export default class ShowScreen extends Component {
     state = {
@@ -45,47 +55,54 @@ export default class ShowScreen extends Component {
       likeCount: 0,
       dislikeCount: 0,
       marginBottom: 1,
+      _map: React.createRef(),
+      _scrollView: React.createRef(),
+      mapAnimation: new Animated.Value(0),
     };
 
-    renderItem = ({ item, index }) => (
-      <ListItem
-        containerStyle={{backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff"}}
-        bottomDivider
-        onPress={() => { this.props.navigation.push('ShowItem', {
-            date: item.date.toDate(),
-            title: item.title,
-            subtitle: item.subtitle,
-            userEmail: this.props.route.params.userEmail,
-            itemId: this.props.route.params.itemId,
-            url: item.url,
-            lat: item.lat,
-            long: item.long,
-            photo: item.photo,
-            index: index,
-            link: this.state.link,
-            onPop: () => this.refresh(),
-          }) 
-        }}
-      >
-        <View style={{flex:1/5, aspectRatio:1}}>
-          <FastImage
-            style={{flex: 1}}
-            source={{ 
-              uri: item.url,
-              priority: FastImage.priority.high,
-              }}
-          />
-        </View>
-        <ListItem.Content>
-          <ListItem.Title style={{fontWeight: 'bold', color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}>
-            {item.title}
-          </ListItem.Title>
-          <ListItem.Subtitle style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}>
-            {item.subtitle}
-          </ListItem.Subtitle>
-        </ListItem.Content>
-      </ListItem>
-    )
+    ;
+
+    // renderItem = ({ item, index }) => (
+    //   <ListItem
+    //     containerStyle={{backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff"}}
+    //     bottomDivider
+    //     onPress={() => { this.props.navigation.push('ShowItem', {
+    //         date: item.date.toDate(),
+    //         title: item.title,
+    //         subtitle: item.subtitle,
+    //         userEmail: this.props.route.params.userEmail,
+    //         itemId: this.props.route.params.itemId,
+    //         url: item.url,
+    //         lat: item.lat,
+    //         long: item.long,
+    //         photo: item.photo,
+    //         index: index,
+    //         link: this.state.link,
+    //         onPop: () => this.refresh(),
+    //       }) 
+    //     }}
+    //   >
+    //     <View style={{flex:1/5, aspectRatio:1}}>
+    //       <FastImage
+    //         style={{flex: 1}}
+    //         source={{ 
+    //           uri: item.url,
+    //           priority: FastImage.priority.high,
+    //           }}
+    //       />
+    //     </View>
+    //     <ListItem.Content>
+    //       <ListItem.Title style={{fontWeight: 'bold', color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}>
+    //         {item.title}
+    //       </ListItem.Title>
+    //       <ListItem.Subtitle style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}>
+    //         {item.subtitle}
+    //       </ListItem.Subtitle>
+    //     </ListItem.Content>
+    //   </ListItem>
+    // )
+
+    keyExtractor = (item, index) => index.toString()
 
     renderGrid = ({ item, index }) => (
       <TouchableHighlight onPress={() => {
@@ -106,14 +123,21 @@ export default class ShowScreen extends Component {
       }} 
         style={{flex:1/3, aspectRatio:1}}
       >
-        <FastImage
-          style={{flex: 1}}
-          source={{ 
-            uri: item.url,
-            priority: FastImage.priority.high,
-            }}
-          resizeMode={FastImage.resizeMode.cover}
-        />
+        <View style={{flex: 1}}>
+          <FastImage
+            style={{flex: 1}}
+            source={{ 
+              uri: item.url,
+              priority: FastImage.priority.high,
+              }}
+            resizeMode={FastImage.resizeMode.cover}
+          />
+          <View style={styles.stock}>
+            <Text style={{fontWeight: 'bold', color: '#fff', marginLeft: 3}}>
+              {item.title}
+            </Text>
+          </View>
+        </View>
       </TouchableHighlight>
     )
 
@@ -228,83 +252,190 @@ export default class ShowScreen extends Component {
       console.log("itemId: ", this.props.route.params.itemId);
       console.log("userEmail: ", this.props.route.params.userEmail);
 
-      setId('');
-      setEmail('');
-
       this.refresh();
+      
+      this.state.mapAnimation.addListener(({ value }) => {
+        let index = Math.floor(value / CARD_WIDTH + 0.3); // animate 30% away from landing on the next item
+        if (index >= this.state.list.length) {
+          index = this.state.list.length - 1;
+        }
+        if (index <= 0) {
+          index = 0;
+        }
+
+        if( this.state.mapIndex !== index ) {
+          this.setState({mapIndex: index});
+          this.state._map.current.animateCamera(
+            {
+              center: {
+                latitude: this.state.list[index].lat,
+                longitude: this.state.list[index].long,
+              }
+            },
+            350
+          );
+        }
+      });
     }
+
+    componentWillUnmount() {
+      this.state.mapAnimation.removeAllListeners();
+    }
+
     render() {
       return(
         <SafeAreaView style={styles.container}>
           { this.state.loading ? <View style={{backgroundColor: Appearance.getColorScheme() === 'dark' ? '#121212' : '#fff', justifyContent: "center", width: "100%", height: "100%"}}>
                 <ActivityIndicator size="large" color={Appearance.getColorScheme() === 'dark' ? '#01579b' : '#002f6c'} />
             </View> 
-            : this.state.viewcode == 0 ? <MapView
-            style={{flex: 1, width: "100%", marginBottom: this.state.marginBottom}}
-            provider={PROVIDER_GOOGLE} // remove if not using Google Maps
-            region={{
-              latitude: this.state.list.length > 0 ? this.state.list[0].lat : 37,
-              longitude: this.state.list.length > 0 ? this.state.list[0].long : 127,
-              latitudeDelta: 0.922,
-              longitudeDelta: 0.421,
-            }}
-            onMapReady={() => {
-              this.setState({marginBottom: 0})
-              Platform.OS === 'android' ? PermissionsAndroid.request(
-                PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION) : ''
-            }}
-            showsUserLocation={true}
-            showsMyLocationButton={true}
-            showsCompass={true}
-          >
-          <Polyline
-            coordinates={this.state.list.map(data => {
-              return {latitude: data.lat, longitude: data.long}
-            })}
-            strokeColor="#002f6c" // fallback for when `strokeColors` is not supported by the map-provider
-            strokeWidth={6}
-          />
-          {this.state.list.map((data, index) => (
-            <Marker
-              coordinate={ {latitude: data.lat, longitude: data.long} }
-              title={data.title}
-              onPress={e => {
-                  console.log(e.nativeEvent);
-                  this.props.navigation.push('ShowItem', {
-                    date: data.date.toDate(),
-                    title: data.title,
-                    subtitle: data.subtitle,
-                    userEmail: this.props.route.params.userEmail,
-                    itemId: this.props.route.params.itemId,
-                    url: data.url,
-                    lat: data.lat,
-                    long: data.long,
-                    photo: data.photo,
-                    index: index,
-                    link: this.state.link,
-                    onPop: () => this.refresh(),
-                  })
-                }
-              }
-            />
-          ))}
-          </MapView>
-          : (this.state.viewcode == 1 ? <FlatList
+            : this.state.viewcode == 0 ? 
+          <View style={{width: "100%", height: "91%"}}> 
+            <MapView
+              ref={this.state._map}
+              style={{flex: 1, width: "100%", marginBottom: this.state.marginBottom}}
+              provider={PROVIDER_GOOGLE} // remove if not using Google Maps
+              initialRegion={{
+                latitude: this.state.list.length > 0 ? this.state.list[0].lat : 37,
+                longitude: this.state.list.length > 0 ? this.state.list[0].long : 127,
+                latitudeDelta: 0.922,
+                longitudeDelta: 0.421,
+              }}
+              onMapReady={() => {
+                this.setState({marginBottom: 0})
+                Platform.OS === 'android' ? PermissionsAndroid.request(
+                  PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION) : ''
+              }}
+              showsUserLocation={true}
+              showsMyLocationButton={true}
+              showsCompass={true}
+            >
+              <Polyline
+                coordinates={this.state.list.map(data => {
+                  return {latitude: data.lat, longitude: data.long}
+                })}
+                strokeColor="#002f6c" // fallback for when `strokeColors` is not supported by the map-provider
+                strokeWidth={6}
+              />
+                {this.state.list.map((data, index) => (
+                  <Marker
+                    coordinate={ {latitude: data.lat, longitude: data.long} }
+                    anchor={{x: 0.5, y: 0.5}}
+                    onPress={e => {
+                      let x = (index * CARD_WIDTH) + (index * 20); 
+                      if (Platform.OS === 'ios') {
+                        x = x - SPACING_FOR_CARD_INSET;
+                      }
+
+                      this.state._map.current.animateCamera(
+                        {
+                          center: {
+                            latitude: data.lat,
+                            longitude: data.long,
+                          }
+                        },
+                        350
+                      );
+
+                      this.state._scrollView.current.scrollTo({x: x, y: 0, animated: true});
+                    }}
+                  >
+                    <View>
+                        <ImageBackground source={require('./../../logo/marker.png')} style={{height:64, width:64, justifyContent:'center'}}>
+                            <Text style={{textAlign: 'center', fontWeight: 'bold', fontSize: 20}}>{index + 1}</Text>
+                        </ImageBackground>
+                    </View>
+                  </Marker>
+                ))}
+            </MapView>
+            <View style={{backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff"}}>
+              <Animated.ScrollView
+                ref={this.state._scrollView}
+                horizontal
+                pagingEnabled
+                scrollEventThrottle={1}
+                snapToInterval={CARD_WIDTH + 20}
+                snapToAlignment="center"
+                style={styles.scrollView}
+                decelerationRate="fast"
+                contentOffset={{x: Platform.OS === 'ios' ? -SPACING_FOR_CARD_INSET : 0, y: 0}}
+                contentInset={{
+                  top: 0,
+                  left: SPACING_FOR_CARD_INSET,
+                  bottom: 0,
+                  right: SPACING_FOR_CARD_INSET
+                }}
+                contentContainerStyle={{
+                  paddingHorizontal: Platform.OS === 'android' ? SPACING_FOR_CARD_INSET : 0
+                }}
+                onScroll={Animated.event(
+                  [
+                    {
+                      nativeEvent: {
+                        contentOffset: {
+                          x: this.state.mapAnimation,
+                        }
+                      },
+                    },
+                  ],
+                  {useNativeDriver: true}
+                )}
+              >
+                {this.state.list.map((data, index) => (
+                  <TouchableOpacity
+                    style={styles.card}
+                    onPress={() => { this.props.navigation.push('ShowItem', {
+                        date: data.date.toDate(),
+                        title: data.title,
+                        subtitle: data.subtitle,
+                        userEmail: this.props.route.params.userEmail,
+                        itemId: this.props.route.params.itemId,
+                        url: data.url,
+                        lat: data.lat,
+                        long: data.long,
+                        photo: data.photo,
+                        index: index,
+                        link: this.state.link,
+                        onPop: () => this.refresh(),
+                      }) 
+                    }}
+                  >
+                    <View style={{flex:1, aspectRatio: CARD_WIDTH / CARD_HEIGHT}}>
+                      <FastImage
+                        style={{flex: 1}}
+                        source={{ 
+                          uri: data.url,
+                          priority: FastImage.priority.high,
+                          }}
+                      />
+                      <View style={styles.stock}>
+                        <Text style={{fontWeight: 'bold', color: '#fff', marginLeft: 10}}>
+                          {data.title}
+                        </Text>
+                        <Text style={{color: '#fff', marginLeft: 10}}>
+                          {data.subtitle}
+                        </Text>
+                      </View>
+                    </View>
+                  </TouchableOpacity>
+                ))}
+              </Animated.ScrollView>
+            </View>
+          </View> : (
+          //   this.state.viewcode == 1 ? <FlatList
+          //     style={{backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff"}}
+          //     key={0}
+          //     data={this.state.list}
+          //     renderItem={this.renderItem}
+          // /> : 
+          <FlatList
               style={{backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff"}}
-              key={0}
-              data={this.state.list}
-              renderItem={this.renderItem}
-          />
-          : <FlatList
-              style={{backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff"}}
-              key={20}
+              keyExtractor={this.keyExtractor}
               data={this.state.list}
               renderItem={this.renderGrid}
               numColumns={3}
           />)}
 
-          <View
-            style={styles.floatingViewStyle}>
+          <View style={styles.floatingViewStyle}>
             <TouchableOpacity onPress={async () => {
               console.log('up');
               var sfDocRef = firestore().collection(this.props.route.params.userEmail).doc(this.props.route.params.itemId);
@@ -353,14 +484,14 @@ export default class ShowScreen extends Component {
                   console.error(err);
               });
             }}>
-            <View style={{alignItems: 'center'}}>
+            <View style={{alignItems: 'center', justifyContent: 'space-around', height: "100%", width: TAB_ITEM_WIDTH}}>
               <Icon
                 reverse
                 name='thumb-up'
                 color={this.state.liked ? '#4f83cc' : '#bdbdbd'}
-                size={48}
+                size={25}
               />
-              <Text style={{textAlign: 'center', color: "#fff"}}> {this.state.likeCount} </Text>
+              <Text style={{textAlign: 'center', color: "#fff", fontSize: 10}}> {this.state.likeCount} </Text>
             </View>
           </TouchableOpacity>
           <TouchableOpacity onPress={async () => {
@@ -411,14 +542,14 @@ export default class ShowScreen extends Component {
                 console.error(err);
             });
           }}>
-            <View style={{alignItems: 'center'}}>
+            <View style={{alignItems: 'center', justifyContent: 'space-around', height: "100%", width: TAB_ITEM_WIDTH}}>
               <Icon
                 reverse
                 name='thumb-down'
                 color={this.state.disliked ? '#bc477b' : '#bdbdbd'}
-                size={48}
+                size={25}
               />
-              <Text style={{textAlign: 'center', color: "#fff"}}> {this.state.dislikeCount} </Text>
+              <Text style={{textAlign: 'center', color: "#fff", fontSize: 10}}> {this.state.dislikeCount} </Text>
             </View>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => {
@@ -450,18 +581,18 @@ export default class ShowScreen extends Component {
               .then((res) => { console.log(res) })
               .catch((err) => { err && console.log(err); });
             }}>
-            <View style={{alignItems: 'center'}}>
+            <View style={{alignItems: 'center', justifyContent: 'space-around', height: "100%", width: TAB_ITEM_WIDTH}}>
               <Icon
                 reverse
                 name='share'
                 color='#bdbdbd'
-                size={48}
+                size={25}
               />
-              <Text style={{textAlign: 'center', color: "#fff"}}> {translate("Share")} </Text>
+              <Text style={{textAlign: 'center', color: "#fff", fontSize: 10}}> {translate("Share")} </Text>
             </View>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => {
-            if (this.state.viewcode > 1) {
+            if (this.state.viewcode > 0) {
               this.setState({
                 viewcode: 0
               });
@@ -471,14 +602,14 @@ export default class ShowScreen extends Component {
               });
             }
           }}>
-            <View style={{alignItems: 'center'}}>
+            <View style={{alignItems: 'center', justifyContent: 'space-around', height: "100%", width: TAB_ITEM_WIDTH}}>
               <Icon
                 reverse
                 name='tune'
                 color='#bdbdbd'
-                size={48}
+                size={25}
               />
-              <Text style={{textAlign: 'center', color: "#fff"}}> {translate("Change")} </Text>
+              <Text style={{textAlign: 'center', color: "#fff", fontSize: 10}}> {translate("Change")} </Text>
             </View>
           </TouchableOpacity>
           <TouchableOpacity onPress={async () => { 
@@ -505,14 +636,14 @@ export default class ShowScreen extends Component {
             }
             
           }}>
-            <View style={{alignItems: 'center'}}>
+            <View style={{alignItems: 'center', justifyContent: 'space-around', height: "100%", width: TAB_ITEM_WIDTH}}>
               <Icon
                 reverse
                 name='launch'
                 color='#bdbdbd'
-                size={48}
+                size={25}
               />
-              <Text style={{textAlign: 'center', color: "#fff"}}> {translate("Launch")} </Text>
+              <Text style={{textAlign: 'center', color: "#fff", fontSize: 10}}> {translate("Launch")} </Text>
             </View>
           </TouchableOpacity>
         </View>
@@ -528,14 +659,37 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
     },
     floatingViewStyle: {
-      position: 'absolute',
       width: "100%",
-      height: 88,
+      height: "9%",
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-around',
-      alignSelf: 'center',
-      bottom: 100,
+      backgroundColor: 'rgba(52, 52, 52, 0.8)',
+    },
+    card: {
+      elevation: 2,
+      backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff",
+      borderTopLeftRadius: 5,
+      borderTopRightRadius: 5,
+      marginHorizontal: 10,
+      shadowColor: "#000",
+      shadowRadius: 5,
+      shadowOpacity: 0.3,
+      shadowOffset: { x: 2, y: -2 },
+      height: CARD_HEIGHT,
+      width: CARD_WIDTH,
+      overflow: "hidden",
+    },
+    scrollView: {
+      bottom: 0,
+      left: 0,
+      right: 0,
+      paddingVertical: 5,
+    },
+    stock: { // 사진 밑 제목과 소제목
+      position: 'absolute',
+      bottom: 0,
+      width: "100%",
       backgroundColor: 'rgba(52, 52, 52, 0.8)',
     },
 });

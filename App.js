@@ -35,7 +35,6 @@ import Purchase from './assets/screens/Purchase';
 import Language from './assets/screens/Language';
 import { translate, LocalizationProvider, LocalizationContext, screenId, screenEmail, setId, setEmail, } from './assets/screens/Utils';
 
-
 import admob, { MaxAdContentRating } from '@react-native-firebase/admob';
 
 import 'react-native-gesture-handler';
@@ -46,11 +45,12 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import auth from '@react-native-firebase/auth';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
+import i18n from 'i18n-js';
+
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
 function Main({ navigation }) {
-  navigation.setOptions({ title: translate("Main") });
   return (
     <Tab.Navigator
         screenOptions={({ route }) => ({
@@ -63,7 +63,7 @@ function Main({ navigation }) {
               iconName = 'people';
             } else if (route.name === 'Search') {
               iconName = 'search';
-            } 
+            }
 
             // You can return any component that you like here!
             return <Icon
@@ -83,83 +83,77 @@ function Main({ navigation }) {
         name="Me"
         component={Me}
         options={{
-          tabBarLabel: translate("MyAccount"),
+          tabBarLabel: Object.keys(i18n.translations).length === 0 ? "" : translate("MyAccount"),
         }} />
       <Tab.Screen 
         name="Feed" 
         component={Home} 
         options={{
-          tabBarLabel: translate("Feed"),
+          tabBarLabel: Object.keys(i18n.translations).length === 0 ? "" : translate("Feed"),
         }} />
       <Tab.Screen 
         name="Search" 
         component={Search} options={{
-          tabBarLabel: translate("Search"),
+          tabBarLabel: Object.keys(i18n.translations).length === 0 ? "" : translate("Search"),
         }} />
     </Tab.Navigator>
   );
 }
 
-const SplashScreen = ({navigation}) => {
-  const {appLanguage, initializeAppLanguage} = useContext(LocalizationContext);
+// const SplashScreen = ({navigation}) => {
+//   const {appLanguage, initializeAppLanguage} = useContext(LocalizationContext);
 
-  const handleOpenURL = (event) => {
-    console.log(event.url);
-    navigate(event.url);
-  }
+//   const handleOpenURL = (event) => {
+//     console.log(event.url);
+//     navigate(event.url);
+//   }
 
-  const navigate = (url) => { // url scheme settings (ex: https://travelog-4e274.web.app/?email=hyla981020@naver.com&&id=2EgGSgGMVzHFzq8oErBi&&viewcode=1)
-    var regex = /[?&]([^=#]+)=([^&#]*)/g,
-      params = {},
-      match;
-    var i = 0;
-    try {
-      while (match = regex.exec(url)) {
-        params[match[1]] = match[2];
-        i++;
-      }
-      console.log(params)
-      if (!params['email'] || !params['id']) {
-        return;
-      }
+//   const navigate = (url) => { // url scheme settings (ex: https://travelog-4e274.web.app/?email=hyla981020@naver.com&&id=2EgGSgGMVzHFzq8oErBi&&viewcode=1)
+//     var regex = /[?&]([^=#]+)=([^&#]*)/g,
+//       params = {},
+//       match;
+//     var i = 0;
+//     try {
+//       while (match = regex.exec(url)) {
+//         params[match[1]] = match[2];
+//         i++;
+//       }
+//       console.log(params)
+//       if (!params['email'] || !params['id']) {
+//         return;
+//       }
 
-      setId(params['id']);
-      setEmail(params['email']);
-      console.log(screenId);
-      console.log(screenEmail);
-    } catch (e) {
-      console.log(e);
-      return;
-    }
-  }
+//     } catch (e) {
+//       console.log(e);
+//       return;
+//     }
+//   }
 
-  useEffect(() => {
-    Linking.getInitialURL().then(url => {
-      navigate(url);
-    });
-    Linking.addEventListener('url', this.handleOpenURL);
+//   useEffect(() => {
+//     Linking.getInitialURL().then(url => {
+//       navigate(url);
+//     });
+//     Linking.addEventListener('url', this.handleOpenURL);
 
-    initializeAppLanguage();
+//     const timer = setTimeout(() => {
+//       if (!auth().currentUser || !auth().currentUser.emailVerified) {
+//         navigation.replace('Login');
+//       } else {
+//         navigation.replace('Main');
+//       }
+//     }, 2000);
+//     return () => {
+//       clearTimeout(timer);
+//       Linking.removeEventListener('url', this.handleOpenURL);
+//     }
+//   }, [navigation, initializeAppLanguage]);
 
-    const timer = setTimeout(() => {
-      if (!auth().currentUser || !auth().currentUser.emailVerified) {
-        navigation.replace('Login');
-      } else {
-        navigation.replace('Main');
-      }
-    }, 2000);
-    return () => {
-      clearTimeout(timer);
-      Linking.removeEventListener('url', this.handleOpenURL);
-    }
-  }, [navigation, initializeAppLanguage]);
-
-  return (
-    <View style={{flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: Appearance.getColorScheme() === 'dark' ? '#000' : '#fff'}}>
-      <ActivityIndicator size="large" color={Appearance.getColorScheme() === 'dark' ? '#01579b' : '#002f6c'} />
-    </View>
-  );
-};
+//   return (
+//     <View style={{flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: Appearance.getColorScheme() === 'dark' ? '#000' : '#fff'}}>
+//       <ActivityIndicator size="large" color={Appearance.getColorScheme() === 'dark' ? '#01579b' : '#002f6c'} />
+//     </View>
+//   );
+// };
 
 export default class App extends Component {
   constructor(props) {
@@ -188,8 +182,7 @@ export default class App extends Component {
     return (
       <LocalizationProvider>
         <NavigationContainer>
-          <Stack.Navigator initialRouteName="SplashScreen">
-            <Stack.Screen options={{headerShown: false}} name="SplashScreen" component={SplashScreen} />
+          <Stack.Navigator initialRouteName={!auth().currentUser || !auth().currentUser.emailVerified ? 'Login' : 'Main'}>
             <Stack.Screen options={{headerShown: false}} name="Login" component={Login} />
             <Stack.Screen name="SignUp" component={SignUp} options={{
               headerStyle: {

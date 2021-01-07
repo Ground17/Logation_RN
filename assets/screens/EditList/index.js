@@ -132,14 +132,20 @@ export default class EditList extends Component {
 
     async componentDidMount() {
         const locationCheck = await AsyncStorage.getItem('location');
+        if(locationCheck === null) {
+            await AsyncStorage.setItem('location', 'true');
+        }
         const dateCheck = await AsyncStorage.getItem('date');
+        if(dateCheck === null) {
+            await AsyncStorage.setItem('date', 'true');
+        }
         this.setState({
             category: this.props.route.params.category,
             date: this.props.route.params.date,
             title: this.props.route.params.title,
             subtitle: this.props.route.params.subtitle,
             link: this.props.route.params.link,
-            viewmode: this.props.route.params.viewcode == 0 ? 'Map' : (this.props.route.params.viewcode == 1 ? 'List' : 'Grid'),
+            viewmode: this.props.route.params.viewcode == 0 ? 'Map' : 'Grid',
             ads: !adsFree,
             locationChecked: locationCheck == 'true' ? true : false,
             dateChecked: dateCheck == 'true' ? true : false,
@@ -218,7 +224,6 @@ export default class EditList extends Component {
                                 this.setState({viewmode: itemValue})
                             }>
                             <Picker.Item label={translate("Map")} value="Map" color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
-                            <Picker.Item label={translate("List")} value="List" color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
                             <Picker.Item label={translate("Grid")} value="Grid" color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
                         </Picker>
                     </View>
@@ -481,7 +486,7 @@ export default class EditList extends Component {
                             link: this.state.link,
                             title: this.state.title,
                             subtitle: this.state.subtitle,
-                            viewcode: this.state.viewmode == 'Map' ? 0 : (this.state.viewmode == 'List' ? 1 : 2),
+                            viewcode: this.state.viewmode == 'Map' ? 0 : 1,
                         })
                         .then(async () => {
                             await firestore()
