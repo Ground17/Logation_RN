@@ -33,7 +33,7 @@ import EditItem from './assets/screens/EditItem';
 import Following from './assets/screens/Following';
 import Purchase from './assets/screens/Purchase';
 import Language from './assets/screens/Language';
-import { translate, LocalizationProvider, LocalizationContext, screenId, screenEmail, setId, setEmail, } from './assets/screens/Utils';
+import { translate, LocalizationProvider, LocalizationContext, } from './assets/screens/Utils';
 
 import admob, { MaxAdContentRating } from '@react-native-firebase/admob';
 
@@ -111,7 +111,7 @@ function Main({ navigation }) {
 //     navigate(event.url);
 //   }
 
-//   const navigate = (url) => { // url scheme settings (ex: https://travelog-4e274.web.app/?email=hyla981020@naver.com&&id=2EgGSgGMVzHFzq8oErBi&&viewcode=1)
+//   const navigate = (url) => { // url scheme settings (ex: https://travelog-4e274.web.app/?user=j2OeONPCBnW7mc2N2gMS7FZ0ZZi2&&id=2EgGSgGMVzHFzq8oErBi)
 //     var regex = /[?&]([^=#]+)=([^&#]*)/g,
 //       params = {},
 //       match;
@@ -122,7 +122,7 @@ function Main({ navigation }) {
 //         i++;
 //       }
 //       console.log(params)
-//       if (!params['email'] || !params['id']) {
+//       if (!params['user'] || !params['id']) {
 //         return;
 //       }
 

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="shortcut icon" href="favicon.ico">
+    <link rel="apple-touch-icon-precomposed" href="favicon-152.png">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Footprint Notice</title>
+
+    <style media="screen">
+      .btn {
+        border: 1px solid white;
+        padding: 1px;
+        background: #ffffff;
+      }
+
+      .img-container {
+        text-align: center;
+        display: inline-block;
+      }
+
+      .title {
+        width: 20%;
+        min-width: 150px;
+      }
+
+      select {
+        width: auto;
+        height: auto;
+      }
+
+      pre{
+        padding:10px;
+        overflow: auto;
+        white-space: pre-wrap; /* pre tag내에 word wrap */
+      }
+    </style>
+  </head>
+  <body>
+    <div>
+      <div>
+        <div style="position:fixed;left:0;top:0;height: 50px; display: flex; padding: 15px; justify-content: space-between;align-items: center;background-color: #ffffff;">
+          <div>
+            <a href="/"><img class="title" src="graphicImage1.png"></a>
+          </div>
+          <select name="language" id="language" onchange="selectChange(this)">
+            <option value="en">English</option>
+            <option value="ko">한국어</option>
+            <!-- <option value="ja">日本語</option>
+            <option value="zh">中文 (简体)</option>
+            <option value="de">Deutsch</option>
+            <option value="es">español</option>
+            <option value="fr">Français</option>
+            <option value="pt">Português</option> -->
+          </select>
+        </div>
+      <div id="divbox" style="padding-top: 80px; text-align: start; display: block;">
+        
+        <p>
+          <b id="subtitle2"></b>
+          <pre id="content2">
+          </pre>
+          <a href="https://www.google.com/settings/ads" id="link1"></a>
+          <a href="http://www.aboutads.info/choices/" id="link2"></a>
+        </p>
+        <p>
+          <b id="subtitle3"></b>
+          <pre id="content3">
+          </pre>
+        </p>
+        <p>
+          <b id="subtitle4"></b>
+          <pre id="content4">
+          </pre>
+        </p>
+      </div>
+    </div>
+    <script type="text/javascript">
+      var languageSet = {
+        ko: {
+          "2021-01-10": "개인정보보호를 위해 서버 구조를 변경하였습니다.",
+          "notice": "공지사항",
+        },
+        en: {
+          "2021-01-10": "The server structure has been changed to protect personal information.",
+          "notice": "Notice",
+        },
+        // ja: {
+        //   "2021-01-10": "個人情報保護のためにサーバー構造を変更しました。",
+        //   "notice": "お知らせ事項",
+        // },
+        // zh: {
+        //   "2021-01-10": "为了保护个人信息，变更了服务器结构。",
+        //   "notice": "公告事项",
+        // },
+        // de: {
+        //   "2021-01-10": "Die Serverstruktur wurde geändert, um persönliche Informationen zu schützen.",
+        //   "notice": "Hinweis",
+        // },
+        // es: {
+        //   "2021-01-10": "La estructura del servidor se ha modificado para proteger la información personal.",
+        //   "notice": "Aviso",
+        // },
+        // fr: {
+        //   "2021-01-10": "La structure du serveur a été modifiée pour protéger les informations personnelles.",
+        //   "notice": "Avis",
+        // },
+        // pt: {
+        //   "2021-01-10": "A estrutura do servidor foi alterada para proteger as informações pessoais.",
+        //   "notice": "Aviso",
+        // }
+      }
+      
+      function change(language) {
+        var code = language;
+        if (language) {
+          code = language.substring(0, 2);
+          if (!languageSet.hasOwnProperty(code)) {
+            code = 'en';
+          }
+        } else {code = 'en';}
+
+        var select = document.getElementById("language");
+        select.value = code;
+
+        var divbox = document.getElementById("divbox");
+        divbox.innerHTML = "";
+        for(key in languageSet[code]) {
+          if (key != "notice") {
+            divbox.innerHTML += `<p>
+          <b>${key}</b>
+          <pre>
+          ${languageSet[code][key]}
+          </pre>
+        </p>`;
+          } else {
+            divbox.innerHTML = `<h1 id="title">${languageSet[code][key]}</h1>` + divbox.innerHTML;
+          }
+
+        }
+      }
+    </script>
+    <script type="text/javascript" src="functions.js"></script>
+  </body>
+</html>

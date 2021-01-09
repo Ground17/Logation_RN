@@ -74,14 +74,14 @@ export default class EditItem extends Component {
                       this.setState({loading: true});
                       try {
                         var array = await storage()
-                        .ref(`${auth().currentUser.email}/${this.props.route.params.itemId}`)
+                        .ref(`${auth().currentUser.uid}/${this.props.route.params.itemId}`)
                         .listAll();
                         console.log(array._items);
                         for (var i = 0; i < array._items.length; i++) {
                           await array._items[i].delete();
                         }
                         await firestore()
-                          .collection(auth().currentUser.email)
+                          .collection(auth().currentUser.uid)
                           .doc(this.props.route.params.itemId)
                           .delete();
                       } catch (e) {
@@ -104,14 +104,14 @@ export default class EditItem extends Component {
                       this.setState({loading: true});
                       try {
                         await storage()
-                        .ref(`${auth().currentUser.email}/${this.props.route.params.itemId}/${this.props.route.params.photo}`)
+                        .ref(`${auth().currentUser.uid}/${this.props.route.params.itemId}/${this.props.route.params.photo}`)
                         .delete();
                         this.setState({
                           list: this.state.list.filter(data => this.state.list[this.state.index] !== data)
                         });
                         console.log("list", this.state.list);
                         await firestore()
-                          .collection(auth().currentUser.email)
+                          .collection(auth().currentUser.uid)
                           .doc(this.props.route.params.itemId)
                           .update({
                             data: this.state.list,
@@ -121,7 +121,7 @@ export default class EditItem extends Component {
                       } finally {
                         if (this.state.index == 0) {
                           await firestore()
-                          .collection(auth().currentUser.email)
+                          .collection(auth().currentUser.uid)
                           .doc(this.props.route.params.itemId)
                           .update({
                             thumbnail: this.state.list[0].photo,
@@ -166,10 +166,10 @@ export default class EditItem extends Component {
                   if (this.state.url != this.state.exURL) {
                     try {
                       var filename = this.state.url.split('/');
-                      var storageRef = storage().ref(`${auth().currentUser.email}/${this.props.route.params.itemId}/${filename[filename.length - 1]}`);
+                      var storageRef = storage().ref(`${auth().currentUser.uid}/${this.props.route.params.itemId}/${filename[filename.length - 1]}`);
                       await storageRef.putFile(`${this.state.url}`);
                       await storage()
-                        .ref(`${auth().currentUser.email}/${this.props.route.params.itemId}/${this.props.route.params.photo}`)
+                        .ref(`${auth().currentUser.uid}/${this.props.route.params.itemId}/${this.props.route.params.photo}`)
                         .delete();
                       this.setState({photo: filename[filename.length - 1]});
                     } catch (e) {
@@ -187,7 +187,7 @@ export default class EditItem extends Component {
                   };
                   
                   firestore()
-                  .collection(auth().currentUser.email)
+                  .collection(auth().currentUser.uid)
                   .doc(this.props.route.params.itemId)
                   .update({
                     data: updateData,
@@ -197,13 +197,13 @@ export default class EditItem extends Component {
                     try {
                       await firestore()
                         .collection("Users")
-                        .doc(auth().currentUser.email).update({
+                        .doc(auth().currentUser.uid).update({
                           modifyDate: firestore.Timestamp.fromMillis((new Date()).getTime()),
                         });
 
                       if (this.state.index == 0) {
                         await firestore()
-                        .collection(auth().currentUser.email)
+                        .collection(auth().currentUser.uid)
                         .doc(this.props.route.params.itemId)
                         .update({
                           thumbnail: this.state.photo,
@@ -250,7 +250,7 @@ export default class EditItem extends Component {
       });
       
       firestore()
-        .collection(auth().currentUser.email)
+        .collection(auth().currentUser.uid)
         .doc(this.props.route.params.itemId)
         .get()
         .then(async (documentSnapshot) => {

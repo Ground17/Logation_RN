@@ -77,7 +77,7 @@ export default class ShowItem extends Component {
               />
             </TouchableOpacity>
             {
-              auth().currentUser.email == this.props.route.params.userEmail ? 
+              auth().currentUser.uid == this.props.route.params.userUid ? 
                 <TouchableOpacity style={{
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -88,7 +88,7 @@ export default class ShowItem extends Component {
                     date: this.props.route.params.date,
                     title: this.props.route.params.title,
                     subtitle: this.props.route.params.subtitle,
-                    userEmail: this.props.route.params.userEmail,
+                    userUid: this.props.route.params.userUid,
                     itemId: this.props.route.params.itemId,
                     url: this.props.route.params.url,
                     lat: this.props.route.params.lat,
@@ -123,7 +123,7 @@ export default class ShowItem extends Component {
       // var storageRef = storage().ref();
       
       // firestore()
-      //   .collection(auth().currentUser.email)
+      //   .collection(auth().currentUser.uid)
       //   .doc(this.props.route.params.itemId)
       //   .get()
       //   .then(async (documentSnapshot) => {

@@ -43,7 +43,7 @@ export default class Following extends Component {
       });
     } else {
       this.setState({
-        searching: this.state.following.filter(data => data.email.includes(this.state.search) || data.displayName.includes(this.state.search)),
+        searching: this.state.following.filter(data => data.uid.includes(this.state.search) || data.displayName.includes(this.state.search)),
       });
     }
   }
@@ -55,20 +55,20 @@ export default class Following extends Component {
       searching: [],
     });
     var storageRef = await storage().ref();
-    const user = await firestore().collection("Users").doc(auth().currentUser.email);
+    const user = await firestore().collection("Users").doc(auth().currentUser.uid);
     if ((await user.get()).exists) {
       data = (await user.get()).data();
       for (var i = 0; i<data.following.length; i++) {
         const other = await firestore().collection("Users").doc(data.following[i]);
         item = (await other.get()).data();
         try {
-          var URL = await storageRef.child(item.email + "/" + item.profile).getDownloadURL();
+          var URL = await storageRef.child(item.uid + "/" + item.profile).getDownloadURL();
         } catch (e) {
           var URL = '';
         } finally {
           this.setState({
             following: this.state.following.concat({ 
-              email : item.email,
+              uid : item.uid,
               displayName : item.displayName,
               profileURL : URL,
             })
@@ -112,15 +112,14 @@ export default class Following extends Component {
       containerStyle={{backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff"}}
       bottomDivider
       onPress={() => { 
-        if (auth().currentUser.email != item.email) {
+        if (auth().currentUser.uid != item.uid) {
           this.props.navigation.push('Other', {
-            userEmail: item.email,
+            userUid: item.uid,
           }); 
           return;
         }
         Alert.alert(
           translate('MyAccount'),
-          item.email,
           [
           {text: translate('OK'), onPress: () => console.log('OK Pressed')},
           ],
@@ -139,7 +138,7 @@ export default class Following extends Component {
           {item.displayName ?? ''}
         </ListItem.Title>
         <ListItem.Subtitle style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}>
-          {item.email}
+          {item.uid}
         </ListItem.Subtitle>
       </ListItem.Content>
     </ListItem>

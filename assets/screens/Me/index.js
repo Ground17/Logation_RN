@@ -10,6 +10,7 @@ import {
   Linking,
   Appearance,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 
 import FastImage from 'react-native-fast-image';
@@ -42,7 +43,14 @@ async function requestUserPermission() {
   const authorizationStatus = await messaging().requestPermission();
 
   if (authorizationStatus) {
-    console.log('Permission status:', authorizationStatus);
+    const authStatus = await messaging().requestPermission();
+    const enabled =
+        authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+        authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+
+    if (enabled) {
+        console.log('Authorization status:', authStatus);
+    }
 
     messaging().onMessage(async remoteMessage => {
         Alert.alert('A new message arrived!', JSON.stringify(remoteMessage));
@@ -56,9 +64,9 @@ async function requestUserPermission() {
 
     await firestore()
         .collection('Users')
-        .doc(auth().currentUser.email)
+        .doc(auth().currentUser.uid)
         .update({
-            tokens: firestore.FieldValue.arrayUnion(token),
+            tokens: token,
         });
   }
 }
@@ -91,27 +99,27 @@ export default class Me extends Component {
 
         await initializeAppLanguage();
 
-        const user = await firestore().collection("Users").doc(auth().currentUser.email);
+        const user = await firestore().collection("Users").doc(auth().currentUser.uid);
         var storageRef = await storage().ref();
         if (!(await user.get()).exists) {
             await user.set({
                 follower: [],
                 following: [],
                 view: [],
-                email: auth().currentUser.email,
+                uid: auth().currentUser.uid,
                 profile: '',
                 modifyDate: firestore.Timestamp.fromMillis((new Date()).getTime()),
-                displayName: auth().currentUser.email,
+                displayName: auth().currentUser.uid,
             });
 
             const update = {
-                displayName: auth().currentUser.email
+                displayName: auth().currentUser.uid
             };
 
             await auth().currentUser.updateProfile(update);
 
             await user.update({
-                displayName: auth().currentUser.email,
+                displayName: auth().currentUser.uid,
             });
         } else {
             data = (await user.get()).data();
@@ -124,24 +132,24 @@ export default class Me extends Component {
 
             if (!data.displayName || !auth().currentUser.displayName || data.displayName != auth().currentUser.displayName) {
                 const update = {
-                    displayName: auth().currentUser.email
+                    displayName: auth().currentUser.uid
                 };
 
                 await auth().currentUser.updateProfile(update);
 
                 await user.update({
-                    displayName: auth().currentUser.email,
+                    displayName: auth().currentUser.uid,
                 });
             }
             try {
-                this.setState({profileURL : await storageRef.child(auth().currentUser.email + "/" + data.profile).getDownloadURL()});
+                this.setState({profileURL : await storageRef.child(auth().currentUser.uid + "/" + data.profile).getDownloadURL()});
             } catch (e) {
                 this.setState({profileURL : ''});
             }
         }
 
         await firestore()
-            .collection(auth().currentUser.email)
+            .collection(auth().currentUser.uid)
             .orderBy("modifyDate", "desc")
             .get()
             .then(async (querySnapshot) => {
@@ -149,7 +157,7 @@ export default class Me extends Component {
                     console.log('data: ', querySnapshot.docs[i].id, querySnapshot.docs[i].data());
                     var URL = "";
                     try {
-                        var URL = await storageRef.child(await auth().currentUser.email + "/" + querySnapshot.docs[i].id + "/" + querySnapshot.docs[i].data().thumbnail).getDownloadURL();
+                        var URL = await storageRef.child(await auth().currentUser.uid + "/" + querySnapshot.docs[i].id + "/" + querySnapshot.docs[i].data().thumbnail).getDownloadURL();
                     } catch (e) {
                         console.log(e);
                     } finally {
@@ -178,8 +186,9 @@ export default class Me extends Component {
         this.setState({
             ads: !adsFree,
         });
-        await requestUserPermission();
+
         await this.refresh();
+        await requestUserPermission();
 
         Linking.getInitialURL().then(url => {
             this.navigate(url);
@@ -197,7 +206,7 @@ export default class Me extends Component {
         this.navigate(event.url);
     }
 
-    navigate = (url) => { // url scheme settings (ex: https://travelog-4e274.web.app/?email=hyla981020@naver.com&&id=2EgGSgGMVzHFzq8oErBi)
+    navigate = (url) => { // url scheme settings (ex: https://travelog-4e274.web.app/?user=j2OeONPCBnW7mc2N2gMS7FZ0ZZi2&&id=2EgGSgGMVzHFzq8oErBi)
         var regex = /[?&]([^=#]+)=([^&#]*)/g,
             params = {},
             match;
@@ -207,12 +216,12 @@ export default class Me extends Component {
             i++;
         }
         console.log(params)
-        if (!params['email'] || !params['id']) {
+        if (!params['user'] || !params['id']) {
             return;
         }
         this.props.navigation.push('ShowScreen', {
             itemId: params['id'],
-            userEmail: params['email'],
+            userUid: params['user'],
             onPop: () => this.refresh(),
         });
     }
@@ -230,7 +239,7 @@ export default class Me extends Component {
             bottomDivider
             onPress={() => { this.props.navigation.push('ShowScreen', {
                 itemId: item.id,
-                userEmail: auth().currentUser.email,
+                userUid: auth().currentUser.uid,
                 onPop: () => this.refresh(),
             }) }}
         >
@@ -289,7 +298,9 @@ export default class Me extends Component {
                                 color={ Appearance.getColorScheme() === 'dark' ? '#ffffff' : '#002f6c' }
                             />
                         </TouchableOpacity>
-                        <TouchableOpacity style={{marginRight:10}} onPress={() => { this.props.navigation.push('Settings') }}>
+                        <TouchableOpacity style={{marginRight:10}} onPress={() => { this.props.navigation.push('Settings', {
+                            onPop: () => { this.props.navigation.replace("Login"); },
+                        }) }}>
                             <Icon
                                 name='settings'
                                 size={24}
@@ -326,8 +337,8 @@ export default class Me extends Component {
                     <Text style={{fontWeight: 'bold', textAlign: 'center', marginTop: 10, color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}>
                         {auth().currentUser.displayName}
                     </Text>
-                    <Text style={{textAlign: 'center', color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}>
-                        {auth().currentUser.email}
+                    <Text selectable style={{textAlign: 'center', color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}>
+                        {auth().currentUser.uid}
                     </Text>
                     <View style={{
                         flexDirection: 'row',
@@ -351,7 +362,7 @@ export default class Me extends Component {
                             alignItems: 'center',
                             justifyContent: 'center',
                         }} onPress={() => { this.props.navigation.push('Following', {
-                            userEmail: auth().currentUser.email,
+                            userUid: auth().currentUser.uid,
                             onPop: () => this.refresh(),
                         }) }}>
                             <View style={{
@@ -378,7 +389,7 @@ export default class Me extends Component {
                             size={BannerAdSize.BANNER}
                         />}
                     </View>
-                    <FlatList
+                    {this.state.list.length > 0 ? <FlatList
                         style={{width: "100%", backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff" }}
                         keyExtractor={this.keyExtractor}
                         data={this.state.list}
@@ -386,6 +397,10 @@ export default class Me extends Component {
                         onRefresh={() => this.refresh()}
                         refreshing={this.state.loading}
                     />
+                    : <View style={{width: "100%", height: "100%", backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff"}}>
+                        <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000', textAlign: 'center'}}>{translate("MeEmpty")}</Text>
+                    </View>
+                    }
                 </View>
                 : <View style={{flex: 1, width: "100%", height: "100%", alignItems: 'center', justifyContent: 'center', backgroundColor: Appearance.getColorScheme() === 'dark' ? '#000' : '#fff'}}>
                      <ActivityIndicator size="large" color={Appearance.getColorScheme() === 'dark' ? '#01579b' : '#002f6c'} />

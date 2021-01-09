@@ -111,5 +111,9 @@
     "pt" : "Português",
     "fr" : "Français",
     "de" : "Deutsch",
-    "LoginOpenURL" : "로그인 후 URL에 다시 접속해주세요."
+    "LoginOpenURL" : "로그인 후 URL에 다시 접속해주세요.",
+    "Policy" : "개인정보처리방침",
+    "Notice" : "공지사항",
+    "MeEmpty" : "데이터가 없습니다. 상단 메뉴에서 추가할 수 있습니다.",
+    "HomeEmpty" : "데이터가 없습니다. 다른 계정을 더 팔로우해보세요!"
 }

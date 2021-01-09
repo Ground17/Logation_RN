@@ -180,10 +180,14 @@ export default class Login extends Component {
     this.props.navigation.setOptions({ title: translate("SignIn") });
 
     Linking.getInitialURL().then(url => {
-        this.navigate(url);
+      this.navigate(url);
     });
     
     Linking.addEventListener('url', this.handleOpenURL);
+  }
+
+  componentWillUnmount() {
+      Linking.removeEventListener('url', this.handleOpenURL);
   }
 
   handleOpenURL = (event) => {
@@ -192,9 +196,20 @@ export default class Login extends Component {
   }
 
   navigate = (url) => {
+    var regex = /[?&]([^=#]+)=([^&#]*)/g,
+        params = {},
+        match;
+    var i = 0;
+    while (match = regex.exec(url)) {
+        params[match[1]] = match[2];
+        i++;
+    }
+    console.log(params)
+    if (!params['user'] || !params['id']) {
+        return;
+    }
     Alert.alert(
       translate('LoginOpenURL'), // 로그인 후 URL에 다시 접속해주세요.
-      e.toString(),
       [
         {text: translate('OK'), onPress: () => console.log('OK Pressed')},
       ],
@@ -258,7 +273,6 @@ export default class Login extends Component {
               />
           </View>
           <TouchableOpacity style={[styles.buttonContainer, styles.loginButton]} onPress={() => { 
-            console.log(this.state.email)
             this.emailLogin(this.state.email, this.state.password) }}>
               <Text style={styles.loginText}>{translate("SignIn")}</Text>
           </TouchableOpacity>

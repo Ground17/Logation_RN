@@ -128,13 +128,15 @@ export default class AddList extends Component {
     )
 
     async componentDidMount() {
-        const locationCheck = await AsyncStorage.getItem('location');
+        var locationCheck = await AsyncStorage.getItem('location');
         if(locationCheck === null) {
             await AsyncStorage.setItem('location', 'true');
+            locationCheck = 'true';
         }
-        const dateCheck = await AsyncStorage.getItem('date');
+        var dateCheck = await AsyncStorage.getItem('date');
         if(dateCheck === null) {
             await AsyncStorage.setItem('date', 'true');
+            dateCheck = 'true';
         }
         this.setState({
             ads: !adsFree,
@@ -446,7 +448,7 @@ export default class AddList extends Component {
 
                         this.setState({loading: true})
                         await firestore()
-                        .collection(auth().currentUser.email)
+                        .collection(auth().currentUser.uid)
                         .add({
                             category: this.state.category,
                             date: firestore.Timestamp.fromMillis(this.state.date.getTime()),
@@ -461,13 +463,13 @@ export default class AddList extends Component {
                         .then(async (documentSnapshot) => {
                             await firestore()
                             .collection("Users")
-                            .doc(auth().currentUser.email)
+                            .doc(auth().currentUser.uid)
                             .update({
                                 modifyDate: firestore.Timestamp.fromMillis((new Date()).getTime()),
                             });
                             var filename = this.state.thumbnail.split('/');
 
-                            var storageRef = storage().ref(`${auth().currentUser.email}/${documentSnapshot._documentPath._parts[1]}/${filename[filename.length - 1]}`);
+                            var storageRef = storage().ref(`${auth().currentUser.uid}/${documentSnapshot._documentPath._parts[1]}/${filename[filename.length - 1]}`);
                             await storageRef.putFile(this.state.thumbnail);
 
                             this.setState({thumbnail: filename[filename.length - 1]})
@@ -475,7 +477,7 @@ export default class AddList extends Component {
                             var updateData = this.state.data;
                             for (var i=0; i < this.state.data.length; i++) {
                                 filename = this.state.data[i].photo.split('/');
-                                storageChildRef = storage().ref(`${auth().currentUser.email}/${documentSnapshot._documentPath._parts[1]}/${filename[filename.length - 1]}`)
+                                storageChildRef = storage().ref(`${auth().currentUser.uid}/${documentSnapshot._documentPath._parts[1]}/${filename[filename.length - 1]}`)
                                 await storageChildRef.putFile(this.state.data[i].photo);
 
                                 updateData[i].photo = filename[filename.length - 1];
@@ -484,7 +486,7 @@ export default class AddList extends Component {
                             this.setState({data: updateData});
 
                             await firestore()
-                                .collection(auth().currentUser.email)
+                                .collection(auth().currentUser.uid)
                                 .doc(documentSnapshot._documentPath._parts[1])
                                 .update({
                                     thumbnail: this.state.thumbnail,

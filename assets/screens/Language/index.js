@@ -6,6 +6,8 @@ import { ListItem } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
 import RNRestart from 'react-native-restart';
+import messaging from '@react-native-firebase/messaging';
+import i18n from 'i18n-js';
 
 export default Language = ({navigation}) => {
   const {appLanguage, setAppLanguage} = useContext(
@@ -27,7 +29,10 @@ export default Language = ({navigation}) => {
       translate("LanguageComment1") + translate(language),
       [
           {text: translate('Cancel'), onPress: () => {}},
-          {text: translate('OK'), onPress: () => { handleSetLanguage(language); }},
+          {text: translate('OK'), onPress: async () => { 
+            await messaging().unsubscribeFromTopic(i18n.locale).then(() => console.log('Unsubscribed fom the topic!'));
+            handleSetLanguage(language);
+          }},
       ],
       { cancelable: false }
     );

@@ -111,5 +111,9 @@
     "pt" : "Português",
     "fr" : "Français",
     "de" : "Deutsch",
-    "LoginOpenURL" : "Faça login e acesse o URL novamente."
+    "LoginOpenURL" : "Faça login e acesse o URL novamente.",
+    "Policy" : "Política de privacidade",
+    "Notice" : "Aviso",
+    "MeEmpty" : "Os dados não estão disponíveis. Você pode adicioná-lo no menu superior.",
+    "HomeEmpty" : "Os dados não estão disponíveis. Siga mais outras contas!"
 }

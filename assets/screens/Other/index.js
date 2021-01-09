@@ -67,11 +67,11 @@ export default class Other extends Component {
             profileURL: '', // 사진 URL
             loading: false,
         });
-// auth().currentUser.email => this.props.route.params.userEmail
+// auth().currentUser.uid => this.props.route.params.userUid
         var storageRef = storage().ref();
 
-        firestore()
-            .collection(this.props.route.params.userEmail)
+        await firestore()
+            .collection(this.props.route.params.userUid)
             .orderBy("modifyDate", "desc")
             .get()
             .then(async (querySnapshot) => {
@@ -79,7 +79,7 @@ export default class Other extends Component {
                     console.log('data: ', querySnapshot.docs[i].id, querySnapshot.docs[i].data());
                     var URL = "";
                     try {
-                        URL = await storageRef.child(await this.props.route.params.userEmail + "/" + querySnapshot.docs[i].id + "/" + querySnapshot.docs[i].data().thumbnail).getDownloadURL();
+                        URL = await storageRef.child(await this.props.route.params.userUid + "/" + querySnapshot.docs[i].id + "/" + querySnapshot.docs[i].data().thumbnail).getDownloadURL();
                     } catch (e) {
                         console.log(e);
                     }
@@ -96,9 +96,9 @@ export default class Other extends Component {
                 }
             });
 
-        firestore()
+        await firestore()
             .collection("Users")
-            .doc(this.props.route.params.userEmail)
+            .doc(this.props.route.params.userUid)
             .get()
             .then(async (documentSnapshot) => {
                     data = documentSnapshot.data();
@@ -110,42 +110,38 @@ export default class Other extends Component {
                         followingsLength : data.following.length,
                         views : data.view,
                         viewsLength : data.view.length,
-                        follow: data.follower.includes(auth().currentUser.email),
+                        follow: data.follower.includes(auth().currentUser.uid),
                         displayName : data.displayName,
                     });
-                    if (!data.view.includes(auth().currentUser.email)) {
-                        await documentSnapshot.ref.update({ view: data.view.concat(auth().currentUser.email) });
+                    if (!data.view.includes(auth().currentUser.uid)) {
+                        await documentSnapshot.ref.update({ view: data.view.concat(auth().currentUser.uid) });
                         this.setState({
                             viewsLength : this.state.viewsLength + 1,
                         });
                     }
                     var URL = "";
                     try {
-                        URL = await storageRef.child(this.props.route.params.userEmail + "/" + data.profile).getDownloadURL();
+                        URL = await storageRef.child(this.props.route.params.userUid + "/" + data.profile).getDownloadURL();
                     } catch (e) {
                         console.log(e);
                     }
                     this.setState({profileURL : URL,});
                 });
 
-        firestore()
+        await firestore()
             .collection("Users")
-            .doc(auth().currentUser.email)
+            .doc(auth().currentUser.uid)
             .get()
             .then(async (documentSnapshot) => {
                 this.setState({
-                    documentIDforMe: auth().currentUser.email,
+                    documentIDforMe: auth().currentUser.uid,
                 });
             }
         );
 
-        if (this.props.route.params.itemId) {
-            this.props.navigation.push('ShowScreen', {
-                itemId: this.props.route.params.itemId,
-                userEmail: this.props.route.params.userEmail,
-                onPop: () => this.refresh(),
-            });
-        }
+        this.setState({
+            loading: false,
+        });
     }
 
     async componentDidMount() {
@@ -185,7 +181,7 @@ export default class Other extends Component {
             bottomDivider
             onPress={() => { this.props.navigation.push('ShowScreen', {
                 itemId: item.id,
-                userEmail: this.props.route.params.userEmail,
+                userUid: this.props.route.params.userUid,
                 onPop: () => this.refresh(),
             }) }}
         >
@@ -219,8 +215,10 @@ export default class Other extends Component {
                                     follow : !this.state.follow,
                                 });
                                 if (!this.state.loading) {
-                                    try {
+                                    try { // 오류가 많아지는 경우 firestore의 unionarray 메서드 생각해보기
                                         this.setState({loading: true});
+                                        console.log(this.state.documentID);
+                                        console.log(this.state.documentIDforMe);
                                         var sfDocRef = firestore().collection("Users").doc(this.state.documentID);
                                         var sfDocRefForMe = firestore().collection("Users").doc(this.state.documentIDforMe);
                                         
@@ -233,15 +231,15 @@ export default class Other extends Component {
                                             }
 
                                             if (this.state.follow) {
-                                                if (!sfDoc.data().follower.includes(auth().currentUser.email)) {
-                                                    await transaction.update(sfDocRef, { follower: sfDoc.data().follower.concat(auth().currentUser.email) });
+                                                if (!sfDoc.data().follower.includes(auth().currentUser.uid)) {
+                                                    await transaction.update(sfDocRef, { follower: sfDoc.data().follower.concat(auth().currentUser.uid) });
                                                     this.setState({
                                                         followersLength : this.state.followersLength + 1,
                                                     });
                                                 }
                                             } else {
-                                                if (sfDoc.data().follower.includes(auth().currentUser.email)) {
-                                                    await transaction.update(sfDocRef, { follower: sfDoc.data().follower.filter(data => auth().currentUser.email != data) });
+                                                if (sfDoc.data().follower.includes(auth().currentUser.uid)) {
+                                                    await transaction.update(sfDocRef, { follower: sfDoc.data().follower.filter(data => auth().currentUser.uid != data) });
                                                     this.setState({
                                                         followersLength : this.state.followersLength - 1,
                                                     });
@@ -252,12 +250,12 @@ export default class Other extends Component {
                                             }
 
                                             if (this.state.follow) {
-                                                if (!sfDocForMe.data().following.includes(this.props.route.params.userEmail)) {
-                                                    await transaction.update(sfDocRefForMe, { following: sfDocForMe.data().following.concat(this.props.route.params.userEmail) });
+                                                if (!sfDocForMe.data().following.includes(this.props.route.params.userUid)) {
+                                                    await transaction.update(sfDocRefForMe, { following: sfDocForMe.data().following.concat(this.props.route.params.userUid) });
                                                 }
                                             } else {
-                                                if (sfDocForMe.data().following.includes(this.props.route.params.userEmail)) {
-                                                    await transaction.update(sfDocRefForMe, { following: sfDocForMe.data().following.filter(data => this.props.route.params.userEmail != data) });
+                                                if (sfDocForMe.data().following.includes(this.props.route.params.userUid)) {
+                                                    await transaction.update(sfDocRefForMe, { following: sfDocForMe.data().following.filter(data => this.props.route.params.userUid != data) });
                                                 }
                                             }
                                             return Promise.resolve(true);
@@ -297,8 +295,8 @@ export default class Other extends Component {
                         <Text style={{fontWeight: 'bold', textAlign: 'center', marginTop: 10, color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}>
                             {this.state.displayName}
                         </Text>
-                        <Text style={{textAlign: 'center', color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}>
-                            {this.props.route.params.userEmail}
+                        <Text selectable style={{textAlign: 'center', color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}>
+                            {this.props.route.params.userUid}
                         </Text>
                         <View style={{
                             flexDirection: 'row',
@@ -341,9 +339,12 @@ export default class Other extends Component {
                             />}
                         </View>
                         <FlatList
+                            style={{width: "100%", backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff" }}
                             keyExtractor={this.keyExtractor}
                             data={this.state.list}
                             renderItem={this.renderItem}
+                            onRefresh={() => this.refresh()}
+                            refreshing={this.state.loading}
                         />
                     </View>
                 </View>

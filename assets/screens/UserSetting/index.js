@@ -102,7 +102,18 @@ export default class UserSetting extends Component {
           
           </View>
           <View style={{width: '100%', alignItems: 'center', justifyContent: 'center', paddingBottom: 30}}>
-            <View style={{marginBottom: 10}}>
+            <View style={{marginBottom: 5}}>
+              <View style={{alignSelf:'center', position:'absolute', borderBottomColor:'gray', borderBottomWidth:1, height:'50%', width:'80%'}}/>
+            </View>
+            <View style={{width: "80%", flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around'}}>
+              <TouchableOpacity onPress={() => { Linking.openURL('https://travelog-4e274.web.app/policy') }}>
+                <Text style={{color: Appearance.getColorScheme() === 'dark' ? "#fff" : '#002f6c'}}>{translate("Policy")}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => { Linking.openURL('https://travelog-4e274.web.app/notice') }}>
+                <Text style={{color: Appearance.getColorScheme() === 'dark' ? "#fff" : '#002f6c'}}>{translate("Notice")}</Text>
+              </TouchableOpacity>
+            </View>
+            <View style={{marginTop: 5, marginBottom: 10}}>
               <View style={{alignSelf:'center', position:'absolute', borderBottomColor:'gray', borderBottomWidth:1, height:'50%', width:'80%'}}/>
             </View>
             <TouchableOpacity style={[styles.buttonContainer, styles.loginButton, {height:45, width: "80%", borderRadius:5}]} onPress={() => { this.props.navigation.push('Language') }}>
@@ -111,11 +122,11 @@ export default class UserSetting extends Component {
             <View style={{marginTop: 5, marginBottom: 10}}>
               <View style={{alignSelf:'center', position:'absolute', borderBottomColor:'gray', borderBottomWidth:1, height:'50%', width:'80%'}}/>
             </View>
-            <TouchableOpacity style={[styles.buttonContainer, styles.loginButton, {height:45, width: "80%", borderRadius:5}]} onPress={() => { auth().signOut().then(() => 
-              console.log('User signed out!'));
-              this.props.navigation.goBack();
-              this.props.navigation.replace("Login");
-            }}>
+            <TouchableOpacity style={[styles.buttonContainer, styles.loginButton, {height:45, width: "80%", borderRadius:5}]} onPress={() => { auth().signOut().then(() => {
+              console.log('User signed out!');
+              this.props.navigation.pop();
+              this.props.route.params.onPop();
+            });}}>
               <Text style={styles.loginText}>{translate("SignOut")}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={[styles.buttonContainer, styles.signUpButton, {height:45, width: "80%", borderRadius:5}]} onPress={() => { this.alert() }}>

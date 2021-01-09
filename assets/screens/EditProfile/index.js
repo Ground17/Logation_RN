@@ -117,7 +117,7 @@ export default class EditProfile extends Component {
                     }
                 />
                 <Text style={{textAlign: 'center', color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}>
-                    {auth().currentUser.email}
+                    {auth().currentUser.uid}
                 </Text>
                 <TouchableOpacity style={[styles.buttonContainer, styles.loginButton, {marginTop: 70, height:45, width: "80%", borderRadius:5,}]} onPress={async () => { 
                 if (this.state.nickname.length > 0) {
@@ -133,7 +133,7 @@ export default class EditProfile extends Component {
                     if (this.props.route.params.profileURL == this.state.profileURL) {
                         await firestore()
                         .collection("Users")
-                        .doc(auth().currentUser.email)
+                        .doc(auth().currentUser.uid)
                         .update({
                             modifyDate: firestore.Timestamp.fromMillis((new Date()).getTime()),
                             displayName: this.state.nickname,
@@ -141,10 +141,10 @@ export default class EditProfile extends Component {
                     } else {
                         var filename = this.state.profileURL.split('/');
 
-                        var storageRef = storage().ref(`${auth().currentUser.email}/${filename[filename.length - 1]}`);
+                        var storageRef = storage().ref(`${auth().currentUser.uid}/${filename[filename.length - 1]}`);
                         await firestore()
                         .collection("Users")
-                        .doc(auth().currentUser.email)
+                        .doc(auth().currentUser.uid)
                         .update({
                             profile: filename[filename.length - 1],
                             modifyDate: firestore.Timestamp.fromMillis((new Date()).getTime()),
@@ -153,7 +153,7 @@ export default class EditProfile extends Component {
                         console.log('delete url: ', this.props.route.params.localProfileURL);
                         try {
                             await storageRef.putFile(`${this.state.profileURL}`);
-                            await storage().ref(`${auth().currentUser.email}/${this.props.route.params.localProfileURL}`).delete();
+                            await storage().ref(`${auth().currentUser.uid}/${this.props.route.params.localProfileURL}`).delete();
                         } catch (e) {
                             console.log(e);
                         } finally {

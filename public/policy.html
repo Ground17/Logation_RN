@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="shortcut icon" href="favicon.ico">
+    <link rel="apple-touch-icon-precomposed" href="favicon-152.png">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Footprint Policy</title>
+
+    <style media="screen">
+      .btn {
+        border: 1px solid white;
+        padding: 1px;
+        background: #ffffff;
+      }
+
+      .img-container {
+        text-align: center;
+        display: inline-block;
+      }
+
+      .title {
+        width: 20%;
+        min-width: 150px;
+      }
+
+      select {
+        width: auto;
+        height: auto;
+      }
+
+      pre{
+        padding:10px;
+        overflow: auto;
+        white-space: pre-wrap; /* pre tag내에 word wrap */
+      }
+    </style>
+  </head>
+  <body>
+    <div>
+      <div style="position:fixed;left:0;top:0;height: 50px; display: flex; padding: 15px; justify-content: space-between;align-items: center;background-color: #ffffff;">
+        <div>
+          <a href="/"><img class="title" src="graphicImage1.png"></a>
+        </div>
+        <select name="language" id="language" onchange="selectChange(this)">
+          <option value="en">English</option>
+          <option value="ko">한국어</option>
+          <!-- <option value="ja">日本語</option>
+          <option value="zh">中文 (简体)</option>
+          <option value="de">Deutsch</option>
+          <option value="es">español</option>
+          <option value="fr">Français</option>
+          <option value="pt">Português</option> -->
+        </select>
+      </div>
+      <div style="padding-top: 80px; border: 1px; text-align: start; display: block; overflow:hidden; white-space: normal;">
+        <p>
+          <h1 id="title"></h1>
+          <pre id="content0">
+          </pre>
+          <br>
+        </p>
+        <p>
+          <b id="subtitle1"></b>
+          <pre id="content1">
+          </pre>
+          <br>
+        </p>
+        <p>
+          <b id="subtitle2"></b>
+          <pre id="content2">
+          </pre>
+          <br>
+        </p>
+        <p>
+          <b id="subtitle3"></b>
+          <pre id="content3">
+          </pre>
+          <br>
+        </p>
+        <p>
+          <b id="subtitle4"></b>
+          <pre id="content4">
+          </pre>
+          <br>
+        </p>
+      </div>
+    </div>
+    <script type="text/javascript">
+      var languageSet = {
+        ko: {
+          "title": "개인정보처리방침",
+          "content0": "Ground17은 개인정보보호법에 따라 이용자의 개인정보 보호 및 권익을 보호하고 개인정보와 관련한 이용자의 고충을 원활하게 처리할 수 있도록 다음과 같은 처리방침을 두고 있습니다. 본 방침은 2020년 5월 1일부터 시행됩니다.",
+          "subtitle1": "1. 개인정보의 처리 목적",
+          "content1": `Ground17은 개인정보를 다음의 목적을 위해 처리합니다. 처리한 개인정보는 다음의 목적 이외의 용도로는 사용되지 않으며 이용 목적이 변경될 시에는 사전동의를 구할 예정입니다.​
+
+가. 광고(Google Admob) 표시를 위한 쿠키 또는 이와 유사한 기술 사용
+
+나. 사진 사용을 위한 기기 내 로컬 저장소 사용
+
+다. 사용자의 사진과 사용자의 기본 정보(닉네임, 프로필 사진 등)를 효율적으로 저장하기 위해 서버(Google Firebase) 사용
+
+라. 사용자가 동의할 경우, 기기 사진 내 위치, 날짜 정보 사용,`,
+          "subtitle2": "2. 개인정보의 제3자 제공에 관한 사항",
+          "content2": `① Ground17은 정보주체의 동의, 법률의 특별한 규정 등에 해당하는 경우에만 개인정보를 제3자에게 제공합니다.
+
+② Ground17은 다음과 같이 개인정보를 제3자에게 제공하고 있습니다.
+
+- 개인정보를 제공받는 자 : Google
+
+- 제공받는 자의 개인정보 이용목적 : 
+
+가. Google 등의 외부 애드서버 제휴업체는 쿠키를 사용해 사용자가 이전에 방문한 웹사이트를 토대로 광고를 게재
+
+나. Google의 광고 쿠키 사용으로 Google과 파트너는 사용자의 게시자 사이트 방문 또는 인터넷상의 다른 사이트 방문 기록을 토대로 광고를 게재
+
+다. <a href="https://www.google.com/settings/ads">광고 설정</a>에서 맞춤 광고를 선택 해제 가능, 또는 게시자가 사용자에게 <a href="http://www.aboutads.info/choices/">www.aboutads.info</a>에서 외부 애드서버 제휴업체의 맞춤 광고를 위한 쿠키 사용을 차단하는 방법을 안내할 수도 있음
+
+라. 제휴업체 또는 광고 네트워크가 맞춤 광고 쿠키 차단 기능을 제공하는 경우, 제휴업체 또는 광고 네트워크의 웹사이트를 방문하여 맞춤 광고 쿠키를 차단할 수 있음`,
+          "subtitle3": "3. 개인정보 보호책임자 작성",
+          "content3": `Ground17은 개인정보 처리에 관한 업무를 총괄해서 책임지고, 개인정보 처리와 관련한 정보주체의 불만처리 및 피해구제 등을 위하여 아래와 같이 개인정보 보호책임자를 지정하고 있습니다.
+
+​
+
+▶ 개인정보 보호책임자 
+
+닉네임 : Ground17
+
+직책 : 개인개발자
+
+연락처 : <a href="mailto:hyla981020@naver.com">hyla981020@naver.com</a>`,
+          "subtitle4": "4. 개인정보 처리방침 변경",
+          "content4": `이 개인정보처리방침은 2020. 05. 01. 시행일로부터 적용되며, 법령 및 방침에 따른 변경내용의 추가, 삭제 및 정정이 있는 경우에는 변경사항의 시행 7일 전부터 공지사항을 통하여 고지할 것입니다.`,
+        },
+        en: {
+          "title": "Privacy Policy",
+          "content0": "Under the Personal Information Protection Act, Ground17 has the following handling policies to protect users' personal information protection and rights and to smoothly deal with their personal information. This policy will go into effect on May 1, 2020.",
+          "subtitle1": "1. Purpose of processing personal information",
+          "content1": `Ground17 processes your personal information for the following purposes: The processed personal information is not used for any purpose other than the following, and if the purpose of use is changed, prior consent will be sought.​
+
+A. Use cookies or similar technology to mark Google Adobe
+
+B. Use in-device local storage for pictures
+
+C. Using a server (Google Firebase) to efficiently store your photos and your basic information (nickname, profile picture, etc.)
+
+D. Use location and date information in the device picture if the user agrees.`,
+          "subtitle2": "2. Matters concerning the provision of personal information to third parties",
+          "content2": `① Ground17 provides personal information to third parties only when it meets the consent of the information subject and the special provisions of the law.
+
+② Ground17 provides personal information to third parties as follows:
+
+- Person who receives personal information: Google
+
+- Purpose of use of personal information of recipients:
+
+A. External ad server partners such as Google use cookies to post ads based on websites you previously visited.
+
+B. Using Google's ad cookies, Google and its partners publish ads based on your visit to the publisher's site or other site visits on the Internet.
+
+C. You can deselect customized advertising in the <a href="https://www.google.com/settings/ads">ad settings</a>, or the publisher may guide you on how to block the use of cookies for customized advertising by external adserver partners at <a href="http://www.aboutads.info/choices/">www.aboutads.info</a>
+D. If an affiliate or advertising network offers customized ad cookie blocking, you can visit the website of the affiliate or advertising network to block customized ad cookies.`,
+          "subtitle3": "3. Preparing the person in charge of personal information protection",
+          "content3": `Ground17 is responsible for the overall handling of personal information and designates a person in charge of personal information protection as follows to handle complaints and remedy damages by information subjects related to personal information processing.
+
+​
+
+▶ Person in charge of personal information
+
+Nickname: Ground17
+
+Position: Individual developer
+
+Contact: <a href="mailto:hyla981020@naver.com">hyla981020@naver.com</a>`,
+          "subtitle4": "4. Changing Privacy Policy",
+          "content4": `This Privacy Policy shall be applied from the effective date of May 20, 2020, and if there is any addition, deletion, or correction of changes in accordance with statutes and policies, it will be notified through the notice seven days prior to the implementation of the changes.`,
+        },
+      }
+      
+      function change(language) {
+        var code = language;
+        if (language) {
+          code = language.substring(0, 2);
+          if (!languageSet.hasOwnProperty(code)) {
+            code = 'en';
+          }
+        } else {code = 'en';}
+
+        var select = document.getElementById("language");
+        select.value = code;
+
+        for(key in languageSet[code]) {
+          document.getElementById(key).innerHTML = languageSet[code][key];
+        }
+      }
+    </script>
+    <script type="text/javascript" src="functions.js"></script>
+  </body>
+</html>

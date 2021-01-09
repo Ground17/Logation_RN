@@ -131,13 +131,15 @@ export default class EditList extends Component {
     )
 
     async componentDidMount() {
-        const locationCheck = await AsyncStorage.getItem('location');
+        var locationCheck = await AsyncStorage.getItem('location');
         if(locationCheck === null) {
             await AsyncStorage.setItem('location', 'true');
+            locationCheck = 'true';
         }
-        const dateCheck = await AsyncStorage.getItem('date');
+        var dateCheck = await AsyncStorage.getItem('date');
         if(dateCheck === null) {
             await AsyncStorage.setItem('date', 'true');
+            dateCheck = 'true';
         }
         this.setState({
             category: this.props.route.params.category,
@@ -158,7 +160,7 @@ export default class EditList extends Component {
         var storageRef = storage().ref();
       
         firestore()
-            .collection(auth().currentUser.email)
+            .collection(auth().currentUser.uid)
             .doc(this.props.route.params.itemId)
             .get()
             .then(async (documentSnapshot) => {
@@ -477,7 +479,7 @@ export default class EditList extends Component {
 
                         this.setState({loading: true})
                         firestore()
-                        .collection(auth().currentUser.email)
+                        .collection(auth().currentUser.uid)
                         .doc(this.props.route.params.itemId)
                         .update({
                             category: this.state.category,
@@ -491,14 +493,14 @@ export default class EditList extends Component {
                         .then(async () => {
                             await firestore()
                             .collection("Users")
-                            .doc(auth().currentUser.email)
+                            .doc(auth().currentUser.uid)
                             .update({
                                 modifyDate: firestore.Timestamp.fromMillis((new Date()).getTime()),
                             });
                             var updateData = this.state.data;
                             for (var i=0; i < this.state.data.length; i++) {
                                 var filename = this.state.data[i].photo.split('/');
-                                storageChildRef = storage().ref(`${auth().currentUser.email}/${this.props.route.params.itemId}/${filename[filename.length - 1]}`)
+                                storageChildRef = storage().ref(`${auth().currentUser.uid}/${this.props.route.params.itemId}/${filename[filename.length - 1]}`)
                                 await storageChildRef.putFile(this.state.data[i].photo);
 
                                 updateData[i].photo = filename[filename.length - 1];
@@ -507,7 +509,7 @@ export default class EditList extends Component {
                             this.setState({data: updateData});
 
                             await firestore()
-                                .collection(auth().currentUser.email)
+                                .collection(auth().currentUser.uid)
                                 .doc(this.props.route.params.itemId)
                                 .update({
                                     data: [...this.state.preData, ...this.state.data] /// this.state.preData+ this.state.data

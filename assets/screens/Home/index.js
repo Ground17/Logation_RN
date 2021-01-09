@@ -9,6 +9,7 @@ import {
   Image, 
   Linking,
   Appearance,
+  ActivityIndicator,
 } from 'react-native';
 
 import FastImage from 'react-native-fast-image';
@@ -33,7 +34,7 @@ export default class Home extends Component {
     state = {
         list: [],
         ads: true,
-        loading: false,
+        loading: true,
     }
 
     async refresh() {
@@ -46,16 +47,16 @@ export default class Home extends Component {
 
         await firestore()
             .collection("Users")
-            .where("follower", "array-contains", auth().currentUser.email)
+            .where("follower", "array-contains", auth().currentUser.uid)
             .orderBy("modifyDate", "desc")
             .limit(20)
             .get()
             .then(async (querySnapshot) => {
                 console.log("collectionPath", querySnapshot.docs);
                 for (var i=0; i < querySnapshot.docs.length; i++) {
-                    console.log("collectionPath", querySnapshot.docs[i].data().email);
+                    console.log("collectionPath", querySnapshot.docs[i].data().uid);
                     await firestore()
-                    .collection(querySnapshot.docs[i].data().email)
+                    .collection(querySnapshot.docs[i].data().uid)
                     .orderBy("modifyDate", "desc")
                     .limit(3)
                     .get()
@@ -65,8 +66,8 @@ export default class Home extends Component {
                             var URL = "";
                             var profileURL = "";
                             try {
-                                URL = await storageRef.child(querySnapshot.docs[i].data().email + "/" + querySnap.docs[j].id + "/" + data.thumbnail).getDownloadURL();
-                                profileURL = await storageRef.child(querySnapshot.docs[i].data().email + "/" + querySnapshot.docs[i].data().profile).getDownloadURL();
+                                URL = await storageRef.child(querySnapshot.docs[i].data().uid + "/" + querySnap.docs[j].id + "/" + data.thumbnail).getDownloadURL();
+                                profileURL = await storageRef.child(querySnapshot.docs[i].data().uid + "/" + querySnapshot.docs[i].data().profile).getDownloadURL();
                             } catch (e) {
                                 console.log(e);
                             } finally {
@@ -77,7 +78,7 @@ export default class Home extends Component {
                                         url: URL,
                                         id: querySnap.docs[j].id,
                                         viewcode: data.viewcode,
-                                        email: querySnapshot.docs[i].data().email,
+                                        uid: querySnapshot.docs[i].data().uid,
                                         displayName: querySnapshot.docs[i].data().displayName,
                                         profileURL: profileURL,
                                     })
@@ -115,7 +116,7 @@ export default class Home extends Component {
         this.navigate(event.url);
     }
 
-    navigate = (url) => { // url scheme settings (ex: https://travelog-4e274.web.app/?email=hyla981020@naver.com&&id=2EgGSgGMVzHFzq8oErBi)
+    navigate = (url) => { // url scheme settings (ex: https://travelog-4e274.web.app/?user=j2OeONPCBnW7mc2N2gMS7FZ0ZZi2&&id=2EgGSgGMVzHFzq8oErBi)
         var regex = /[?&]([^=#]+)=([^&#]*)/g,
             params = {},
             match;
@@ -125,12 +126,12 @@ export default class Home extends Component {
             i++;
         }
         console.log(params)
-        if (!params['email'] || !params['id']) {
+        if (!params['user'] || !params['id']) {
             return;
         }
         this.props.navigation.push('ShowScreen', {
             itemId: params['id'],
-            userEmail: params['email'],
+            userUid: params['user'],
             onPop: () => this.refresh(),
         });
     }
@@ -146,7 +147,7 @@ export default class Home extends Component {
             <TouchableOpacity style={{marginRight:10, alignItems: 'center'}} onPress={() => { 
                     this.props.navigation.push('ShowScreen', {
                         itemId: item.id,
-                        userEmail: item.email,
+                        userUid: item.uid,
                         onPop: () => this.refresh(),
                     }) 
                 }}>
@@ -165,21 +166,20 @@ export default class Home extends Component {
                 onPress={() => { 
                     this.props.navigation.push('ShowScreen', {
                         itemId: item.id,
-                        userEmail: item.email,
+                        userUid: item.uid,
                         onPop: () => this.refresh(),
                     }) 
                 }}
             >
                 <TouchableOpacity style={{flex:1/7, aspectRatio:1}} onPress={() => { 
-                    if (auth().currentUser.email != item.email) {
+                    if (auth().currentUser.uid != item.uid) {
                         this.props.navigation.push('Other', {
-                            userEmail: item.email,
+                            userUid: item.uid,
                         }); 
                         return;
                     }
                     Alert.alert(
                         'My account',
-                        item.email,
                     [
                         {text: translate('OK'), onPress: () => console.log('OK Pressed')},
                     ],
@@ -199,7 +199,7 @@ export default class Home extends Component {
                     {item.name}
                 </ListItem.Title>
                 <ListItem.Subtitle style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}>
-                    {`${item.displayName}\n${item.email}`}
+                    {`${item.displayName}`}
                 </ListItem.Subtitle>
                 </ListItem.Content>
             </ListItem>
@@ -207,7 +207,6 @@ export default class Home extends Component {
     )
 
     render() {
-        console.log(this.state.list);
         return(
             <SafeAreaView style={styles.container}>
                 <View style={styles.title}>
@@ -237,7 +236,10 @@ export default class Home extends Component {
                         />}
                     </View>
                 </View>
-                <FlatList
+                {this.state.loading ? <View style={{flex: 1, width: "100%", height: "100%", alignItems: 'center', justifyContent: 'center', backgroundColor: Appearance.getColorScheme() === 'dark' ? '#000' : '#fff'}}>
+                     <ActivityIndicator size="large" color={Appearance.getColorScheme() === 'dark' ? '#01579b' : '#002f6c'} />
+                </View> 
+                : this.state.list.length > 0 ? <FlatList
                     style={{width: "100%", backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff"}}
                     keyExtractor={this.keyExtractor}
                     data={this.state.list}
@@ -245,6 +247,9 @@ export default class Home extends Component {
                     onRefresh={() => this.refresh()}
                     refreshing={this.state.loading}
                 />
+                : <View style={{width: "100%", height: "100%", backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff"}}>
+                    <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000', textAlign: 'center'}}>{translate("HomeEmpty")}</Text>
+                </View>}
             </SafeAreaView>
         );
     }

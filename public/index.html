@@ -19,7 +19,17 @@
         display: inline-block;
       }
 
-      img {
+      .title {
+        width: 20%;
+        min-width: 150px;
+      }
+
+      select {
+        width: auto;
+        height: auto;
+      }
+
+      .badge {
         display: block;
         width: auto;
         max-width: 100%;
@@ -31,32 +41,94 @@
   </head>
   <body>
     <div>
-      <div>
-        <!-- 사진 업로드 -->
-        <img src="graphicImage1.png" style="margin-left:auto;margin-right:auto;">
+      <div style="position:fixed;left:0;top:0;height: 50px; display: flex; padding: 15px; justify-content: space-between;align-items: center;background-color: #ffffff;">
+        <div>
+          <a href="/"><img class="title" src="graphicImage1.png"></a>
+        </div>
+        <select name="language" id="language" onchange="selectChange(this)">
+          <option value="en">English</option>
+          <option value="ko">한국어</option>
+          <!-- <option value="ja">日本語</option>
+          <option value="zh">中文 (简体)</option>
+          <option value="de">Deutsch</option>
+          <option value="es">español</option>
+          <option value="fr">Français</option>
+          <option value="pt">Português</option> -->
+        </select>
       </div>
-      <div style="text-align:center; display:block;">
-        <!-- 다운로드 링크 업로드 -->
+      <div style="padding-top: 80px; display: block; overflow:hidden; text-align: center;">
         <div class="img-container">
-          <button type="button" id="android" class="btn" onclick="openURL('https://play.google.com/store/apps/details?id=com.hyla981020.logory', '_blank')">
-            <img src="google-play-badge.png">
+          <button type="button" id="android" class="btn" onclick="window.open('https://play.google.com/store/apps/details?id=com.hyla981020.logory', '_blank')">
+            <img class="badge" src="google-play-badge.png">
           </button>
         </div>
         <div class="img-container">
-          <button type="button" id="ios" class="btn" onclick="openURL('https://apps.apple.com/us/app/id1508263544', '_blank')">
-            <img src="Download_on_the_App_Store_Badge_US-UK_blk_092917.png">
+          <button type="button" id="ios" class="btn" onclick="window.open('https://apps.apple.com/us/app/id1508263544', '_blank')">
+            <img class="badge" src="Download_on_the_App_Store_Badge_US-UK_blk_092917.png">
           </button>
+        </div>
+        <hr>
+        <div style="display: flex; justify-content: space-around">
+          <a href="/policy"> <pre id="policy"></pre> </a>
+          <a href="/notice"> <pre id="notice"></pre> </a>
         </div>
       </div>
     </div>
 
-    <script>
-      function openURL(url) {
-        window.open(url);
+    <script type="text/javascript">
+      var languageSet = {
+        ko: {
+          "policy": "개인정보처리방침",
+          "notice": "공지사항",
+        },
+        en: {
+          "policy": "Privacy Policy",
+          "notice": "Notice",
+        },
+        // ja: {
+        //   "policy": "個人情報処理方針",
+        //   "notice": "お知らせ事項",
+        // },
+        // zh: {
+        //   "policy": "个人信息处理方针",
+        //   "notice": "公告事项",
+        // },
+        // de: {
+        //   "policy": "Datenschutzerklärung",
+        //   "notice": "Hinweis",
+        // },
+        // es: {
+        //   "policy": "Política de privacidad",
+        //   "notice": "Aviso",
+        // },
+        // fr: {
+        //   "policy": "Politique de confidentialité",
+        //   "notice": "Avis",
+        // },
+        // pt: {
+        //   "policy": "Política de privacidade",
+        //   "notice": "Aviso",
+        // }
       }
-      // document.addEventListener('DOMContentLoaded', function() {
-        
-      // });
+      
+      function change(language) {
+        var code = language;
+        if (language) {
+          code = language.substring(0, 2);
+          if (!languageSet.hasOwnProperty(code)) {
+            code = 'en';
+          }
+        } else {code = 'en';}
+
+        var select = document.getElementById("language");
+        select.value = code;
+
+        for(key in languageSet[code]) {
+          console.log(key);
+          document.getElementById(key).innerHTML = languageSet[code][key];
+        }
+      }
     </script>
+    <script type="text/javascript" src="functions.js"></script>
   </body>
 </html>

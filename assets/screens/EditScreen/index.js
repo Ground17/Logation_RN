@@ -181,7 +181,7 @@ export default class EditScreen extends Component {
       var storageRef = storage().ref();
       
       await firestore()
-        .collection(auth().currentUser.email)
+        .collection(auth().currentUser.uid)
         .doc(this.props.route.params.itemId)
         .get()
         .then(async (documentSnapshot) => {
@@ -190,7 +190,7 @@ export default class EditScreen extends Component {
             var modifiedList = [];
             for (var i=0; i < data.data.length; i++) {
               try {
-                var URL = await storageRef.child(this.props.route.params.userEmail + "/" + this.props.route.params.itemId + "/" + data.data[i].photo).getDownloadURL();
+                var URL = await storageRef.child(this.props.route.params.userUid + "/" + this.props.route.params.itemId + "/" + data.data[i].photo).getDownloadURL();
                 modifiedList = modifiedList.concat({ 
                   date: data.data[i].date,
                   title: data.data[i].title,
@@ -234,7 +234,7 @@ export default class EditScreen extends Component {
         });
         await firestore()
         .collection("Users")
-        .doc(auth().currentUser.email)
+        .doc(auth().currentUser.uid)
         .update({
           modifyDate: firestore.Timestamp.fromMillis((new Date()).getTime()),
         });
@@ -251,7 +251,7 @@ export default class EditScreen extends Component {
           });
         }
         await firestore()
-          .collection(auth().currentUser.email)
+          .collection(auth().currentUser.uid)
           .doc(this.props.route.params.itemId)
           .update({
               thumbnail: this.state.list[0].photo,
@@ -279,7 +279,7 @@ export default class EditScreen extends Component {
                   date: item.date.toDate(),
                   title: item.title,
                   subtitle: item.subtitle,
-                  userEmail: this.props.route.params.userEmail,
+                  userUid: this.props.route.params.userUid,
                   itemId: this.props.route.params.itemId,
                   url: item.url,
                   lat: item.lat,
@@ -297,7 +297,7 @@ export default class EditScreen extends Component {
                   date: item.date.toDate(),
                   title: item.title,
                   subtitle: item.subtitle,
-                  userEmail: this.props.route.params.userEmail,
+                  userUid: this.props.route.params.userUid,
                   itemId: this.props.route.params.itemId,
                   url: item.url,
                   lat: item.lat,
@@ -317,7 +317,7 @@ export default class EditScreen extends Component {
           date: item.date.toDate(),
           title: item.title,
           subtitle: item.subtitle,
-          userEmail: this.props.route.params.userEmail,
+          userUid: this.props.route.params.userUid,
           itemId: this.props.route.params.itemId,
           url: item.url,
           lat: item.lat,
@@ -357,13 +357,13 @@ export default class EditScreen extends Component {
                 try {
                   console.log("delete");
                   var array = await storage()
-                  .ref(`${auth().currentUser.email}/${this.props.route.params.itemId}`)
+                  .ref(`${auth().currentUser.uid}/${this.props.route.params.itemId}`)
                   .listAll();
                   for (var i = 0; i < array._items.length; i++) {
                     await array._items[i].delete();
                   }
                   await firestore()
-                    .collection(auth().currentUser.email)
+                    .collection(auth().currentUser.uid)
                     .doc(this.props.route.params.itemId)
                     .delete();
                 } catch (e) {
@@ -447,15 +447,19 @@ export default class EditScreen extends Component {
 
         if( this.state.mapIndex !== index ) {
           this.setState({mapIndex: index});
-          this.state._map.current.animateCamera(
-            {
-              center: {
-                latitude: this.state.list[index].lat,
-                longitude: this.state.list[index].long,
-              }
-            },
-            350
-          );
+          try {
+            this.state._map.current.animateCamera(
+              {
+                center: {
+                  latitude: this.state.list[index].lat,
+                  longitude: this.state.list[index].long,
+                }
+              },
+              350
+            );
+          } catch (e) {
+            console.log(e);
+          }
         }
       });
     }
@@ -534,15 +538,19 @@ export default class EditScreen extends Component {
                         x = x - SPACING_FOR_CARD_INSET;
                       }
 
-                      this.state._map.current.animateCamera(
-                        {
-                          center: {
-                            latitude: data.lat,
-                            longitude: data.long,
-                          }
-                        },
-                        350
-                      );
+                      try {
+                        this.state._map.current.animateCamera(
+                          {
+                            center: {
+                              latitude: data.lat,
+                              longitude: data.long,
+                            }
+                          },
+                          350
+                        ); 
+                      } catch (e) {
+                        console.log(e);
+                      }
                     }}
                   >
                     <View>

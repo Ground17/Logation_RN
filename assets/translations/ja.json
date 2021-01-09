@@ -111,5 +111,9 @@
     "pt" : "Português",
     "fr" : "Français",
     "de" : "Deutsch",
-    "LoginOpenURL" : "ログイン後、URLに再度アクセスしてください。"
+    "LoginOpenURL" : "ログイン後、URLに再度アクセスしてください。",
+    "Policy" : "個人情報処理方針",
+    "Notice" : "お知らせ事項",
+    "MeEmpty" : "データがありません。 上段メニューから追加できます。",
+    "HomeEmpty" : "データがありません。 他のアカウントをもっとフォローしてください！"
 }

@@ -111,5 +111,9 @@
     "pt" : "Português",
     "fr" : "Français",
     "de" : "Deutsch",
-    "LoginOpenURL" : "登录后请重新连接URL。"
+    "LoginOpenURL" : "登录后请重新连接URL。",
+    "Policy" : "个人信息处理方针",
+    "Notice" : "公告事项",
+    "MeEmpty" : "没有数据。 上端菜单中可以添加。",
+    "HomeEmpty" : "没有数据。 请关注其他账号吧！"
 }

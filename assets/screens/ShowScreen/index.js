@@ -70,7 +70,7 @@ export default class ShowScreen extends Component {
     //         date: item.date.toDate(),
     //         title: item.title,
     //         subtitle: item.subtitle,
-    //         userEmail: this.props.route.params.userEmail,
+    //         userUid: this.props.route.params.userUid,
     //         itemId: this.props.route.params.itemId,
     //         url: item.url,
     //         lat: item.lat,
@@ -110,7 +110,7 @@ export default class ShowScreen extends Component {
             date: item.date.toDate(),
             title: item.title,
             subtitle: item.subtitle,
-            userEmail: this.props.route.params.userEmail,
+            userUid: this.props.route.params.userUid,
             itemId: this.props.route.params.itemId,
             url: item.url,
             lat: item.lat,
@@ -158,7 +158,7 @@ export default class ShowScreen extends Component {
       var storageRef = storage().ref();
       
       await firestore()
-        .collection(this.props.route.params.userEmail)
+        .collection(this.props.route.params.userUid)
         .doc(this.props.route.params.itemId)
         .get()
         .then(async (documentSnapshot) => {
@@ -172,7 +172,7 @@ export default class ShowScreen extends Component {
 
             for (var i=0; i < data.data.length; i++) {
               try {
-                var URL = await storageRef.child(this.props.route.params.userEmail + "/" + this.props.route.params.itemId + "/" + data.data[i].photo).getDownloadURL();
+                var URL = await storageRef.child(this.props.route.params.userUid + "/" + this.props.route.params.itemId + "/" + data.data[i].photo).getDownloadURL();
                 modifiedList = modifiedList.concat({ 
                   date: data.data[i].date,
                   title: data.data[i].title,
@@ -182,8 +182,8 @@ export default class ShowScreen extends Component {
                   lat: data.data[i].lat,
                   long: data.data[i].long,
                 });
-                if (!data.view.includes(auth().currentUser.email)) {
-                  documentSnapshot.ref.update({view: data.view.concat(auth().currentUser.email)});
+                if (!data.view.includes(auth().currentUser.uid)) {
+                  documentSnapshot.ref.update({view: data.view.concat(auth().currentUser.uid)});
                 }
               } catch (error) {
                   console.log(error);
@@ -191,7 +191,7 @@ export default class ShowScreen extends Component {
             }
 
             Object.keys(data.like).map((key, i) => {
-              if (key == auth().currentUser.email) {
+              if (key == auth().currentUser.uid) {
                 likes = data.like[key];
                 dislikes = !data.like[key];
               }
@@ -224,7 +224,7 @@ export default class ShowScreen extends Component {
         headerRight: () => 
         <View style={{flexDirection: 'row',}}>
             {
-              auth().currentUser.email == this.props.route.params.userEmail ? 
+              auth().currentUser.uid == this.props.route.params.userUid ? 
               <TouchableOpacity style={{
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -233,7 +233,7 @@ export default class ShowScreen extends Component {
                 }} onPress={() => {// 수정창(EditScreen) 열기
                   this.props.navigation.push('EditScreen', {
                     itemId: this.props.route.params.itemId,
-                    userEmail: this.props.route.params.userEmail,
+                    userUid: this.props.route.params.userUid,
                     latitude: this.state.list[0].lat,
                     longitude: this.state.list[0].long,
                     onPop: () => this.refresh(),
@@ -250,7 +250,7 @@ export default class ShowScreen extends Component {
         </View>
       });
       console.log("itemId: ", this.props.route.params.itemId);
-      console.log("userEmail: ", this.props.route.params.userEmail);
+      console.log("userUid: ", this.props.route.params.userUid);
 
       this.refresh();
       
@@ -265,15 +265,19 @@ export default class ShowScreen extends Component {
 
         if( this.state.mapIndex !== index ) {
           this.setState({mapIndex: index});
-          this.state._map.current.animateCamera(
-            {
-              center: {
-                latitude: this.state.list[index].lat,
-                longitude: this.state.list[index].long,
-              }
-            },
-            350
-          );
+          try {
+            this.state._map.current.animateCamera(
+              {
+                center: {
+                  latitude: this.state.list[index].lat,
+                  longitude: this.state.list[index].long,
+                }
+              },
+              350
+            );
+          } catch (e) {
+            console.log(e);
+          }
         }
       });
     }
@@ -325,16 +329,19 @@ export default class ShowScreen extends Component {
                       if (Platform.OS === 'ios') {
                         x = x - SPACING_FOR_CARD_INSET;
                       }
-
-                      this.state._map.current.animateCamera(
-                        {
-                          center: {
-                            latitude: data.lat,
-                            longitude: data.long,
-                          }
-                        },
-                        350
-                      );
+                      try {
+                        this.state._map.current.animateCamera(
+                          {
+                            center: {
+                              latitude: data.lat,
+                              longitude: data.long,
+                            }
+                          },
+                          350
+                        ); 
+                      } catch (e) {
+                        console.log(e);
+                      }
 
                       this.state._scrollView.current.scrollTo({x: x, y: 0, animated: true});
                     }}
@@ -387,7 +394,7 @@ export default class ShowScreen extends Component {
                         date: data.date.toDate(),
                         title: data.title,
                         subtitle: data.subtitle,
-                        userEmail: this.props.route.params.userEmail,
+                        userUid: this.props.route.params.userUid,
                         itemId: this.props.route.params.itemId,
                         url: data.url,
                         lat: data.lat,
@@ -438,7 +445,7 @@ export default class ShowScreen extends Component {
           <View style={styles.floatingViewStyle}>
             <TouchableOpacity onPress={async () => {
               console.log('up');
-              var sfDocRef = firestore().collection(this.props.route.params.userEmail).doc(this.props.route.params.itemId);
+              var sfDocRef = firestore().collection(this.props.route.params.userUid).doc(this.props.route.params.itemId);
               await firestore().runTransaction(async (transaction) => {
                 var sfDoc = await transaction.get(sfDocRef);
                 if (!sfDoc.exists) {
@@ -446,10 +453,10 @@ export default class ShowScreen extends Component {
                 }
 
                 var updateLike = this.state.like;
-                if (updateLike.hasOwnProperty(auth().currentUser.email) && updateLike[auth().currentUser.email]) {
-                  delete updateLike[auth().currentUser.email];
+                if (updateLike.hasOwnProperty(auth().currentUser.uid) && updateLike[auth().currentUser.uid]) {
+                  delete updateLike[auth().currentUser.uid];
                 } else {
-                  updateLike[auth().currentUser.email] = true;
+                  updateLike[auth().currentUser.uid] = true;
                 }
                 await transaction.update(sfDocRef, { like: updateLike });
                 var localLikeCount = 0;
@@ -460,7 +467,7 @@ export default class ShowScreen extends Component {
                   disliked: false,
                 });
                 Object.keys(updateLike).map((key, i) => {
-                  if (key == auth().currentUser.email) {
+                  if (key == auth().currentUser.uid) {
                     this.setState({
                       liked: updateLike[key],
                       disliked: !updateLike[key],
@@ -496,7 +503,7 @@ export default class ShowScreen extends Component {
           </TouchableOpacity>
           <TouchableOpacity onPress={async () => {
             console.log('down');
-            var sfDocRef = firestore().collection(this.props.route.params.userEmail).doc(this.props.route.params.itemId);
+            var sfDocRef = firestore().collection(this.props.route.params.userUid).doc(this.props.route.params.itemId);
             await firestore().runTransaction(async (transaction) => {
               var sfDoc = await transaction.get(sfDocRef);
               if (!sfDoc.exists) {
@@ -504,10 +511,10 @@ export default class ShowScreen extends Component {
               }
 
               var updateLike = this.state.like;
-              if (updateLike.hasOwnProperty(auth().currentUser.email) && !updateLike[auth().currentUser.email]) {
-                delete updateLike[auth().currentUser.email];
+              if (updateLike.hasOwnProperty(auth().currentUser.uid) && !updateLike[auth().currentUser.uid]) {
+                delete updateLike[auth().currentUser.uid];
               } else {
-                updateLike[auth().currentUser.email] = false;
+                updateLike[auth().currentUser.uid] = false;
               }
               await transaction.update(sfDocRef, { like: updateLike });
               var localLikeCount = 0;
@@ -518,7 +525,7 @@ export default class ShowScreen extends Component {
                 disliked: false,
               });
               Object.keys(updateLike).map((key, i) => {
-                if (key == auth().currentUser.email) {
+                if (key == auth().currentUser.uid) {
                   this.setState({
                     liked: updateLike[key],
                     disliked: !updateLike[key],
@@ -553,7 +560,7 @@ export default class ShowScreen extends Component {
             </View>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => {
-            const url = 'https://footprintwithmap.site/?email=' + this.props.route.params.userEmail + '&id=' + this.props.route.params.itemId;
+            const url = 'https://footprintwithmap.site/?user=' + this.props.route.params.userUid + '&id=' + this.props.route.params.itemId;
             const title = 'URL Content';
             const message = 'Please check this out.';
             const options = Platform.select({

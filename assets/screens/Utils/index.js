@@ -13,6 +13,7 @@ import RNIap, {
 import AsyncStorage from '@react-native-community/async-storage';
 
 import functions from '@react-native-firebase/functions';
+import messaging from '@react-native-firebase/messaging';
 
 const itemSkus = [
   'adfree_for_1month',
@@ -56,6 +57,7 @@ const LocalizationProvider = ({ children }) => {
     i18n.translations = { [language]: translationGetters[language]() };
     i18n.locale = language;
     await AsyncStorage.setItem(APP_LANGUAGE, language);
+    await messaging().subscribeToTopic(language).then(() => console.log('Subscribed to topic!'));
     // adsFree = await getPurchases(); /// 인앱이 구현되었을시 주석 해제!!!
   };
 

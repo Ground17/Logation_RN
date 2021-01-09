@@ -45,8 +45,8 @@ export default class Search extends Component {
     var storageRef = await storage().ref();
     await firestore()
       .collection("Users")
-      .where("email", ">=", this.state.search)
-      .orderBy("email", "asc")
+      .where("uid", ">=", this.state.search)
+      .orderBy("uid", "asc")
       .limit(3)
       .get()
       .then(async (querySnapshot) => {
@@ -54,13 +54,13 @@ export default class Search extends Component {
           console.log('data: ', querySnapshot.docs[i].id, querySnapshot.docs[i].data());
           var data = querySnapshot.docs[i].data();
           try {
-            var URL = await storageRef.child(data.email + "/" + data.profile).getDownloadURL();
+            var URL = await storageRef.child(data.uid + "/" + data.profile).getDownloadURL();
           } catch (e) {
             var URL = '';
           } finally {
             this.setState({
               list: this.state.list.concat({ 
-                email : data.email,
+                uid : data.uid,
                 displayName : data.displayName,
                 profileURL : URL,
               })
@@ -80,13 +80,13 @@ export default class Search extends Component {
           console.log('data: ', querySnapshot.docs[i].id, querySnapshot.docs[i].data());
           var data = querySnapshot.docs[i].data();
           try {
-            var URL = await storageRef.child(data.email + "/" + data.profile).getDownloadURL();
+            var URL = await storageRef.child(data.uid + "/" + data.profile).getDownloadURL();
           } catch (e) {
             var URL = '';
           } finally {
             this.setState({
               list: this.state.list.concat({ 
-                email : data.email,
+                uid : data.uid,
                 displayName : data.displayName,
                 profileURL : URL,
               })
@@ -103,15 +103,14 @@ export default class Search extends Component {
       containerStyle={{backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff"}}
       bottomDivider
       onPress={() => { 
-        if (auth().currentUser.email != item.email) {
+        if (auth().currentUser.uid != item.uid) {
           this.props.navigation.push('Other', {
-            userEmail: item.email,
+            userUid: item.uid,
           }); 
           return;
         }
         Alert.alert(
           translate('MyAccount'),
-          item.email,
           [
           {text: translate('OK'), onPress: () => console.log('OK Pressed')},
           ],
@@ -130,7 +129,7 @@ export default class Search extends Component {
           {item.displayName ?? ''}
         </ListItem.Title>
         <ListItem.Subtitle style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}>
-          {item.email}
+          {item.uid}
         </ListItem.Subtitle>
       </ListItem.Content>
     </ListItem>
