@@ -124,8 +124,10 @@ export default class UserSetting extends Component {
             </View>
             <TouchableOpacity style={[styles.buttonContainer, styles.loginButton, {height:45, width: "80%", borderRadius:5}]} onPress={() => { auth().signOut().then(() => {
               console.log('User signed out!');
-              this.props.navigation.pop();
-              this.props.route.params.onPop();
+              this.props.navigation.reset({
+                index: 0,
+                routes: [{name: 'Login'}]
+              });
             });}}>
               <Text style={styles.loginText}>{translate("SignOut")}</Text>
             </TouchableOpacity>

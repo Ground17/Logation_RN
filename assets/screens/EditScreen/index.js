@@ -370,7 +370,10 @@ export default class EditScreen extends Component {
                   console.log(e);
                 } finally {
                   this.setState({loading: false});
-                  this.props.navigation.replace("Main"); //메인
+                  this.props.navigation.reset({
+                    index: 0,
+                    routes: [{name: 'Main'}]
+                  });
                 }
                 }
               },

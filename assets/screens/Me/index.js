@@ -298,9 +298,7 @@ export default class Me extends Component {
                                 color={ Appearance.getColorScheme() === 'dark' ? '#ffffff' : '#002f6c' }
                             />
                         </TouchableOpacity>
-                        <TouchableOpacity style={{marginRight:10}} onPress={() => { this.props.navigation.push('Settings', {
-                            onPop: () => { this.props.navigation.replace("Login"); },
-                        }) }}>
+                        <TouchableOpacity style={{marginRight:10}} onPress={() => { this.props.navigation.push('Settings') }}>
                             <Icon
                                 name='settings'
                                 size={24}

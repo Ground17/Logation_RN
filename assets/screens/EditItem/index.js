@@ -88,7 +88,10 @@ export default class EditItem extends Component {
                         console.log(e);
                       } finally {
                         this.setState({loading: false});
-                        this.props.navigation.replace("Main");
+                        this.props.navigation.reset({
+                          index: 0,
+                          routes: [{name: 'Main'}]
+                        });
                       }
                     }},
                     ]
