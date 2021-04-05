@@ -1,11 +1,17 @@
 node_modules
 
+firebase.json
+
 /android/
 /ios/*
 !/ios/Trevelog
 /ios/Trevelog/*
 !/ios/Trevelog/InfoPlist.strings
 !/ios/Trevelog/info.plist
+
+public/.well-known/
+public/apple-app-site-association
+public/assetlinks.json
 
 functions/.eslintrc.json
 .gitignore
