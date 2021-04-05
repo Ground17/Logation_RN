@@ -3,11 +3,7 @@ node_modules
 firebase.json
 
 /android/
-/ios/*
-!/ios/Trevelog
-/ios/Trevelog/*
-!/ios/Trevelog/InfoPlist.strings
-!/ios/Trevelog/info.plist
+/ios/~~
 
 public/.well-known/
 public/apple-app-site-association
