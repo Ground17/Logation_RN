@@ -14,3 +14,5 @@ functions/.eslintrc.json
 functions/index.js
 functions/package-lock.json
 functions/package.json
+
+yarn.lock
