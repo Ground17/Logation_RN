@@ -268,68 +268,68 @@ export default class EditScreen extends Component {
       }
     }
 
-    goEditItem (item, index) {
-      if (this.state.changed) {
-        Alert.alert(
-          translate('Confirm'), //확인
-          translate('EditScreenComment1'), //변경점을 저장하시겠습니까?
-          [
-              {text: translate('Cancel'), onPress: () => { 
-                this.props.navigation.push('EditItem', {
-                  date: item.date.toDate(),
-                  title: item.title,
-                  subtitle: item.subtitle,
-                  userUid: this.props.route.params.userUid,
-                  itemId: this.props.route.params.itemId,
-                  url: item.url,
-                  lat: item.lat,
-                  long: item.long,
-                  photo: item.photo,
-                  index: index,
-                  onPop: () => {
-                    this.refresh();
-                  }
-                });
-              }},
-              {text: translate('OK'), onPress: async () => {
-                await this.update();
-                this.props.navigation.push('EditItem', {
-                  date: item.date.toDate(),
-                  title: item.title,
-                  subtitle: item.subtitle,
-                  userUid: this.props.route.params.userUid,
-                  itemId: this.props.route.params.itemId,
-                  url: item.url,
-                  lat: item.lat,
-                  long: item.long,
-                  photo: item.photo,
-                  index: index,
-                  onPop: () => {
-                    this.refresh();
-                  }
-                });
-              }},
-          ],
-          { cancelable: false }
-        );
-      } else {
-        this.props.navigation.push('EditItem', {
-          date: item.date.toDate(),
-          title: item.title,
-          subtitle: item.subtitle,
-          userUid: this.props.route.params.userUid,
-          itemId: this.props.route.params.itemId,
-          url: item.url,
-          lat: item.lat,
-          long: item.long,
-          photo: item.photo,
-          index: index,
-          onPop: () => {
-            this.refresh();
-          }
-        });
-      }
-    }
+    // goEditItem (item, index) {
+    //   if (this.state.changed) {
+    //     Alert.alert(
+    //       translate('Confirm'), //확인
+    //       translate('EditScreenComment1'), //변경점을 저장하시겠습니까?
+    //       [
+    //           {text: translate('Cancel'), onPress: () => { 
+    //             this.props.navigation.push('EditItem', {
+    //               date: item.date.toDate(),
+    //               title: item.title,
+    //               subtitle: item.subtitle,
+    //               userUid: this.props.route.params.userUid,
+    //               itemId: this.props.route.params.itemId,
+    //               url: item.url,
+    //               lat: item.lat,
+    //               long: item.long,
+    //               photo: item.photo,
+    //               index: index,
+    //               onPop: () => {
+    //                 this.refresh();
+    //               }
+    //             });
+    //           }},
+    //           {text: translate('OK'), onPress: async () => {
+    //             await this.update();
+    //             this.props.navigation.push('EditItem', {
+    //               date: item.date.toDate(),
+    //               title: item.title,
+    //               subtitle: item.subtitle,
+    //               userUid: this.props.route.params.userUid,
+    //               itemId: this.props.route.params.itemId,
+    //               url: item.url,
+    //               lat: item.lat,
+    //               long: item.long,
+    //               photo: item.photo,
+    //               index: index,
+    //               onPop: () => {
+    //                 this.refresh();
+    //               }
+    //             });
+    //           }},
+    //       ],
+    //       { cancelable: false }
+    //     );
+    //   } else {
+    //     this.props.navigation.push('EditItem', {
+    //       date: item.date.toDate(),
+    //       title: item.title,
+    //       subtitle: item.subtitle,
+    //       userUid: this.props.route.params.userUid,
+    //       itemId: this.props.route.params.itemId,
+    //       url: item.url,
+    //       lat: item.lat,
+    //       long: item.long,
+    //       photo: item.photo,
+    //       index: index,
+    //       onPop: () => {
+    //         this.refresh();
+    //       }
+    //     });
+    //   }
+    // }
 
     goEditList() {
       this.props.navigation.push('EditList', {

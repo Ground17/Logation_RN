@@ -81,7 +81,7 @@ export default class UserSetting extends Component {
             }
           },
       ],
-      { cancelable: false }
+      { cancelable: true }
       );
   }
 

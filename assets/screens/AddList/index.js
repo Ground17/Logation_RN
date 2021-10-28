@@ -21,50 +21,50 @@ import DraggableFlatList from "react-native-draggable-flatlist"; /// important!!
 import ImagePicker from 'react-native-image-crop-picker';
 import { Picker } from '@react-native-community/picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { Input, CheckBox, ListItem } from 'react-native-elements';
+import { Input, CheckBox, ListItem, Avatar } from 'react-native-elements';
 
 import auth from '@react-native-firebase/auth';
-import { InterstitialAd, TestIds } from '@react-native-firebase/admob';
+// import { InterstitialAd, TestIds } from '@react-native-firebase/admob';
+import { AdMobInterstitial } from 'react-native-admob';
 import storage from '@react-native-firebase/storage';
 import firestore from '@react-native-firebase/firestore';
 
-import { adsFree, translate, ProgressBar } from '../Utils';
+import { adsFree, translate, ProgressBar, adInterstitialUnitId } from '../Utils';
 
 import AsyncStorage from '@react-native-community/async-storage';
 
-const adBannerUnitId = __DEV__ ? TestIds.BANNER : 
-    (Platform.OS == 'ios' 
-    ? 'ca-app-pub-1477690609272793/3050510769' 
-    : 'ca-app-pub-1477690609272793/8274029234');
-
-const adInterstitialUnitId = __DEV__ ? TestIds.INTERSTITIAL : 
-    (Platform.OS == 'ios' 
-    ? 'ca-app-pub-1477690609272793/3775880012' 
-    : 'ca-app-pub-1477690609272793/9626786110');
-
-const interstitial = InterstitialAd.createForAdRequest(adInterstitialUnitId);
+// const interstitial = InterstitialAd.createForAdRequest(adInterstitialUnitId);
 
 const locations = [[37.551161, 126.988228], [35.658405, 139.745300], [40.689306, -74.044361], [51.500700, -0.124607], [48.858369, 2.294480], [-33.856792, 151.214657], [40.431867, 116.570375]];
 
 export default class AddList extends Component {
     state = {
-        category: 'Travel',
-        viewmode: 'Map',
+        edit: false,
+        category: 0, // 0: Travel, 1: Daily Life, : 
+        viewcode: 0, // 0: Map, 1: Normal
         locationChecked: true,
         dateChecked: true,
+        likeChecked: true,
+        security: 0, // 0: public, 1: public by link, 2: private
         date: new Date(),
         show: false,
         data: [],
+        users: [], // 허가받은 user: 10명 제한
         link: '',
         title: '',
         subtitle: '',
-        thumbnail: '',
+        littleTitle: '',
+        littleSubtitle: '',
+        thumbnail: 0,
         loading: false,
+        preData: [], // 기존 데이터
+        preUser: [],
         ads: true,
         completed: 0.0,
     };
 
-    keyExtractor = (item, index) => index.toString()
+    keyExtractor = (item, index) => index.toString();
+    keyExtractor2 = (item, index) => "avatar-" + index.toString();
 
     renderItem = ({ item, index, drag, isActive }) => (
       <ListItem
@@ -127,6 +127,50 @@ export default class AddList extends Component {
       />
     )
 
+    renderItem = ({ item, index, drag, isActive }) => (
+        <View>
+            <Avatar
+                rounded
+                size="small"
+                source={{
+                    uri: item.url || "",
+                }}
+                onPress={() => {
+                    this.setState({
+                        users: this.state.users.filter((item, i) => i != index),
+                    });
+                }}
+                onLongPress={drag}
+                activeOpacity={0.7}
+            />
+            <Text>
+                {item.displayName}
+            </Text>
+        </View>
+    )
+
+    renderAvatar = ({ item, index, drag, isActive }) => (
+        <View>
+            <Avatar
+                rounded
+                size="small"
+                source={{
+                    uri: item.url || "",
+                }}
+                onPress={() => {
+                    this.setState({
+                        users: this.state.users.filter((item, i) => i != index),
+                    });
+                }}
+                onLongPress={drag}
+                activeOpacity={0.7}
+            />
+            <Text>
+                {item.displayName}
+            </Text>
+        </View>
+    )
+
     async componentDidMount() {
         var locationCheck = await AsyncStorage.getItem('location');
         if(locationCheck === null) {
@@ -138,14 +182,53 @@ export default class AddList extends Component {
             await AsyncStorage.setItem('date', 'true');
             dateCheck = 'true';
         }
+        var likeCheck = await AsyncStorage.getItem('like');
+        if(likeCheck === null) {
+            await AsyncStorage.setItem('like', 'true');
+            likeCheck = 'true';
+        }
+        var localCategory = await AsyncStorage.getItem('category');
+        if (localCategory === null) {
+            await AsyncStorage.setItem('category', 0);
+            localCategory = 0;
+        }
+        var localViewcode = await AsyncStorage.getItem('viewcode');
+        if (localViewcode === null) {
+            await AsyncStorage.setItem('viewcode', 0);
+            localViewcode = 0;
+        }
+        var localSecurity = await AsyncStorage.getItem('security');
+        if (localSecurity === null) {
+            await AsyncStorage.setItem('security', 0);
+            localSecurity = 0;
+        }
+
         this.setState({
+            category: this.props.route.params.category || localCategory,
+            edit: this.props.route.params.edit != null,
+            date: this.props.route.params.date || '',
+            title: this.props.route.params.title || '',
+            subtitle: this.props.route.params.subtitle || '',
+            link: this.props.route.params.link || '',
+            viewcode: this.props.route.params.viewcode || localViewcode,
+            security: this.props.route.params.security || localSecurity,
             ads: !adsFree,
             locationChecked: locationCheck == 'true' ? true : false,
             dateChecked: dateCheck == 'true' ? true : false,
+            likeChecked: likeCheck == 'true' ? true : false,
+            littleTitle: '',
+            littleSubtitle: '',
+            preData: this.props.route.params.data || [],
         });
-        this.props.navigation.setOptions({ title: translate("AddList") });
-        if (this.state.ads && !interstitial.loaded) {
-            interstitial.load();
+        this.props.navigation.setOptions({ title: this.state.edit ? translate("EditList") : translate("AddList") });
+        // if (this.state.ads && !interstitial.loaded) {
+        //     interstitial.load();
+        // }
+
+        AdMobInterstitial.setTestDevices([AdMobInterstitial.simulatorId]);
+        AdMobInterstitial.setAdUnitID(adInterstitialUnitId);
+        if (this.state.ads) {
+            AdMobInterstitial.requestAd().catch(error => console.warn(error));
         }
     }
     
@@ -164,31 +247,44 @@ export default class AddList extends Component {
                     contentContainerStyle={styles.viewContainer}
                     style={{flex: 1, width: "100%", backgroundColor: Appearance.getColorScheme() === 'dark' ? '#121212' : '#fff',}}
                 >
-                    <View style={{height: 200, width: 100, alignItems: 'center', justifyContent: 'center', flexDirection: 'row'}}>
+                    <View style={{height: 200, width: "100%", alignItems: 'center', justifyContent: 'center', flexDirection: 'row'}}>
                         <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}> {translate("Category")} </Text>
                         <Picker
                             selectedValue={this.state.category}
-                            style={{width: 150}}
+                            style={{width: 200}}
                             onValueChange={(itemValue, itemIndex) =>
-                                this.setState({category: itemValue})
+                                this.setState({category: itemIndex})
                             }>
-                            <Picker.Item label={translate("Travel")} value="Travel" color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
-                            <Picker.Item label={translate("DailyLife")} value="Daily Life"  color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
-                            <Picker.Item label={translate("Entertainment")} value="Entertainment"  color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
-                            <Picker.Item label={translate("Sports")} value="Sports"  color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
-                            <Picker.Item label={translate("News")} value="News"  color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
-                            <Picker.Item label={translate("Education")} value="Education"  color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
-                            <Picker.Item label={translate("Other")} value="Other"  color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
+                            <Picker.Item label={translate("Travel")} value={0} color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
+                            <Picker.Item label={translate("DailyLife")} value={1} color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
+                            <Picker.Item label={translate("Entertainment")} value={2} color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
+                            <Picker.Item label={translate("Sports")} value={3} color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
+                            <Picker.Item label={translate("News")} value={4} color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
+                            <Picker.Item label={translate("Education")} value={5} color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
+                            <Picker.Item label={translate("Other")} value={6} color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
                         </Picker>
+                    </View>
+                    <View style={{height: 200, width: "100%", alignItems: 'center', justifyContent: 'center', flexDirection: 'row'}}>
                         <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}> {translate("ViewMode")} </Text>
                         <Picker
-                            selectedValue={this.state.viewmode}
-                            style={{width: 90}}
+                            selectedValue={this.state.viewcode}
+                            style={{width: 100}}
                             onValueChange={(itemValue, itemIndex) =>
-                                this.setState({viewmode: itemValue})
+                                this.setState({viewcode: itemIndex})
                             }>
-                            <Picker.Item label={translate("Map")} value="Map"  color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
-                            <Picker.Item label={translate("Grid")} value="Grid"  color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
+                            <Picker.Item label={translate("Map")} value={0} color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
+                            <Picker.Item label={"///translate('Grid')///"} value={1} color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
+                        </Picker>
+                        <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}> {translate("Category")} </Text>
+                        <Picker
+                            selectedValue={this.state.security}
+                            style={{width: 100}}
+                            onValueChange={(itemValue, itemIndex) =>
+                                this.setState({security: itemIndex})
+                            }>
+                            <Picker.Item label={"///공개"} value={0} color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
+                            <Picker.Item label={"///일부 공개"} value={1} color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
+                            <Picker.Item label={"///비공개"} value={2} color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
                         </Picker>
                     </View>
                     <Text  
@@ -236,7 +332,10 @@ export default class AddList extends Component {
                     /> }
                     <View style={styles.cellView}>
                         <Input
-                            onChangeText = {(title) => this.setState({title})}
+                            onEndEditing={(title) => {
+                                this.setState({title});
+                            }}
+                            onChangeText = {}
                             inputStyle={styles.inputs}
                             maxLength={40}
                             placeholder={translate("Title")}
@@ -253,7 +352,10 @@ export default class AddList extends Component {
                     <View style={styles.cellView}>
                         <Input
                             multiline
-                            onChangeText = {(subtitle) => this.setState({subtitle})}
+                            onEndEditing={(subtitle) => {
+                                this.setState({subtitle});
+                            }}
+                            defaultValue={this.state.subtitle}
                             inputStyle={styles.inputs}
                             maxLength={140}
                             placeholder={translate("Subtitle")}
@@ -270,7 +372,9 @@ export default class AddList extends Component {
                     <View style={styles.cellView}>
                         <Input
                             autoCapitalize='none'
-                            onChangeText = {(link) => this.setState({link})}
+                            onEndEditing={(link) => {
+                                this.setState({link});
+                            }}
                             inputStyle={styles.inputs}
                             placeholder={translate("URLLink")}
                             placeholderTextColor="#bdbdbd"
@@ -284,8 +388,9 @@ export default class AddList extends Component {
                         />
                     </View>
                     {this.state.data.length > 0 && <Text style={{textAlign: 'center', color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}> {translate("AddListComment2")} </Text>}
-                    <View style={{ flex: 1, width: "80%", marginBottom: 5, backgroundColor: Appearance.getColorScheme() === 'dark' ? '#121212' : '#ffffff' }}>
+                    <View style={{ flex: 1, width: "100%", height: 30, marginBottom: 5, backgroundColor: Appearance.getColorScheme() === 'dark' ? '#121212' : '#ffffff' }}>
                         <DraggableFlatList
+                            horizontal
                             keyExtractor={this.keyExtractor}
                             data={this.state.data}
                             renderItem={this.renderItem}
@@ -300,24 +405,25 @@ export default class AddList extends Component {
                             mediaType: 'photo', //사진
                             includeExif: true,
                             maxFiles: 20,
+                            width: 1024,
+                            height: 1024,
                         }).then(images => {
                             var factor = Platform.OS == 'ios' ? 1000 : 1;
+                            const temp = [];
                             for (var i = 0; i<images.length; i++) {
                                 try {
-                                    if (this.state.data.length > 19) {
+                                    if (this.state.data.length + (this.props.route.params.photoNumber || 0) > 19) {
                                         continue;
                                     }
                                     console.log(images[i]);
                                     if (Platform.OS == 'ios') {
-                                        this.setState({
-                                            data: this.state.data.concat({ 
-                                                date: firestore.Timestamp.fromMillis(parseInt(images[i].modificationDate) * factor),
-                                                lat: images[i].exif["{GPS}"].LatitudeRef != "S" ? images[i].exif["{GPS}"].Latitude : -images[i].exif["{GPS}"].Latitude,
-                                                long: images[i].exif["{GPS}"].LongitudeRef != "W" ? images[i].exif["{GPS}"].Longitude : -images[i].exif["{GPS}"].Longitude,
-                                                photo: images[i].path,
-                                                title: i.toString(),
-                                                subtitle: i.toString(),
-                                            }),
+                                        temp.push({
+                                            date: firestore.Timestamp.fromMillis(parseInt(images[i].modificationDate) * factor),
+                                            lat: images[i].exif["{GPS}"].LatitudeRef != "S" ? images[i].exif["{GPS}"].Latitude : -images[i].exif["{GPS}"].Latitude,
+                                            long: images[i].exif["{GPS}"].LongitudeRef != "W" ? images[i].exif["{GPS}"].Longitude : -images[i].exif["{GPS}"].Longitude,
+                                            photo: images[i].path,
+                                            title: i.toString(),
+                                            changed: false,
                                         });
                                     } else {
                                         var latitudeStrings = images[i].exif["GPSLatitude"].split(',');
@@ -337,36 +443,33 @@ export default class AddList extends Component {
                                         if (images[i].exif["GPSLatitudeRef"] == "S") { latitude = -latitude; }
                                         if (images[i].exif["GPSLongitudeRef"] == "W") { longitude = -longitude; }
 
-                                        this.setState({
-                                            data: this.state.data.concat({ 
-                                                date: firestore.Timestamp.fromMillis(parseInt(images[i].modificationDate) * factor),
-                                                lat: latitude,
-                                                long: longitude,
-                                                photo: images[i].path,
-                                                title: i.toString(),
-                                                subtitle: i.toString(),
-                                            }),
+                                        temp.push({
+                                            date: firestore.Timestamp.fromMillis(parseInt(images[i].modificationDate) * factor),
+                                            lat: latitude,
+                                            long: longitude,
+                                            photo: images[i].path,
+                                            title: i.toString(),
+                                            changed: false,
                                         });
                                     }
                                 } catch (e) { // location data가 없는 것으로 추정
                                     console.log(e);
                                     var random = Math.floor(Math.random() * locations.length);
-                                    this.setState({
-                                        data: this.state.data.concat({ 
-                                            date: firestore.Timestamp.fromMillis(parseInt(images[i].modificationDate) * factor),
-                                            lat: locations[random][0],
-                                            long: locations[random][1],
-                                            photo: images[i].path,
-                                            title: i.toString(),
-                                            subtitle: i.toString(),
-                                        }),
+
+                                    temp.push({
+                                        date: firestore.Timestamp.fromMillis(parseInt(images[i].modificationDate) * factor),
+                                        lat: locations[random][0],
+                                        long: locations[random][1],
+                                        photo: images[i].path,
+                                        title: i.toString(),
+                                        changed: false,
                                     });
-                                } finally {
-                                    if (i == 0) {
-                                        this.setState({thumbnail: images[i].path});
-                                    }
-                                }
+                                } 
                             } 
+                            this.setState({
+                                thumbnail: 0,
+                                data: this.state.data.concat(temp),
+                            });
                         });
                     }}>
                         <Text style={styles.loginText}>{translate("AddPhotos")}</Text>
@@ -391,6 +494,34 @@ export default class AddList extends Component {
                         checked={this.state.dateChecked}
                         onPress={() => this.setState({dateChecked: !this.state.dateChecked})}
                     />
+                    <CheckBox
+                        containerStyle={styles.cell}
+                        title={"좋아요 숨기기"} /// edit
+                        iconType='material'
+                        checkedIcon='check-box'
+                        uncheckedIcon='check-box-outline-blank'
+                        checkedColor='#002f6c'
+                        checked={this.state.likeChecked}
+                        onPress={() => this.setState({likeChecked: !this.state.likeChecked})}
+                    />
+                    <TouchableOpacity style={[styles.buttonContainer, styles.loginButton, {height:45, width: "80%", borderRadius:5,}]} onPress={async () => {
+                        /// follow 창 열기
+                        this.props.navigation.push('Following', {
+                            // itemId: params['id'],
+                            // userUid: params['user'],
+                            // onPop: () => this.refresh(),
+                        });
+                    }}>
+                        <Text style={styles.loginText}>{"/// 비공개일 때 접근 허용 유저 (최대 10명) ///"}</Text>
+                    </TouchableOpacity>
+                    { this.state.user.length > 0 && <View style={{ flex: 1, width: "100%", height: 30, marginBottom: 5, backgroundColor: Appearance.getColorScheme() === 'dark' ? '#121212' : '#ffffff' }}>
+                        <FlatList
+                            horizontal
+                            keyExtractor={this.keyExtractor2}
+                            data={this.state.user}
+                            renderItem={this.renderAvatar}
+                        />
+                    </View> }
                     <TouchableOpacity style={[styles.buttonContainer, styles.loginButton, {height:45, width: "80%", borderRadius:5,}]} onPress={async () => {
                         if (this.state.title.length < 1 || this.state.title.subtitle < 1 || this.state.title.link < 1) {
                             Alert.alert(
@@ -403,7 +534,7 @@ export default class AddList extends Component {
                             );
                             return;
                         }
-                        if (this.state.data.length < 1) {
+                        if (this.state.preData.length + this.state.data.length < 1) {
                             Alert.alert(
                                 translate("Error"),
                                 translate("AddListComment6"), //하나 이상의 사진을 추가해주세요.
@@ -444,7 +575,10 @@ export default class AddList extends Component {
 
                         await AsyncStorage.setItem('location', this.state.locationChecked ? 'true' : 'false');
                         await AsyncStorage.setItem('date', this.state.dateChecked ? 'true' : 'false');
-
+                        await AsyncStorage.setItem('like', this.state.likeChecked ? 'true' : 'false');
+                        await AsyncStorage.setItem('category', this.state.category);
+                        await AsyncStorage.setItem('viewcode', this.state.viewcode);
+                        await AsyncStorage.setItem('security', this.state.security);
 
                         this.setState({loading: true})
                         await firestore()
@@ -456,9 +590,14 @@ export default class AddList extends Component {
                             link: this.state.link,
                             title: this.state.title,
                             subtitle: this.state.subtitle,
-                            like: {},
-                            view: [],
-                            viewcode: this.state.viewmode == 'Map' ? 0 : 1,
+                            likeNumber: this.state.likeChecked,
+                            likeCount: 0,
+                            dislikeCount: 0,
+                            viewCount: 0,
+                            security: this.state.security,
+                            account: this.state.user,
+                            viewcode: this.state.viewcode,
+                            thumbnail: this.state.thumbnail,
                         })
                         .then(async (documentSnapshot) => {
                             await firestore()
@@ -469,10 +608,10 @@ export default class AddList extends Component {
                             });
                             var filename = this.state.thumbnail.split('/');
 
-                            var storageRef = storage().ref(`${auth().currentUser.uid}/${documentSnapshot._documentPath._parts[1]}/${filename[filename.length - 1]}`);
-                            await storageRef.putFile(this.state.thumbnail);
+                            // var storageRef = storage().ref(`${auth().currentUser.uid}/${documentSnapshot._documentPath._parts[1]}/${filename[filename.length - 1]}`);
+                            // await storageRef.putFile(this.state.thumbnail);
 
-                            this.setState({thumbnail: filename[filename.length - 1]})
+                            // this.setState({thumbnail: filename[filename.length - 1]})
 
                             var updateData = this.state.data;
                             for (var i=0; i < this.state.data.length; i++) {
@@ -483,14 +622,13 @@ export default class AddList extends Component {
                                 updateData[i].photo = filename[filename.length - 1];
                                 this.setState({completed: Math.round((i + 1) * 1000 / this.state.data.length) / 10});
                             }
-                            this.setState({data: updateData});
+                            // this.setState({data: updateData});
 
                             await firestore()
                                 .collection(auth().currentUser.uid)
                                 .doc(documentSnapshot._documentPath._parts[1])
                                 .update({
-                                    thumbnail: this.state.thumbnail,
-                                    data: this.state.data
+                                    data: [...this.state.preData, ...updateData]
                                 });
                             Alert.alert(
                                 translate("Success"),
@@ -500,11 +638,14 @@ export default class AddList extends Component {
                                 ],
                                 { cancelable: false }
                             );
-                            if (this.state.ads && interstitial.loaded) {
-                                interstitial.show();
+                            // if (this.state.ads && interstitial.loaded) {
+                            //     interstitial.show();
+                            // }
+                            if (this.state.ads) {
+                                AdMobInterstitial.showAd().catch(error => console.warn(error));
                             }
                             this.setState({loading: false});
-                            this.props.route.params.onPop();
+                            // this.props.route.params.onPop();
                             this.props.navigation.pop();
                         });
                     }}>

@@ -21,24 +21,15 @@ import auth from '@react-native-firebase/auth';
 import { GoogleSignin, GoogleSigninButton, statusCodes } from '@react-native-community/google-signin';
 import appleAuth, { AppleButton, } from '@invertase/react-native-apple-authentication';
 
-import { InterstitialAd, BannerAd, TestIds, BannerAdSize } from '@react-native-firebase/admob';
+// import { BannerAd, TestIds, BannerAdSize } from '@react-native-firebase/admob';
+import { AdMobBanner } from 'react-native-admob';
 
-import { adsFree, translate, LocalizationContext } from '../Utils';
+import { adsFree, translate, LocalizationContext, adBannerUnitId } from '../Utils';
 
 import { ColorSchemeContext } from 'react-native-dynamic'
 
-const adBannerUnitId = __DEV__ ? TestIds.BANNER : 
-    (Platform.OS == 'ios' 
-    ? 'ca-app-pub-1477690609272793/3050510769' 
-    : 'ca-app-pub-1477690609272793/8274029234');
-
-const adInterstitialUnitId = __DEV__ ? TestIds.INTERSTITIAL : 
-    (Platform.OS == 'ios' 
-    ? 'ca-app-pub-1477690609272793/3775880012' 
-    : 'ca-app-pub-1477690609272793/9626786110');
-
 export default class Login extends Component {
-  static contextType = LocalizationContext
+  // static contextType = LocalizationContext;
 
   state = {
     email: '',
@@ -302,9 +293,11 @@ export default class Login extends Component {
               <View style={{alignSelf:'center', position:'absolute', borderBottomColor:'gray', borderBottomWidth:1, height:'50%', width:'80%'}}/>
           </View>
           <View style={{width: "80%", alignItems: "center"}}>
-            {this.state.ads && <BannerAd 
-              unitId={adBannerUnitId} 
-              size={BannerAdSize.BANNER}
+            {this.state.ads && <AdMobBanner
+                adSize="banner"
+                adUnitID={adBannerUnitId}
+                testDevices={[AdMobBanner.simulatorId]}
+                onAdFailedToLoad={error => console.error(error)}
             />}
           </View>
         </View>

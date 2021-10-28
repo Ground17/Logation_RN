@@ -19,16 +19,12 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import { ListItem, Button, } from 'react-native-elements';
 
 import auth from '@react-native-firebase/auth';
-import { InterstitialAd, BannerAd, TestIds, BannerAdSize } from '@react-native-firebase/admob';
+// import { BannerAd, TestIds, BannerAdSize } from '@react-native-firebase/admob';
+import { AdMobBanner } from 'react-native-admob';
 import storage from '@react-native-firebase/storage';
 import firestore from '@react-native-firebase/firestore';
 
-import { adsFree, translate } from '../Utils';
-
-const adBannerUnitId = __DEV__ ? TestIds.BANNER : 
-    (Platform.OS == 'ios' 
-    ? 'ca-app-pub-1477690609272793/3050510769' 
-    : 'ca-app-pub-1477690609272793/8274029234');
+import { adsFree, translate, adBannerUnitId } from '../Utils';
 
 export default class Home extends Component {
     state = {
@@ -92,48 +88,14 @@ export default class Home extends Component {
         this.setState({
             loading: false,
         });
-
-        if (Platform.OS === 'android') {
-            Linking.getInitialURL().then(url => {
-                this.navigate(url);
-            });
-        } else {
-            Linking.addEventListener('url', this.handleOpenURL);
-        }
     }
 
     async componentDidMount() {
         this.setState({
             ads: !adsFree,
         });
+
         this.refresh();
-    }
-
-    componentWillUnmount() {
-        Linking.removeEventListener('url', this.handleOpenURL);
-    }
-    handleOpenURL = (event) => {
-        this.navigate(event.url);
-    }
-
-    navigate = (url) => { // url scheme settings (ex: https://travelog-4e274.web.app/?user=j2OeONPCBnW7mc2N2gMS7FZ0ZZi2&&id=2EgGSgGMVzHFzq8oErBi)
-        var regex = /[?&]([^=#]+)=([^&#]*)/g,
-            params = {},
-            match;
-        var i = 0;
-        while (match = regex.exec(url)) {
-            params[match[1]] = match[2];
-            i++;
-        }
-        console.log(params)
-        if (!params['user'] || !params['id']) {
-            return;
-        }
-        this.props.navigation.push('ShowScreen', {
-            itemId: params['id'],
-            userUid: params['user'],
-            onPop: () => this.refresh(),
-        });
     }
 
     constructor(props) {
@@ -228,11 +190,12 @@ export default class Home extends Component {
                     </View>
                 </View>
                 <View style={{ width: '100%' }}>
-                    <View style={{alignItems: 'center', backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff"}}>
-                        {this.state.ads && <BannerAd 
-                            style={{marginTop: 10}}
-                            unitId={adBannerUnitId} 
-                            size={BannerAdSize.BANNER}
+                    <View style={{marginTop: 10, alignItems: 'center', backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff"}}>
+                        {this.state.ads && <AdMobBanner
+                            adSize="banner"
+                            adUnitID={adBannerUnitId}
+                            testDevices={[AdMobBanner.simulatorId]}
+                            onAdFailedToLoad={error => console.error(error)}
                         />}
                     </View>
                 </View>

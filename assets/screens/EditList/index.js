@@ -1,4 +1,3 @@
-// 사진을 담는 List 목록 (AddList > AddItem)
 import React, {Component} from 'react';
 import {
   SafeAreaView,
@@ -29,19 +28,9 @@ import { InterstitialAd, TestIds } from '@react-native-firebase/admob';
 import storage from '@react-native-firebase/storage';
 import firestore from '@react-native-firebase/firestore';
 
-import { adsFree, translate, ProgressBar } from '../Utils';
+import { adsFree, translate, ProgressBar, adInterstitialUnitId } from '../Utils';
 
 import AsyncStorage from '@react-native-community/async-storage';
-
-const adBannerUnitId = __DEV__ ? TestIds.BANNER : 
-    (Platform.OS == 'ios' 
-    ? 'ca-app-pub-1477690609272793/3050510769' 
-    : 'ca-app-pub-1477690609272793/8274029234');
-
-const adInterstitialUnitId = __DEV__ ? TestIds.INTERSTITIAL : 
-    (Platform.OS == 'ios' 
-    ? 'ca-app-pub-1477690609272793/3775880012' 
-    : 'ca-app-pub-1477690609272793/9626786110');
 
 const interstitial = InterstitialAd.createForAdRequest(adInterstitialUnitId);
 
@@ -59,7 +48,7 @@ export default class EditList extends Component {
         link: '',
         title: '',
         subtitle: '',
-        thumbnail: '',
+        thumbnail: 0,
         loading: false,
         preData: [], // 기존 데이터
         ads: true,

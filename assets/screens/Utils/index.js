@@ -1,8 +1,8 @@
-import React, { Component, createContext, useState, useEffect }  from 'react';
+import React, { Component, createContext, useState, useEffect,}  from 'react';
 import * as RNLocalize from 'react-native-localize';
 import i18n from 'i18n-js';
 import memoize from 'lodash.memoize';
-import { SafeAreaView, StyleSheet, View, Text, Alert, Platform } from 'react-native';
+import { SafeAreaView, StyleSheet, View, Text, Alert, Platform, Appearance, Dimensions, } from 'react-native';
 import RNIap, {
   purchaseErrorListener,
   purchaseUpdatedListener,
@@ -24,6 +24,24 @@ const APP_LANGUAGE = 'appLanguage';
 const DEFAULT_LANGUAGE = 'en';
 
 var adsFree = false;
+
+// const adBannerUnitId = __DEV__ ? TestIds.BANNER : 
+//     (Platform.OS == 'ios' 
+//     ? 'ca-app-pub-1477690609272793/3050510769' 
+//     : 'ca-app-pub-1477690609272793/8274029234');
+
+// const adInterstitialUnitId = __DEV__ ? TestIds.INTERSTITIAL : 
+//     (Platform.OS == 'ios' 
+//     ? 'ca-app-pub-1477690609272793/3775880012' 
+//     : 'ca-app-pub-1477690609272793/9626786110');
+
+const adBannerUnitId = Platform.OS == 'ios' 
+    ? 'ca-app-pub-1477690609272793/3050510769' 
+    : 'ca-app-pub-1477690609272793/8274029234';
+
+const adInterstitialUnitId = Platform.OS == 'ios' 
+    ? 'ca-app-pub-1477690609272793/3775880012' 
+    : 'ca-app-pub-1477690609272793/9626786110';
 
 const translationGetters = {
   en: () => require('../../translations/en.json'), // 영어
@@ -186,6 +204,29 @@ const ProgressBar = (props) => {
   );
 };
 
+const { width, height } = Dimensions.get("window");
+const CARD_HEIGHT = 200;
+const CARD_WIDTH = width * 0.8;
+const SPACING_FOR_CARD_INSET = width * 0.1 - 10;
+
+const TAB_ITEM_WIDTH = width / 5;
+
+const Style = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: Appearance.getColorScheme() === 'dark' ? "#002f6c" : "#fff",
+      justifyContent: 'space-between',
+    },
+    floatingViewStyle: {
+      width: "100%",
+      height: "9%",
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-around',
+      backgroundColor: 'rgba(52, 52, 52, 0.8)',
+    },
+});
+
 export {
   translationGetters,
   translate,
@@ -195,4 +236,8 @@ export {
   LocalizationProvider,
   adsFree,
   ProgressBar,
+  adBannerUnitId,
+  adInterstitialUnitId,
+  TAB_ITEM_WIDTH,
+  Style,
 }

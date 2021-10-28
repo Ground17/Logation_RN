@@ -21,23 +21,14 @@ import ImagePicker from 'react-native-image-crop-picker';
 import { ListItem, Button, Input } from 'react-native-elements'
 
 import auth from '@react-native-firebase/auth';
-import { InterstitialAd, TestIds, } from '@react-native-firebase/admob';
+// import { InterstitialAd, TestIds, } from '@react-native-firebase/admob';
+import { AdMobInterstitial } from 'react-native-admob';
 import storage from '@react-native-firebase/storage';
 import firestore from '@react-native-firebase/firestore';
 
-import { adsFree, translate } from '../Utils';
+import { adsFree, translate, adInterstitialUnitId } from '../Utils';
 
-const adBannerUnitId = __DEV__ ? TestIds.BANNER : 
-    (Platform.OS == 'ios' 
-    ? 'ca-app-pub-1477690609272793/3050510769' 
-    : 'ca-app-pub-1477690609272793/8274029234');
-
-const adInterstitialUnitId = __DEV__ ? TestIds.INTERSTITIAL : 
-    (Platform.OS == 'ios' 
-    ? 'ca-app-pub-1477690609272793/3775880012' 
-    : 'ca-app-pub-1477690609272793/9626786110');
-
-const interstitial = InterstitialAd.createForAdRequest(adInterstitialUnitId);
+// const interstitial = InterstitialAd.createForAdRequest(adInterstitialUnitId);
 
 export default class EditProfile extends Component {
     state = {
@@ -55,8 +46,13 @@ export default class EditProfile extends Component {
         });
         this.props.navigation.setOptions({ title: translate("EditProfile") });
         
-        if (this.state.ads && !interstitial.loaded) {
-            interstitial.load();
+        // if (this.state.ads && !interstitial.loaded) {
+        //     interstitial.load();
+        // }
+        AdMobInterstitial.setTestDevices([AdMobInterstitial.simulatorId]);
+        AdMobInterstitial.setAdUnitID(adInterstitialUnitId);
+        if (this.state.ads) {
+            AdMobInterstitial.requestAd().catch(error => console.warn(error));
         }
     }
 
@@ -88,6 +84,9 @@ export default class EditProfile extends Component {
                     <TouchableOpacity style={{flex:1/3, aspectRatio:1}} onPress={() => { 
                         ImagePicker.openPicker({
                             mediaType: 'photo',
+                            cropping: true,
+                            width: 400,
+                            height: 400,
                         }).then(image => {
                             this.setState({profileURL: image.path})
                         });
@@ -102,9 +101,13 @@ export default class EditProfile extends Component {
                     </TouchableOpacity>
                 </View>
                 <Input
-                    onChangeText = {(nickname) => this.setState({nickname})}
-                    value = {this.state.nickname}
-                    maxLength = {40}
+                    onEndEditing={(nickname) => {
+                        if (nickname.length > 0) {
+                            this.setState({nickname});
+                        }
+                    }}
+                    defaultValue={this.state.nickname}
+                    maxLength={30}
                     inputStyle={styles.inputs}
                     placeholder={translate("Nickname")}
                     placeholderTextColor="#bdbdbd"
@@ -157,8 +160,11 @@ export default class EditProfile extends Component {
                         } catch (e) {
                             console.log(e);
                         } finally {
-                            if (this.state.ads && interstitial.loaded) {
-                                interstitial.show();
+                            // if (this.state.ads && interstitial.loaded) {
+                            //     interstitial.show();
+                            // }
+                            if (this.state.ads) {
+                                AdMobInterstitial.showAd().catch(error => console.warn(error));
                             }
                             this.props.navigation.replace('Main');
                         }

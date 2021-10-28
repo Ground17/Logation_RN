@@ -19,21 +19,11 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import { ListItem, Avatar, Button } from 'react-native-elements'
 
 import auth from '@react-native-firebase/auth';
-import { InterstitialAd, BannerAd, TestIds, BannerAdSize } from '@react-native-firebase/admob';
+import { BannerAd, TestIds, BannerAdSize } from '@react-native-firebase/admob';
 import storage from '@react-native-firebase/storage';
 import firestore from '@react-native-firebase/firestore';
 
-import { adsFree, translate } from '../Utils';
-
-const adBannerUnitId = __DEV__ ? TestIds.BANNER : 
-    (Platform.OS == 'ios' 
-    ? 'ca-app-pub-1477690609272793/3050510769' 
-    : 'ca-app-pub-1477690609272793/8274029234');
-
-const adInterstitialUnitId = __DEV__ ? TestIds.INTERSTITIAL : 
-    (Platform.OS == 'ios' 
-    ? 'ca-app-pub-1477690609272793/3775880012' 
-    : 'ca-app-pub-1477690609272793/9626786110');
+import { adsFree, translate, itemSkus, adBannerUnitId } from '../Utils';
 
 export default class Other extends Component {
     state = {
