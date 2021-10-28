@@ -31,7 +31,7 @@
     "i18n-js": "^3.8.0",
     "lodash.memoize": "^4.1.2",
     "react": "17.0.1",
-    "react-native": "0.63.3",
+    "react-native": "0.64.2",
     "react-native-draggable-flatlist": "^2.5.0",
     "react-native-dynamic": "^1.0.0",
     "react-native-elements": "^2.3.2",
