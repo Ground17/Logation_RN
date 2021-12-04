@@ -39,6 +39,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 // import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 import auth from '@react-native-firebase/auth';
+import firestore from '@react-native-firebase/firestore';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
 import i18n from 'i18n-js';
@@ -50,6 +51,16 @@ function Main({ navigation }) {
   const [feed, setFeed] = useState("");
   const [me, setMe] = useState("");
   const { initializeAppLanguage } = useContext(LocalizationContext);
+   
+  firestore().collection("Users").doc(auth().currentUser.uid).get().then((user) => {
+    if (!user.exists) { /// Login 후에 진행하도록 변경
+      console.log('User signed out!');
+      navigation.reset({
+        index: 0,
+        routes: [{name: 'Login'}]
+      });
+    }
+  })
 
   useEffect(() => {
     function handleStatusChange(status) {
@@ -66,15 +77,25 @@ function Main({ navigation }) {
           params[match[1]] = match[2];
           // i++;
       }
-      console.log(params)
+      console.log(params);
+
+      // 'https://travelog-4e274.web.app/?uid=' + this.props.route.params.itemId;
+      // 'https://travelog-4e274.web.app/?user=' + this.props.route.params.userUid;
       if (!params['user'] || !params['id']) {
           return;
       }
-      navigation.push('ShowScreen', {
+      if (params['id']) {
+        navigation.push('ShowScreen', {
           itemId: params['id'],
-          userUid: params['user'],
           onPop: () => this.refresh(),
-      });
+        });
+      } else if (params['user'] != auth().currentUser.uid) {
+        navigation.push('Me', { /// Other
+          other: true,
+          userUid: params['user'],
+        });
+      }
+      
     }
     if (Platform.OS === 'android') {
         Linking.getInitialURL().then(url => {
@@ -103,11 +124,10 @@ function Main({ navigation }) {
     0: <Home navigation={navigation}/>,
     1: <Me navigation={navigation}/>,
   };
-
         
   return (
     <SafeAreaView style={Style.container}>
-      <View style={{width: "100%", height: "91%"}}> 
+      <View style={{width: "100%", height: "93%"}}> 
         {tabList[screen]}
       </View>
       <View style={Style.floatingViewStyle}>
@@ -231,6 +251,15 @@ export default class App extends Component {
             }}/>
             <Stack.Screen options={{headerShown: false}} name="Main" component={Main} />
             <Stack.Screen name="Notification" component={Notification} options={{
+              headerStyle: {
+                backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#01579b',
+              },
+              headerTintColor: '#fff',
+              headerTitleStyle: {
+                fontWeight: 'bold',
+              },
+            }}/>
+            <Stack.Screen name="Me" component={Me} options={{
               headerStyle: {
                 backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#01579b',
               },

@@ -65,7 +65,7 @@ export default class Me extends Component {
     // static contextType = LocalizationContext
 
     state = {
-        other: false,
+        other: this.props.route != null,
         followersLength: 0,
         followingsLength: 0,
         viewsLength: 0,
@@ -73,8 +73,7 @@ export default class Me extends Component {
         follow: false,
         displayName: '',
         profileURL: '', // 사진 URL
-        localProfileURL: '', // 상대 위치 참조 URL
-        ads: true,
+        ads: !adsFree,
         loading: true,
         lazyend: false,
         endDate: firestore.Timestamp.fromMillis((new Date()).getTime()),
@@ -134,36 +133,40 @@ export default class Me extends Component {
 
         var userRef = await firestore().collection("Users").doc(this.props.route.params.userUid);
         var meRef = await firestore().collection("Users").doc(auth().currentUser.uid);
-        var sfDocRef = await userRef.collection("follower").doc(auth().currentUser.uid);
+        // var sfDocRef = await userRef.collection("follower").doc(auth().currentUser.uid);
         var sfDocRefForMe = await meRef.collection("following").doc(this.props.route.params.userUid);
         return firestore().runTransaction(async transaction => {
             const user = await transaction.get(userRef);
-            const me = await transaction.get(userRef);
-            const othersFollower = await transaction.get(sfDocRef);
+            const me = await transaction.get(meRef);
+            // const othersFollower = await transaction.get(sfDocRef);
             const myFollowing = await transaction.get(sfDocRefForMe);
             const now = firestore.Timestamp.fromMillis((new Date()).getTime());
 
+            if (me.data().followingsLength >= 1000) {
+                return;
+            }
+
             if (!myFollowing.exists) {
-                transaction.set(sfDocRef, {
-                    date: now
-                });
+                // transaction.set(sfDocRef, {
+                //     date: now
+                // });
                 transaction.set(sfDocRefForMe, {
                     date: now
                 });
-                transaction.update(user, {
+                transaction.update(userRef, {
                     followersLength: user.data().followersLength + 1,
                 });
-                transaction.update(me, {
+                transaction.update(meRef, {
                     followingsLength: me.data().followingsLength + 1,
                 });
             } else {
-                if (myFollowing.data().date + 600000 > now) { // 현재 시간보다 1시간 후에만 viewcount 업데이트 가능
-                    transaction.delete(sfDocRef);
+                if (myFollowing.data().date.seconds + 600 > now.seconds) { // 현재 시간보다 10분 후에만 viewcount 업데이트 가능
+                    // transaction.delete(sfDocRef);
                     transaction.delete(sfDocRefForMe);
-                    transaction.update(user, {
+                    transaction.update(userRef, {
                         followersLength: user.data().followersLength - 1,
                     });
-                    transaction.update(me, {
+                    transaction.update(meRef, {
                         followingsLength: me.data().followingsLength - 1,
                     });
                 } else {
@@ -174,25 +177,24 @@ export default class Me extends Component {
     }
 
     refresh = async () =>  {
-        if (this.state.loading) {
-            return;
-        }
+        // if (this.state.loading) {
+        //     return;
+        // }
 
-        const uid = this.state.other ? this.props.route.params.userUid : auth().currentUser.uid;
+        const uid = this.props.route != null ? this.props.route.params.userUid : auth().currentUser.uid;
         this.setState({
             list: [],
             profileURL: '', // 사진 URL
-            localProfileURL: '', // 상대 위치 참조 URL
             loading: true,
             lazyend: false,
             endDate: firestore.Timestamp.fromMillis((new Date()).getTime()),
         });
 
-        await this.lazy();
+        console.log("uid:", uid);
 
         var userRef = await firestore().collection("Users").doc(uid);
-        var followRef = await firestore().collection("Users").doc(auth().currentUser.uid).collection("following").doc(this.props.route.params.userUid);
-        var viewRef = await firestore().collection("Users").doc(auth().currentUser.uid).collection("view").doc(this.props.route.params.userUid);
+        var followRef = await firestore().collection("Users").doc(auth().currentUser.uid).collection("following").doc(uid);
+        var viewRef = await userRef.collection("view").doc(auth().currentUser.uid);
         var storageRef = await storage().ref();
 
         return firestore().runTransaction(async transaction => {
@@ -201,52 +203,30 @@ export default class Me extends Component {
             const sub_view = await transaction.get(viewRef);
             const now = firestore.Timestamp.fromMillis((new Date()).getTime());
 
-            if (uid == auth().currentUser.uid) {
-                if (!user.exists) {
-                    await user.set({
-                        followersLength: 0,
-                        followingsLength: 0,
-                        viewsLength: 1,
-                        profile: '',
-                        modifyDate: now,
-                        displayName: auth().currentUser.uid,
-                    });
-
-                    await user.collection("following").doc(uid).set({date: now});
-                    await user.collection("follower").doc(uid).set({date: now});
-                    await user.collection("view").doc(uid).set({date: now});
-
-                    const update = {
-                        displayName: auth().currentUser.uid
-                    };
-
-                    await auth().currentUser.updateProfile(update);
-                } 
-            }
-            
-            data = user.data();
-
             if (!sub_view.exists) {
-                transaction.update(user, {
+                await transaction.update(userRef, {
                     viewsLength: user.data().viewsLength + 1,
                 });
-                transaction.set(sub_view, {
+                await transaction.set(viewRef, {
                     date: now
                 });
             } else {
-                if (sub_view.data().date + 3600000 < now) { // 현재 시간보다 1시간 후에만 viewcount 업데이트 가능
-                    transaction.update(user, {
+                if (sub_view.data().date.seconds + 3600 < now.seconds) { // 현재 시간보다 1시간 후에만 viewcount 업데이트 가능
+                    await transaction.update(userRef, {
                         viewsLength: user.data().viewsLength + 1,
                     });
-                    transaction.update(sub_view, {
+                    await transaction.update(viewRef, {
                         date: now
                     });
                 }
             }
 
+            await this.lazy();
+
+            const data = user.data();
             var URL = "";
             try {
-                var URL = storageRef.child(uid + "/" + data.profile).getDownloadURL() || '';
+                URL = await storageRef.child(`${uid}/profile/profile_144x144.jpeg`).getDownloadURL() || '';
             } catch (e) {
                 console.log(e);
             } finally {
@@ -254,24 +234,17 @@ export default class Me extends Component {
                     followersLength : data.followersLength,
                     followingsLength : data.followingsLength,
                     viewsLength : data.viewsLength,
-                    localProfileURL : data.profile,
                     follow: sub_follow.exists,
                     displayName: data.displayName,
                     profileURL: URL,
                     loading: false,
                 });
+                console.log("follow:", this.state.follow);
             }
         });
     }
 
     async componentDidMount() {
-        console.log("adsFree: ", adsFree);
-
-        this.setState({
-            ads: !adsFree,
-            other: this.props.route != null,
-        });
-
         // if (Platform.OS === 'android') {
         //     Linking.getInitialURL().then(url => {
         //         this.navigate(url);
@@ -280,26 +253,26 @@ export default class Me extends Component {
         //     Linking.addEventListener('url', this.handleOpenURL);
         // }
 
-        if (!this.state.other) {
-            await requestUserPermission();
-            Linking.getInitialURL().then(url => {
-                this.navigate(url);
-            });
+        if (this.props.route == null) {
+            // await requestUserPermission();
+            // Linking.getInitialURL().then(url => {
+            //     this.navigate(url);
+            // });
             
-            Linking.addEventListener('url', this.handleOpenURL);
+            // Linking.addEventListener('url', this.handleOpenURL);
         } else {
             this.props.navigation.setOptions({ 
                 title: translate("OtherAccount"),
                 headerRight: () => 
                 <View style={{flexDirection: 'row',}}>
-                    <TouchableOpacity style={[styles.buttonContainer, styles.loginButton, {marginRight: 10, alignSelf: 'flex-end', height:45, width: "30%", borderRadius:5,}]} onPress={async () => { 
+                    <TouchableOpacity style={[styles.buttonContainer, styles.loginButton, {marginRight: 10, alignSelf: 'flex-end', height:45, width: "40%", }]} onPress={async () => { 
                         if (!this.state.loading) {
                             await this.follow()
                             .then(() => console.log('Post likes incremented via a transaction'))
                             .catch(error => console.error(error));
                         }
                     }}>
-                        <Text style={styles.loginText}>{this.state.follow ? translate('Unfollow') : translate('Follow') }</Text>
+                        <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}>{this.state.follow ? translate('Unfollow') : translate('Follow') }</Text>
                     </TouchableOpacity>
                 </View>
             });
@@ -380,44 +353,43 @@ export default class Me extends Component {
     render() {
         return(
             <SafeAreaView style={styles.container}>
-                <View style={styles.title}>
+                {this.props.route == null && <View style={styles.title}>
                     <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', height: "100%"}}>
                         <View style={{justifyContent: 'flex-start', marginLeft: 10}}>
                             <Image
-                                style={{flex: 1, width: 120, height: 120, resizeMode: 'cover'}}
-                                source={Appearance.getColorScheme() === 'dark' ? require('./../../logo/graphicImage2.png') : require('./../../logo/graphicImage1.png')}/>
+                                style={{flex: 1, width: 70, height: 70, resizeMode: 'contain'}}
+                                source={require('./../../logo/graphicImage.png')}/>
+                        </View>
+                        <View style={{flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', marginRight: 10}}>
+                            { this.props.route == null ? 
+                            <View style={{flexDirection: 'row'}}>
+                                <TouchableOpacity style={{marginRight:5}} onPress={() => { this.props.navigation.push('Notification') }}>
+                                    <Icon
+                                        name='notifications'
+                                        size={24}
+                                        color={ Appearance.getColorScheme() === 'dark' ? '#ffffff' : '#002f6c' }
+                                    />
+                                </TouchableOpacity>
+                                <TouchableOpacity style={{marginRight:5}} onPress={() => { this.props.navigation.push('Settings') }}>
+                                    <Icon
+                                        name='settings'
+                                        size={24}
+                                        color={ Appearance.getColorScheme() === 'dark' ? '#ffffff' : '#002f6c' }
+                                    />
+                                </TouchableOpacity>
+                            </View> : <View></View>
+                            }
+                            <TouchableOpacity style={{marginRight:10}} onPress={() => { this.refresh() }}>
+                                <Icon
+                                    name='refresh'
+                                    size={24}
+                                    color={ Appearance.getColorScheme() === 'dark' ? '#ffffff' : '#002f6c' }
+                                />
+                            </TouchableOpacity>
                         </View>
                     </View>
-                    <View style={{flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', marginRight: 10}}>
-                        { !this.state.other ? 
-                        <View style={{flexDirection: 'row'}}>
-                            <TouchableOpacity style={{marginRight:5}} onPress={() => { this.props.navigation.push('Notification') }}>
-                                <Icon
-                                    name='notifications'
-                                    size={24}
-                                    color={ Appearance.getColorScheme() === 'dark' ? '#ffffff' : '#002f6c' }
-                                />
-                            </TouchableOpacity>
-                            <TouchableOpacity style={{marginRight:5}} onPress={() => { this.props.navigation.push('Settings') }}>
-                                <Icon
-                                    name='settings'
-                                    size={24}
-                                    color={ Appearance.getColorScheme() === 'dark' ? '#ffffff' : '#002f6c' }
-                                />
-                            </TouchableOpacity>
-                        </View> : <View></View>
-                        }
-                        <TouchableOpacity style={{marginRight:10}} onPress={() => { this.refresh() }}>
-                            <Icon
-                                name='refresh'
-                                size={24}
-                                color={ Appearance.getColorScheme() === 'dark' ? '#ffffff' : '#002f6c' }
-                            />
-                        </TouchableOpacity>
-                        
-                    </View>
-                </View>
-                <View style={[{width: '100%', height: "100%", backgroundColor: Appearance.getColorScheme() === 'dark' ? '#121212' : '#fff' }]}>
+                </View>}
+                <View style={[{width: '100%', backgroundColor: Appearance.getColorScheme() === 'dark' ? '#121212' : '#fff' }]}>
                     <View style={{
                         marginTop:10,
                         flexDirection: 'row',
@@ -426,10 +398,9 @@ export default class Me extends Component {
                         // marginTop:-30,
                     }}>
                         <TouchableOpacity style={{flex:1/3, aspectRatio:1}} onPress={() => { 
-                            if (!this.state.other) {
+                            if (this.props.route == null) {
                                 this.props.navigation.push('EditProfile', {
                                     profileURL: this.state.profileURL,
-                                    localProfileURL: this.state.localProfileURL, // 상대 위치 참조 URL
                                     onPop: () => this.refresh(),
                                 })
                             }
@@ -444,10 +415,10 @@ export default class Me extends Component {
                         </TouchableOpacity>
                     </View>
                     <Text style={{fontWeight: 'bold', textAlign: 'center', marginTop: 10, color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}>
-                        {this.state.other ? this.state.displayName : auth().currentUser.displayName}
+                        {this.props.route != null ? this.state.displayName : auth().currentUser.displayName}
                     </Text>
                     <Text selectable style={{textAlign: 'center', color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}>
-                        {this.state.other ? this.props.route.params.userUid : auth().currentUser.uid}
+                        {this.props.route != null ? this.props.route.params.userUid : auth().currentUser.uid}
                     </Text>
                     <View style={{
                         flexDirection: 'row',
@@ -471,10 +442,9 @@ export default class Me extends Component {
                             alignItems: 'center',
                             justifyContent: 'center',
                         }} onPress={() => { 
-                            if (!this.state.other) {
-                                this.props.navigation.push('Following', {
-                                    userUid: auth().currentUser.uid,
-                                    onPop: () => this.refresh(),
+                            if (this.props.route == null) {
+                                this.props.navigation.push('Search', {
+                                    follow: true, // this.state.follow와 다름
                                 });
                             } }}>
                             <View style={{
@@ -532,9 +502,9 @@ const styles = StyleSheet.create({
     },
     title: { 
         width: "100%",
-        height: 50,
+        height: 30,
+        marginBottom: 10,
         justifyContent: 'space-between',
-        flexDirection: 'row',
         backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#fff'
     },
     buttonContainer: {

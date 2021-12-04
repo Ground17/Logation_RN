@@ -54,11 +54,31 @@ export default class Following extends Component {
       following: [],
       searching: [],
     });
+
     var storageRef = await storage().ref();
-    const user = await firestore().collection("Users").doc(auth().currentUser.uid);
+    await firestore()
+      .collection("Users")
+      .doc(auth().currentUser.uid)
+      .collection("following")
+      .orderBy("modifyDate", "desc")
+      .startAfter(this.state.endDate)
+      .limit(10)
+      .get()
+      .then(async (querySnapshot) => {
+        const temp = [];
+        for (var i = 0; i < querySnapshot.docs.length; i++) {
+          // await firestore().collection("Users").doc(querySnapshot.docs[i].id).get();
+          temp.push(querySnapshot.docs[i].id);
+        }
+        this.setState({
+          following: temp,
+        });
+      });
+      
+    const user = await firestore().collection("Users").doc(auth().currentUser.uid).collection("following");
     if ((await user.get()).exists) {
       data = (await user.get()).data();
-      for (var i = 0; i<data.following.length; i++) {
+      for (var i = 0; i < data.following.length; i++) {
         const other = await firestore().collection("Users").doc(data.following[i]);
         item = (await other.get()).data();
         try {

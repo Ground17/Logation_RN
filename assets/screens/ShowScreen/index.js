@@ -652,7 +652,8 @@ export default class ShowScreen extends Component {
             </View>
             }
           </View> 
-          <DraggableFlatList /// 밑에 깔 것
+          }
+          {!this.state.loading && <DraggableFlatList /// 밑에 깔 것
             horizontal
             style={{backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff"}}
             keyExtractor={(item, index) => `draggable-item-${item.key}`}
@@ -662,289 +663,291 @@ export default class ShowScreen extends Component {
               list: data,
               changed: true,
             })}
-          />
+          />}
 
-        //   <View style={styles.floatingViewStyle}>
-        //     { this.state.edit ? 
-        //       <TouchableOpacity onPress={() => { 
-        //       this.setState({
-        //         delete: !this.state.delete,
-        //       });
-        //     }}>
-        //       <View style={{alignItems: 'center', justifyContent: 'space-around', height: "100%", width: TAB_ITEM_WIDTH}}>
-        //         <Icon
-        //           reverse
-        //           name={this.state.delete ? 'delete' : 'edit'}
-        //           color='#bdbdbd'
-        //           size={25}
-        //         />
-        //         <Text style={{textAlign: 'center', color: "#fff", fontSize: 10}}> {translate("Mode") + (this.state.delete ? translate("Delete") : translate("Edit") )} </Text>
-        //       </View>
-        //     </TouchableOpacity>
-        //     <TouchableOpacity onPress={() => { // EditList로 이동
-        //       if (this.state.changed) {
-        //         Alert.alert(
-        //           translate('Confirm'), //확인
-        //           translate('EditScreenComment1'), //변경점을 저장하시겠습니까?
-        //           [
-        //               {text: translate('Cancel'), onPress: () => this.goEditList()},
-        //               {text: translate('OK'), onPress: async () => {
-        //                 await this.update();
-        //                 this.goEditList();
-        //               }},
-        //           ],
-        //           { cancelable: false }
-        //         );
-        //       } else {
-        //         this.goEditList();
-        //       }
-        //     }}>
-        //       <View style={{alignItems: 'center', justifyContent: 'space-around', height: "100%", width: TAB_ITEM_WIDTH}}>
-        //         <Icon
-        //           reverse
-        //           name='library-add'
-        //           color='#bdbdbd'
-        //           size={25}
-        //         />
-        //         <Text style={{textAlign: 'center', color: "#fff", fontSize: 10}}> {translate("EditList")} </Text>
-        //       </View>
-        //     </TouchableOpacity>
-        //     <TouchableOpacity onPress={() => { 
-        //       if (this.state.viewcode > 0) {
-        //         this.setState({
-        //           viewcode: 0,
-        //           changed: true,
-        //         });
-        //       } else {
-        //         this.setState({
-        //           viewcode: 1,
-        //           changed: true,
-        //         });
-        //       }
-        //     }}>
-        //       <View style={{alignItems: 'center', justifyContent: 'space-around', height: "100%", width: TAB_ITEM_WIDTH}}>
-        //         <Icon
-        //           reverse
-        //           name='tune'
-        //           color='#bdbdbd'
-        //           size={25}
-        //         />
-        //         <Text style={{textAlign: 'center', color: "#fff", fontSize: 10}}> {translate("Change")} </Text>
-        //       </View>
-        //     </TouchableOpacity>
-        //      :
-        //      <TouchableOpacity onPress={async () => {
-        //       console.log('up');
-        //       var sfDocRef = firestore().collection(this.props.route.params.userUid).doc(this.props.route.params.itemId);
-        //       await firestore().runTransaction(async (transaction) => {
-        //         var sfDoc = await transaction.get(sfDocRef);
-        //         if (!sfDoc.exists) {
-        //           throw "Document does not exist!";
-        //         }
+          { this.state.edit ? 
+            <View style={styles.floatingViewStyle}>
+                <TouchableOpacity onPress={() => { 
+                this.setState({
+                  delete: !this.state.delete,
+                });
+              }}>
+                <View style={{alignItems: 'center', justifyContent: 'space-around', height: "100%", width: TAB_ITEM_WIDTH}}>
+                  <Icon
+                    reverse
+                    name={this.state.delete ? 'delete' : 'edit'}
+                    color='#bdbdbd'
+                    size={25}
+                  />
+                  <Text style={{textAlign: 'center', color: "#fff", fontSize: 10}}> {translate("Mode") + (this.state.delete ? translate("Delete") : translate("Edit") )} </Text>
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={async () => { // EditList로 이동
+                if (this.state.changed) {
+                  Alert.alert(
+                    translate('Confirm'), //확인
+                    translate('EditScreenComment1'), //변경점을 저장하시겠습니까?
+                    [
+                        {text: translate('Cancel'), onPress: () => this.goEditList()},
+                        {text: translate('OK'), onPress: async () => {
+                          await this.update();
+                          this.goEditList();
+                        }},
+                    ],
+                    { cancelable: false }
+                  );
+                } else {
+                  this.goEditList();
+                }
+              }}>
+                <View style={{alignItems: 'center', justifyContent: 'space-around', height: "100%", width: TAB_ITEM_WIDTH}}>
+                  <Icon
+                    reverse
+                    name='library-add'
+                    color='#bdbdbd'
+                    size={25}
+                  />
+                  <Text style={{textAlign: 'center', color: "#fff", fontSize: 10}}> {translate("EditList")} </Text>
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => { 
+                if (this.state.viewcode > 0) {
+                  this.setState({
+                    viewcode: 0,
+                    changed: true,
+                  });
+                } else {
+                  this.setState({
+                    viewcode: 1,
+                    changed: true,
+                  });
+                }
+              }}>
+                <View style={{alignItems: 'center', justifyContent: 'space-around', height: "100%", width: TAB_ITEM_WIDTH}}>
+                  <Icon
+                    reverse
+                    name='tune'
+                    color='#bdbdbd'
+                    size={25}
+                  />
+                  <Text style={{textAlign: 'center', color: "#fff", fontSize: 10}}> {translate("Change")} </Text>
+                </View>
+              </TouchableOpacity>
+            </View>
+            :
+            <View style={styles.floatingViewStyle}>
+              <TouchableOpacity onPress={async () => {
+                console.log('up');
+                var sfDocRef = firestore().collection(this.props.route.params.userUid).doc(this.props.route.params.itemId);
+                await firestore().runTransaction(async (transaction) => {
+                  var sfDoc = await transaction.get(sfDocRef);
+                  if (!sfDoc.exists) {
+                    throw "Document does not exist!";
+                  }
 
-        //         var updateLike = this.state.like;
-        //         if (updateLike.hasOwnProperty(auth().currentUser.uid) && updateLike[auth().currentUser.uid]) {
-        //           delete updateLike[auth().currentUser.uid];
-        //         } else {
-        //           updateLike[auth().currentUser.uid] = true;
-        //         }
-        //         await transaction.update(sfDocRef, { like: updateLike });
-        //         var localLikeCount = 0;
-        //         var localDislikeCount = 0;
+                  var updateLike = this.state.like;
+                  if (updateLike.hasOwnProperty(auth().currentUser.uid) && updateLike[auth().currentUser.uid]) {
+                    delete updateLike[auth().currentUser.uid];
+                  } else {
+                    updateLike[auth().currentUser.uid] = true;
+                  }
+                  await transaction.update(sfDocRef, { like: updateLike });
+                  var localLikeCount = 0;
+                  var localDislikeCount = 0;
 
-        //         this.setState({
-        //           liked: false,
-        //           disliked: false,
-        //         });
-        //         Object.keys(updateLike).map((key, i) => {
-        //           if (key == auth().currentUser.uid) {
-        //             this.setState({
-        //               liked: updateLike[key],
-        //               disliked: !updateLike[key],
-        //             });
-        //           }
+                  this.setState({
+                    liked: false,
+                    disliked: false,
+                  });
+                  Object.keys(updateLike).map((key, i) => {
+                    if (key == auth().currentUser.uid) {
+                      this.setState({
+                        liked: updateLike[key],
+                        disliked: !updateLike[key],
+                      });
+                    }
 
-        //           if (updateLike[key]) {
-        //             localLikeCount++;
-        //           } else {
-        //             localDislikeCount++;
-        //           }
-        //         });
-        //         this.setState({
-        //           like: updateLike,
-        //           likeCount: localLikeCount,
-        //           dislikeCount: localDislikeCount,
-        //         });
-        //       }).then(async () => {
-        //           console.log("success");
-        //       }).catch(async (err) => {
-        //           console.error(err);
-        //       });
-        //     }}>
-        //     <View style={{alignItems: 'center', justifyContent: 'space-around', height: "100%", width: TAB_ITEM_WIDTH}}>
-        //       <Icon
-        //         reverse
-        //         name='thumb-up'
-        //         color={this.state.liked ? '#4f83cc' : '#bdbdbd'}
-        //         size={25}
-        //       />
-        //       <Text style={{textAlign: 'center', color: "#fff", fontSize: 10}}> {this.state.likeCount} </Text>
-        //     </View>
-        //   </TouchableOpacity>
-        //   <TouchableOpacity onPress={async () => {
-        //     console.log('down');
-        //     var sfDocRef = firestore().collection(this.props.route.params.userUid).doc(this.props.route.params.itemId);
-        //     await firestore().runTransaction(async (transaction) => {
-        //       var sfDoc = await transaction.get(sfDocRef);
-        //       if (!sfDoc.exists) {
-        //         throw "Document does not exist!";
-        //       }
+                    if (updateLike[key]) {
+                      localLikeCount++;
+                    } else {
+                      localDislikeCount++;
+                    }
+                  });
+                  this.setState({
+                    like: updateLike,
+                    likeCount: localLikeCount,
+                    dislikeCount: localDislikeCount,
+                  });
+                }).then(async () => {
+                    console.log("success");
+                }).catch(async (err) => {
+                    console.error(err);
+                });
+              }}>
+              <View style={{alignItems: 'center', justifyContent: 'space-around', height: "100%", width: TAB_ITEM_WIDTH}}>
+                <Icon
+                  reverse
+                  name='thumb-up'
+                  color={this.state.liked ? '#4f83cc' : '#bdbdbd'}
+                  size={25}
+                />
+                <Text style={{textAlign: 'center', color: "#fff", fontSize: 10}}> {this.state.likeCount} </Text>
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={async () => {
+              console.log('down');
+              var sfDocRef = firestore().collection(this.props.route.params.userUid).doc(this.props.route.params.itemId);
+              await firestore().runTransaction(async (transaction) => {
+                var sfDoc = await transaction.get(sfDocRef);
+                if (!sfDoc.exists) {
+                  throw "Document does not exist!";
+                }
 
-        //       var updateLike = this.state.like;
-        //       if (updateLike.hasOwnProperty(auth().currentUser.uid) && !updateLike[auth().currentUser.uid]) {
-        //         delete updateLike[auth().currentUser.uid];
-        //       } else {
-        //         updateLike[auth().currentUser.uid] = false;
-        //       }
-        //       await transaction.update(sfDocRef, { like: updateLike });
-        //       var localLikeCount = 0;
-        //       var localDislikeCount = 0;
+                var updateLike = this.state.like;
+                if (updateLike.hasOwnProperty(auth().currentUser.uid) && !updateLike[auth().currentUser.uid]) {
+                  delete updateLike[auth().currentUser.uid];
+                } else {
+                  updateLike[auth().currentUser.uid] = false;
+                }
+                await transaction.update(sfDocRef, { like: updateLike });
+                var localLikeCount = 0;
+                var localDislikeCount = 0;
 
-        //       this.setState({
-        //         liked: false,
-        //         disliked: false,
-        //       });
-        //       Object.keys(updateLike).map((key, i) => {
-        //         if (key == auth().currentUser.uid) {
-        //           this.setState({
-        //             liked: updateLike[key],
-        //             disliked: !updateLike[key],
-        //           });
-        //         }
+                this.setState({
+                  liked: false,
+                  disliked: false,
+                });
+                Object.keys(updateLike).map((key, i) => {
+                  if (key == auth().currentUser.uid) {
+                    this.setState({
+                      liked: updateLike[key],
+                      disliked: !updateLike[key],
+                    });
+                  }
 
-        //         if (updateLike[key]) {
-        //           localLikeCount++;
-        //         } else {
-        //           localDislikeCount++;
-        //         }
-        //       });
-        //       this.setState({
-        //         like: updateLike,
-        //         likeCount: localLikeCount,
-        //         dislikeCount: localDislikeCount,
-        //       });
-        //     }).then(async () => {
-        //         console.log("success");
-        //     }).catch(async (err) => {
-        //         console.error(err);
-        //     });
-        //   }}>
-        //     <View style={{alignItems: 'center', justifyContent: 'space-around', height: "100%", width: TAB_ITEM_WIDTH}}>
-        //       <Icon
-        //         reverse
-        //         name='thumb-down'
-        //         color={this.state.disliked ? '#bc477b' : '#bdbdbd'}
-        //         size={25}
-        //       />
-        //       <Text style={{textAlign: 'center', color: "#fff", fontSize: 10}}> {this.state.dislikeCount} </Text>
-        //     </View>
-        //   </TouchableOpacity>
-        //   <TouchableOpacity onPress={() => {
-        //     const url = 'https://travelog-4e274.web.app/?user=' + this.props.route.params.userUid + '&id=' + this.props.route.params.itemId;
-        //     const title = 'URL Content';
-        //     const message = 'Please check this out.';
-        //     const options = Platform.select({
-        //       ios: {
-        //         activityItemSources: [
-        //           { // For sharing url with custom title.
-        //             placeholderItem: { type: 'url', content: url },
-        //             item: {
-        //               default: { type: 'url', content: url },
-        //             },
-        //             subject: {
-        //               default: title,
-        //             },
-        //             linkMetadata: { originalUrl: url, url, title },
-        //           },
-        //         ],
-        //       },
-        //       default: {
-        //         title,
-        //         subject: title,
-        //         message: `${message} ${url}`,
-        //       },
-        //     });
-        //     Share.open(options)
-        //       .then((res) => { console.log(res) })
-        //       .catch((err) => { err && console.log(err); });
-        //     }}>
-        //     <View style={{alignItems: 'center', justifyContent: 'space-around', height: "100%", width: TAB_ITEM_WIDTH}}>
-        //       <Icon
-        //         reverse
-        //         name='share'
-        //         color='#bdbdbd'
-        //         size={25}
-        //       />
-        //       <Text style={{textAlign: 'center', color: "#fff", fontSize: 10}}> {translate("Share")} </Text>
-        //     </View>
-        //   </TouchableOpacity>
-        //   <TouchableOpacity onPress={() => {
-        //     if (this.state.viewcode > 0) {
-        //       this.setState({
-        //         viewcode: 0
-        //       });
-        //     } else {
-        //       this.setState({
-        //         viewcode: this.state.viewcode + 1
-        //       });
-        //     }
-        //   }}>
-        //     <View style={{alignItems: 'center', justifyContent: 'space-around', height: "100%", width: TAB_ITEM_WIDTH}}>
-        //       <Icon
-        //         reverse
-        //         name='tune'
-        //         color='#bdbdbd'
-        //         size={25}
-        //       />
-        //       <Text style={{textAlign: 'center', color: "#fff", fontSize: 10}}> {translate("Change")} </Text>
-        //     </View>
-        //   </TouchableOpacity>
-        //   <TouchableOpacity onPress={async () => { 
-        //     try {
-        //       const supported = await Linking.canOpenURL(this.state.link);
+                  if (updateLike[key]) {
+                    localLikeCount++;
+                  } else {
+                    localDislikeCount++;
+                  }
+                });
+                this.setState({
+                  like: updateLike,
+                  likeCount: localLikeCount,
+                  dislikeCount: localDislikeCount,
+                });
+              }).then(async () => {
+                  console.log("success");
+              }).catch(async (err) => {
+                  console.error(err);
+              });
+            }}>
+              <View style={{alignItems: 'center', justifyContent: 'space-around', height: "100%", width: TAB_ITEM_WIDTH}}>
+                <Icon
+                  reverse
+                  name='thumb-down'
+                  color={this.state.disliked ? '#bc477b' : '#bdbdbd'}
+                  size={25}
+                />
+                <Text style={{textAlign: 'center', color: "#fff", fontSize: 10}}> {this.state.dislikeCount} </Text>
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => {
+              const url = 'https://travelog-4e274.web.app/?user=' + this.props.route.params.userUid + '&id=' + this.props.route.params.itemId;
+              const title = 'URL Content';
+              const message = 'Please check this out.';
+              const options = Platform.select({
+                ios: {
+                  activityItemSources: [
+                    { // For sharing url with custom title.
+                      placeholderItem: { type: 'url', content: url },
+                      item: {
+                        default: { type: 'url', content: url },
+                      },
+                      subject: {
+                        default: title,
+                      },
+                      linkMetadata: { originalUrl: url, url, title },
+                    },
+                  ],
+                },
+                default: {
+                  title,
+                  subject: title,
+                  message: `${message} ${url}`,
+                },
+              });
+              Share.open(options)
+                .then((res) => { console.log(res) })
+                .catch((err) => { err && console.log(err); });
+              }}>
+              <View style={{alignItems: 'center', justifyContent: 'space-around', height: "100%", width: TAB_ITEM_WIDTH}}>
+                <Icon
+                  reverse
+                  name='share'
+                  color='#bdbdbd'
+                  size={25}
+                />
+                <Text style={{textAlign: 'center', color: "#fff", fontSize: 10}}> {translate("Share")} </Text>
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => {
+              if (this.state.viewcode > 0) {
+                this.setState({
+                  viewcode: 0
+                });
+              } else {
+                this.setState({
+                  viewcode: this.state.viewcode + 1
+                });
+              }
+            }}>
+              <View style={{alignItems: 'center', justifyContent: 'space-around', height: "100%", width: TAB_ITEM_WIDTH}}>
+                <Icon
+                  reverse
+                  name='tune'
+                  color='#bdbdbd'
+                  size={25}
+                />
+                <Text style={{textAlign: 'center', color: "#fff", fontSize: 10}}> {translate("Change")} </Text>
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={async () => { 
+              try {
+                const supported = await Linking.canOpenURL(this.state.link);
 
-        //       if (supported) {
-        //         Alert.alert(
-        //           translate("Confirm"),
-        //           translate("LaunchConfirm") + this.state.link,
-        //           [
-        //           {text: translate('Cancel'), onPress: () => { }},
-        //           {text: translate('OK'), onPress: async () => {
-        //             await Linking.openURL(this.state.link);
-        //           }},
-        //           ],
-        //           { cancelable: false }
-        //         );
-        //       } else {
-        //         Alert.alert(translate("ShowItemAndShowScreen") + (this.state.link || "undefined"));
-        //       }
-        //     } catch (e) {
-        //       Alert.alert(translate("ShowItemAndShowScreen") + (this.state.link || "undefined"));
-        //     }
-            
-        //   }}>
-        //     <View style={{alignItems: 'center', justifyContent: 'space-around', height: "100%", width: TAB_ITEM_WIDTH}}>
-        //       <Icon
-        //         reverse
-        //         name='launch'
-        //         color='#bdbdbd'
-        //         size={25}
-        //       />
-        //       <Text style={{textAlign: 'center', color: "#fff", fontSize: 10}}> {translate("Launch")} </Text>
-        //     </View>
-        //   </TouchableOpacity>
-        //   }
-        // </View>
+                if (supported) {
+                  Alert.alert(
+                    translate("Confirm"),
+                    translate("LaunchConfirm") + this.state.link,
+                    [
+                    {text: translate('Cancel'), onPress: () => { }},
+                    {text: translate('OK'), onPress: async () => {
+                      await Linking.openURL(this.state.link);
+                    }},
+                    ],
+                    { cancelable: false }
+                  );
+                } else {
+                  Alert.alert(translate("ShowItemAndShowScreen") + (this.state.link || "undefined"));
+                }
+              } catch (e) {
+                Alert.alert(translate("ShowItemAndShowScreen") + (this.state.link || "undefined"));
+              }
+              
+            }}>
+              <View style={{alignItems: 'center', justifyContent: 'space-around', height: "100%", width: TAB_ITEM_WIDTH}}>
+                <Icon
+                  reverse
+                  name='launch'
+                  color='#bdbdbd'
+                  size={25}
+                />
+                <Text style={{textAlign: 'center', color: "#fff", fontSize: 10}}> {translate("Launch")} </Text>
+              </View>
+            </TouchableOpacity>
+
+          </View>
         }
         </SafeAreaView>
       );

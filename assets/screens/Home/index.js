@@ -40,51 +40,75 @@ export default class Home extends Component {
         });
 
         var storageRef = await storage().ref();
+        const userList = [];
 
         await firestore()
-            .collection("Users")
-            .where("follower", "array-contains", auth().currentUser.uid)
-            .orderBy("modifyDate", "desc")
-            .limit(20)
+            .collection(`Users/${auth().currentUser.uid}/following`)
             .get()
             .then(async (querySnapshot) => {
-                console.log("collectionPath", querySnapshot.docs);
                 for (var i=0; i < querySnapshot.docs.length; i++) {
-                    console.log("collectionPath", querySnapshot.docs[i].data().uid);
-                    await firestore()
-                    .collection(querySnapshot.docs[i].data().uid)
-                    .orderBy("modifyDate", "desc")
-                    .limit(3)
-                    .get()
-                    .then(async (querySnap) => {
-                        for (var j=0; j < querySnap.docs.length; j++) {
-                            var data = querySnap.docs[j].data();
-                            var URL = "";
-                            var profileURL = "";
-                            try {
-                                URL = await storageRef.child(querySnapshot.docs[i].data().uid + "/" + querySnap.docs[j].id + "/" + data.thumbnail).getDownloadURL();
-                                profileURL = await storageRef.child(querySnapshot.docs[i].data().uid + "/" + querySnapshot.docs[i].data().profile).getDownloadURL();
-                            } catch (e) {
-                                console.log(e);
-                            } finally {
-                                this.setState({
-                                    list: this.state.list.concat({ 
-                                        name: data.title,
+                    userList.push(querySnapshot.docs[i].id);
+                }
+            }).catch((e) => {
+                console.log(e);
+            });
+
+        if (userList.length > 0) {
+            await firestore()
+                .collection("Users")
+                .where("uid", "in", userList)
+                .orderBy("modifyDate", "desc")
+                .limit(10)
+                .get()
+                .then(async (querySnapshot) => {
+                    console.log("collectionPath", querySnapshot.docs);
+                    const temp = [];
+                    for (var i=0; i < querySnapshot.docs.length; i++) {
+                        console.log("collectionPath", querySnapshot.docs[i].data().uid);
+                        await firestore()
+                        .collection(querySnapshot.docs[i].data().uid)
+                        // .where("uid", "in", userList)
+                        .where("security", "==", 0)
+                        .orderBy("modifyDate", "desc")
+                        .limit(2)
+                        .get()
+                        .then(async (querySnap) => {
+                            for (var j=0; j < querySnap.docs.length; j++) {
+                                var data = querySnap.docs[j].data();
+                                var URL = "";
+                                var profileURL = "";
+                                try {
+                                    URL = await storageRef.child(querySnapshot.docs[i].data().uid + "/" + querySnap.docs[j].id + "/" + (data.thumbnail >= 0 && data.thumbnail < data.data.length ? data.data[data.thumbnail].photo : data.data[0].photo)).getDownloadURL();
+                                    profileURL = await storageRef.child(querySnapshot.docs[i].data().uid + "/" + querySnapshot.docs[i].data().profile).getDownloadURL();
+                                } catch (e) {
+                                    console.log(e);
+                                } finally {
+                                    temp.push({
+                                        title: data.title,
                                         subtitle: data.subtitle,
                                         url: URL,
                                         id: querySnap.docs[j].id,
-                                        viewcode: data.viewcode,
                                         uid: querySnapshot.docs[i].data().uid,
                                         displayName: querySnapshot.docs[i].data().displayName,
                                         profileURL: profileURL,
-                                    })
-                                });
+                                        date: data.date,
+                                        link: data.link,
+                                        category: data.category,
+                                        data: data.data,
+                                        likenumber: data.likenumber,
+                                        viewcode: data.viewcode,
+                                        viewcount: data.viewcount,
+                                    });
+                                }
                             }
-                        }
+                        });
+                    }
+                    this.setState({
+                        list: temp,
                     });
-                }
-            });
-
+                });
+        }
+        
         this.setState({
             loading: false,
         });
@@ -95,7 +119,7 @@ export default class Home extends Component {
             ads: !adsFree,
         });
 
-        this.refresh();
+        await this.refresh();
     }
 
     constructor(props) {
@@ -158,7 +182,7 @@ export default class Home extends Component {
                 </TouchableOpacity>
                 <ListItem.Content>
                 <ListItem.Title style={{ fontWeight: 'bold', width: '100%', color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000' }}>
-                    {item.name}
+                    {item.title}
                 </ListItem.Title>
                 <ListItem.Subtitle style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}>
                     {`${item.displayName}`}
@@ -172,13 +196,21 @@ export default class Home extends Component {
         return(
             <SafeAreaView style={styles.container}>
                 <View style={styles.title}>
-                    <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', height: "100%"}}>
+                    <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', height: "100%", }}>
                         <View style={{justifyContent: 'flex-start', marginLeft: 10}}>
                             <Image
-                                style={{flex: 1, width: 120, height: 120,resizeMode: 'cover'}}
-                                source={Appearance.getColorScheme() === 'dark' ? require('./../../logo/graphicImage2.png') : require('./../../logo/graphicImage1.png')}/>
+                                style={{flex: 1, width: 70, height: 70, resizeMode: 'contain'}}
+                                source={require('./../../logo/graphicImage.png')}/>
                         </View>
                         <View style={{flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', marginRight: 10}}>
+                            <TouchableOpacity style={{marginRight:5}} onPress={() => { 
+                                this.props.navigation.push('Search') }}>
+                                <Icon
+                                    name='search'
+                                    size={24}
+                                    color={ Appearance.getColorScheme() === 'dark' ? '#ffffff' : '#002f6c' }
+                                />
+                            </TouchableOpacity>
                             <TouchableOpacity style={{marginRight:10}} onPress={() => { this.refresh() }}>
                                 <Icon
                                     name='refresh'
@@ -190,7 +222,7 @@ export default class Home extends Component {
                     </View>
                 </View>
                 <View style={{ width: '100%' }}>
-                    <View style={{marginTop: 10, alignItems: 'center', backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff"}}>
+                    <View style={{alignItems: 'center', backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff"}}>
                         {this.state.ads && <AdMobBanner
                             adSize="banner"
                             adUnitID={adBannerUnitId}
@@ -203,7 +235,7 @@ export default class Home extends Component {
                      <ActivityIndicator size="large" color={Appearance.getColorScheme() === 'dark' ? '#01579b' : '#002f6c'} />
                 </View> 
                 : this.state.list.length > 0 ? <FlatList
-                    style={{width: "100%", backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff"}}
+                    style={{width: "100%", height: "100%", backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff"}}
                     keyExtractor={this.keyExtractor}
                     data={this.state.list}
                     renderItem={this.renderItem}
@@ -227,7 +259,8 @@ const styles = StyleSheet.create({
     },
     title: { 
         width: "100%",
-        height: 50,
+        height: 30,
+        marginBottom: 10,
         justifyContent: 'space-between',
         backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#fff'
     },

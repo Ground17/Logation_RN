@@ -17,6 +17,7 @@ import { Divider, Input, Overlay } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
 import auth from '@react-native-firebase/auth';
+import firestore from '@react-native-firebase/firestore';
 
 import { GoogleSignin, GoogleSigninButton, statusCodes } from '@react-native-community/google-signin';
 import appleAuth, { AppleButton, } from '@invertase/react-native-apple-authentication';
@@ -29,13 +30,40 @@ import { adsFree, translate, LocalizationContext, adBannerUnitId } from '../Util
 import { ColorSchemeContext } from 'react-native-dynamic'
 
 export default class Login extends Component {
-  // static contextType = LocalizationContext;
+  static contextType = LocalizationContext;
 
   state = {
     email: '',
     password: '',
     ads: true,
     loading: false,
+  }
+
+  async checkUser() {
+    const uid = auth().currentUser.uid;
+    const userRef = firestore().collection("Users").doc(uid);
+    const user = await userRef.get();
+    if (!user.exists) { /// Login 후에 진행하도록 변경
+        const now = firestore.Timestamp.fromMillis((new Date()).getTime());
+        await userRef.set({
+            followersLength: 0,
+            followingsLength: 0,
+            viewsLength: 0,
+            modifyDate: now,
+            displayName: auth().currentUser.uid,
+            uid: auth().currentUser.uid,
+        });
+
+        // await userRef.collection("following").doc(uid).set({date: now});
+        await userRef.collection("view").doc(uid).set({date: now});
+
+        const update = {
+            displayName: auth().currentUser.uid
+        };
+
+        await auth().currentUser.updateProfile(update);
+    } 
+    this.props.navigation.replace('Main');
   }
 
   async appleLogin() {
@@ -45,6 +73,11 @@ export default class Login extends Component {
         requestedOperation: appleAuth.Operation.LOGIN,
         requestedScopes: [appleAuth.Scope.EMAIL, appleAuth.Scope.FULL_NAME],
       });
+
+      if (!appleAuthRequestResponse.identityToken) {
+        throw 'Apple Sign-In failed - no identify token returned';
+      }
+      
       // 2). if the request was successful, extract the token and nonce
       const { identityToken, nonce } = appleAuthRequestResponse;
 
@@ -54,7 +87,7 @@ export default class Login extends Component {
 
         const userCredential = await auth().signInWithCredential(appleCredential);
         // user is now signed in, any Firebase `onAuthStateChanged` listeners you have will trigger
-        this.props.navigation.replace('Main');
+        await this.checkUser();
         return;
       } 
     } catch (e) {
@@ -81,7 +114,7 @@ export default class Login extends Component {
       // login with credential
       const firebaseUserCredential = await auth().signInWithCredential(credential);
 
-      this.props.navigation.replace('Main');
+      await this.checkUser();
       return;
     } catch (e) {
       Alert.alert(
@@ -109,9 +142,9 @@ export default class Login extends Component {
       }
       auth()
       .signInWithEmailAndPassword(email, password)
-      .then(() => {
+      .then(async () => {
         if (auth().currentUser.emailVerified) {
-          this.props.navigation.replace('Main');
+          await this.checkUser();
           return;
         } else {
           console.log(auth().currentUser);
@@ -155,6 +188,7 @@ export default class Login extends Component {
 
   async componentDidMount() {
     const {initializeAppLanguage} = this.context;
+    console.log("context: ", this.context);
     this.setState({
       email: '',
       password: '',
@@ -215,8 +249,8 @@ export default class Login extends Component {
           <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', height: "100%"}}>
               <View style={{justifyContent: 'flex-start', marginLeft: 10}}>
                   <Image
-                      style={{flex: 1, width: 120, height: 120, resizeMode: 'cover'}}
-                      source={Appearance.getColorScheme() === 'dark' ? require('./../../logo/graphicImage2.png') : require('./../../logo/graphicImage1.png')}/>
+                      style={{flex: 1, width: 70, height: 70, resizeMode: 'contain'}}
+                      source={require('./../../logo/graphicImage.png')}/>
               </View>
               <View style={{flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginRight: 10}}>
                 <TouchableOpacity style={{marginRight:10, }} onPress={() => { this.props.navigation.push('Language') }}>
@@ -319,7 +353,8 @@ const styles = StyleSheet.create({
   cell: { width: "80%", height: 50 },
   title: { 
     width: "100%",
-    height: 50,
+    height: 30,
+    marginBottom: 10,
     justifyContent: 'space-between',
     backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#fff',
   },

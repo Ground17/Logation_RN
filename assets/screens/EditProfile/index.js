@@ -101,9 +101,11 @@ export default class EditProfile extends Component {
                     </TouchableOpacity>
                 </View>
                 <Input
-                    onEndEditing={(nickname) => {
+                    onChangeText={(nickname) => {
                         if (nickname.length > 0) {
-                            this.setState({nickname});
+                            this.setState({nickname: nickname});
+                        } else {
+                            this.setState({nickname: this.state.nickname});
                         }
                     }}
                     defaultValue={this.state.nickname}
@@ -143,8 +145,10 @@ export default class EditProfile extends Component {
                         });
                     } else {
                         var filename = this.state.profileURL.split('/');
+                        var photoname = filename[filename.length - 1].split('.');
+                        var ext = photoname[photoname.length - 1];
 
-                        var storageRef = storage().ref(`${auth().currentUser.uid}/${filename[filename.length - 1]}`);
+                        var storageRef = storage().ref(`${auth().currentUser.uid}/profile/profile.${ext}`);
                         await firestore()
                         .collection("Users")
                         .doc(auth().currentUser.uid)
@@ -153,10 +157,14 @@ export default class EditProfile extends Component {
                             modifyDate: firestore.Timestamp.fromMillis((new Date()).getTime()),
                             displayName: this.state.nickname,
                         });
-                        console.log('delete url: ', this.props.route.params.localProfileURL);
                         try {
+                            // await storage().ref(`${auth().currentUser.uid}/profile`).listAll()
+                            // .then((result) => {
+                            //     console.log()
+                            // }).catch((e) => {
+                            //     console.log(e);
+                            // });
                             await storageRef.putFile(`${this.state.profileURL}`);
-                            await storage().ref(`${auth().currentUser.uid}/${this.props.route.params.localProfileURL}`).delete();
                         } catch (e) {
                             console.log(e);
                         } finally {

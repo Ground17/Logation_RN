@@ -23,17 +23,72 @@ import auth from '@react-native-firebase/auth';
 
 import { translate } from '../Utils';
 
+
 export default class Search extends Component {
   state = {
     search: '',
     list: [],
+    users: [],
+    userDetail: [],
+    following: [],
   };
+
+  renderAvatar = ({ item, index }) => ( // 추가할 사용자 표현
+    <View>
+        <TouchableOpacity style={{marginLeft:5, marginRight:5, flex:1, aspectRatio:1}} onPress={() => {
+            this.setState({
+                users: this.state.users.filter((items, i) => i != index),
+                userDetail: this.state.userDetail.filter((items, i) => i != index),
+            });
+        }}>
+            <FastImage
+                style={{flex: 1, borderRadius: 100}}
+                source={userDetail[index].url ? { uri: userDetail[index].url } : require('./../../logo/ic_launcher.png')}
+            />
+            <Text>
+                {userDetail[index].displayName}
+            </Text>
+        </TouchableOpacity>
+    </View>
+  )
 
   updateSearch = search => {
     this.setState({ search });
   };
 
+  // async lazy() {
+
+  // }
+
   async search() {
+    var regex = /[?&]([^=#]+)=([^&#]*)/g,
+      params = {},
+      match;
+    // var i = 0;
+    
+    while (match = regex.exec(this.state.search)) {
+        params[match[1]] = match[2];
+        // i++;
+    }
+    console.log(params);
+
+    // 'https://travelog-4e274.web.app/?user=' + this.props.route.params.userUid + '&id=' + this.props.route.params.itemId;
+    // 'https://travelog-4e274.web.app/?user=' + this.props.route.params.userUid;
+    if (params['user']) {
+      if (params['id']) {
+        navigation.push('ShowScreen', {
+          itemId: params['id'],
+          userUid: params['user'],
+        });
+      } else if (params['user'] != auth().currentUser.uid) {
+        navigation.push('Me', { /// Other
+          other: true,
+          userUid: params['user'],
+        });
+      }
+      return;
+    }
+
     if (this.state.search.length < 1) {
       return;
     }
@@ -43,57 +98,126 @@ export default class Search extends Component {
     });
 
     var storageRef = await storage().ref();
-    await firestore()
-      .collection("Users")
-      .where("uid", ">=", this.state.search)
-      .orderBy("uid", "asc")
-      .limit(3)
-      .get()
-      .then(async (querySnapshot) => {
-        for (var i = 0; i < querySnapshot.docs.length; i++) {
-          console.log('data: ', querySnapshot.docs[i].id, querySnapshot.docs[i].data());
-          var data = querySnapshot.docs[i].data();
-          try {
-            var URL = await storageRef.child(data.uid + "/" + data.profile).getDownloadURL();
-          } catch (e) {
-            var URL = '';
-          } finally {
-            this.setState({
-              list: this.state.list.concat({ 
-                uid : data.uid,
-                displayName : data.displayName,
-                profileURL : URL,
-              })
-            });
-          }
-        }
-      });
 
-    await firestore()
-      .collection("Users")
-      .where("displayName", ">=", this.state.search)
-      .orderBy("displayName", "asc")
-      .limit(3)
-      .get()
-      .then(async (querySnapshot) => {
-        for (var i = 0; i < querySnapshot.docs.length; i++) {
-          console.log('data: ', querySnapshot.docs[i].id, querySnapshot.docs[i].data());
-          var data = querySnapshot.docs[i].data();
-          try {
-            var URL = await storageRef.child(data.uid + "/" + data.profile).getDownloadURL();
-          } catch (e) {
-            var URL = '';
-          } finally {
-            this.setState({
-              list: this.state.list.concat({ 
-                uid : data.uid,
-                displayName : data.displayName,
-                profileURL : URL,
-              })
-            });
+    if (this.props.route.params.follow || this.props.route.params.add) {
+      await firestore()
+        .collection("Users")
+        .where("uid", "in", this.state.following)
+        .where("uid", ">=", this.state.search)
+        .orderBy("uid", "asc")
+        .limit(2)
+        .get()
+        .then(async (querySnapshot) => {
+          for (var i = 0; i < querySnapshot.docs.length; i++) {
+            console.log('data: ', querySnapshot.docs[i].id, querySnapshot.docs[i].data());
+            var data = querySnapshot.docs[i].data();
+            try {
+              var URL = await storageRef.child(`${data.uid}/profile/profile_144x144.jpeg`).getDownloadURL();
+            } catch (e) {
+              var URL = '';
+            } finally {
+              this.setState({
+                list: this.state.list.concat({ 
+                  uid : data.uid,
+                  displayName : data.displayName,
+                  profileURL : URL,
+                })
+              });
+            }
           }
-        }
-      });
+        });
+
+      await firestore()
+        .collection("Users")
+        .where("uid", "in", this.state.following)
+        .where("displayName", ">=", this.state.search)
+        .orderBy("displayName", "asc")
+        .limit(5)
+        .get()
+        .then(async (querySnapshot) => {
+          for (var i = 0; i < querySnapshot.docs.length; i++) {
+            console.log('data: ', querySnapshot.docs[i].id, querySnapshot.docs[i].data());
+            var data = querySnapshot.docs[i].data();
+            try {
+              var URL = await storageRef.child(`${data.uid}/profile/profile_144x144.jpeg`).getDownloadURL();
+            } catch (e) {
+              var URL = '';
+            } finally {
+              this.setState({
+                list: this.state.list.concat({ 
+                  uid : data.uid,
+                  displayName : data.displayName,
+                  profileURL : URL,
+                })
+              });
+            }
+          }
+        });
+    } else {
+      await firestore()
+        .collection("Users")
+        .where("uid", ">=", this.state.search)
+        .orderBy("uid", "asc")
+        .limit(2)
+        .get()
+        .then(async (querySnapshot) => {
+          for (var i = 0; i < querySnapshot.docs.length; i++) {
+            console.log('data: ', querySnapshot.docs[i].id, querySnapshot.docs[i].data());
+            var data = querySnapshot.docs[i].data();
+            try {
+              var URL = await storageRef.child(`${data.uid}/profile/profile_144x144.jpeg`).getDownloadURL();
+            } catch (e) {
+              var URL = '';
+            } finally {
+              this.setState({
+                list: this.state.list.concat({ 
+                  uid : data.uid,
+                  displayName : data.displayName,
+                  profileURL : URL,
+                })
+              });
+            }
+          }
+        });
+
+      await firestore()
+        .collection("Users")
+        .where("displayName", ">=", this.state.search)
+        .orderBy("displayName", "asc")
+        .limit(5)
+        .get()
+        .then(async (querySnapshot) => {
+          for (var i = 0; i < querySnapshot.docs.length; i++) {
+            console.log('data: ', querySnapshot.docs[i].id, querySnapshot.docs[i].data());
+            var data = querySnapshot.docs[i].data();
+            try {
+              var URL = await storageRef.child(`${data.uid}/profile/profile_144x144.jpeg`).getDownloadURL();
+            } catch (e) {
+              var URL = '';
+            } finally {
+              this.setState({
+                list: this.state.list.concat({ 
+                  uid : data.uid,
+                  displayName : data.displayName,
+                  profileURL : URL,
+                })
+              });
+            }
+          }
+        });
+    }
+  }
+
+  check (uid) {
+    if (uid == auth().currentUser.uid) {
+      return false;
+    }
+    for (var i = 0; i < this.state.users.length; i++) {
+      if (this.state.users[i] == uid) {
+        return true;
+      }
+    }
+    return false;
   }
 
   keyExtractor = (item, index) => index.toString()
@@ -104,7 +228,8 @@ export default class Search extends Component {
       bottomDivider
       onPress={() => { 
         if (auth().currentUser.uid != item.uid) {
-          this.props.navigation.push('Other', {
+          this.props.navigation.push('Me', {
+            other: true,
             userUid: item.uid,
           }); 
           return;
@@ -132,8 +257,68 @@ export default class Search extends Component {
           {item.uid}
         </ListItem.Subtitle>
       </ListItem.Content>
+      {this.props.route.params.add && <TouchableOpacity style={{marginRight:5}} onPress={() => {
+          if (this.state.users.length < 10 && !this.check(item.uid)) {
+            this.setState({
+              users: this.state.users.concat(item.uid),
+              userDetail: this.state.userDetail.concat({
+                displayName: item.displayName,
+                url: item.profileURL,
+              }),
+            });
+          } else {
+            /// 최대 10명까지 등록할 수 있습니다.
+          }
+          console.log("users: ", this.state.users);
+        }}>
+            <Icon
+                name='add-circle-outline'
+                size={24}
+                color={ Appearance.getColorScheme() === 'dark' ? '#ffffff' : '#002f6c' }
+            />
+        </TouchableOpacity>}
+      
     </ListItem>
   )
+
+  async componentDidMount() {
+    if (this.props.route.params.follow || this.props.route.params.add) { // Me의 follow나 AddList의 add user만 팔로우한 사람 검색
+      await firestore()
+        .collection("Users")
+        .doc(auth().currentUser.uid)
+        .collection("following")
+        .get()
+        .then(async (querySnapshot) => {
+          const temp = [];
+          for (var i = 0; i < querySnapshot.docs.length; i++) {
+            // await firestore().collection("Users").doc(querySnapshot.docs[i].id).get();
+            temp.push(querySnapshot.docs[i].id.replace(/ /g,''));
+          }
+          this.setState({
+            following: temp,
+          });
+        });
+    }
+
+    if (this.props.route.params.add) {
+      this.setState({
+        users: this.props.route.params.users,
+        userDetail: this.props.route.params.userDetail,
+      });
+    }
+
+    if (this.state.following.length == 0) {
+      Alert.alert(
+        translate("Error"),
+        "팔로우한 계정이 없습니다.",
+        [
+        {text: translate("OK"), onPress: () => console.log('OK Pressed')},
+        ],
+        { cancelable: false }
+      );
+      this.props.navigation.pop();
+    }
+  }
 
   render() {
     return(
@@ -157,8 +342,27 @@ export default class Search extends Component {
               />
             }
           />
+          <View style={{ flex: 1, width: "100%", height: "10%", backgroundColor: Appearance.getColorScheme() === 'dark' ? '#121212' : '#ffffff', flexDirection: 'row',}}>
+              <FlatList
+                  horizontal
+                  keyExtractor={(item, index) => {(index + 20).toString()}}
+                  data={this.state.users}
+                  renderItem={this.renderAvatar}
+                  extraData={this.state}
+              />
+              {this.props.route.params.add && <TouchableOpacity style={{marginRight:5}} onPress={() => {
+                this.props.route.params.updateUser(this.state.users, this.state.userDetail);
+                this.props.navigation.pop();
+              }}>
+                <Icon
+                  name='check-circle'
+                  size={24}
+                  color={ Appearance.getColorScheme() === 'dark' ? '#ffffff' : '#002f6c' }
+                />
+              </TouchableOpacity>}
+          </View>
           <FlatList
-            style={{width: "100%", backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff"}}
+            style={{width: "100%", height: "80%", backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff"}}
             keyExtractor={this.keyExtractor}
             data={this.state.list}
             renderItem={this.renderItem}
@@ -171,12 +375,13 @@ export default class Search extends Component {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        alignItems: 'center',
-        justifyContent: 'space-between',
+        // alignItems: 'center',
+        // justifyContent: 'space-between',
         backgroundColor: Appearance.getColorScheme() === 'dark' ? "#002f6c" : "#fff",
     },
     cellView: {
       backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff",
       width: "100%",
+      height: "10%",
     },
 });

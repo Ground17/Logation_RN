@@ -219,7 +219,7 @@ const Style = StyleSheet.create({
     },
     floatingViewStyle: {
       width: "100%",
-      height: "9%",
+      height: "7%",
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-around',
