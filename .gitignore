@@ -58,6 +58,8 @@ buck-out/
 *.jsbundle
 
 firebase.json
+package.json
+package-lock.json
 
 /android
 /ios
@@ -70,5 +72,4 @@ functions/.eslintrc.json
 functions/index.js
 functions/package-lock.json
 functions/package.json
-
 yarn.lock
