@@ -41,7 +41,7 @@ export default class Login extends Component {
 
   async checkUser() {
     const uid = auth().currentUser.uid;
-    const userRef = firestore().collection("Users").doc(uid);
+    // const userRef = firestore().collection("Users").doc(uid);
     const user = await userRef.get();
     if (!user.exists) { /// Login 후에 진행하도록 변경
         const now = firestore.Timestamp.fromMillis((new Date()).getTime());
@@ -49,13 +49,14 @@ export default class Login extends Component {
             followersLength: 0,
             followingsLength: 0,
             viewsLength: 0,
+            logsLength: 0, 
             modifyDate: now,
             displayName: auth().currentUser.uid,
             uid: auth().currentUser.uid,
         });
 
         // await userRef.collection("following").doc(uid).set({date: now});
-        await userRef.collection("view").doc(uid).set({date: now});
+        // await userRef.collection("view").doc(uid).set({date: now});
 
         const update = {
             displayName: auth().currentUser.uid

@@ -153,7 +153,6 @@ export default class EditProfile extends Component {
                         .collection("Users")
                         .doc(auth().currentUser.uid)
                         .update({
-                            profile: filename[filename.length - 1],
                             modifyDate: firestore.Timestamp.fromMillis((new Date()).getTime()),
                             displayName: this.state.nickname,
                         });

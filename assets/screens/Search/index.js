@@ -43,11 +43,8 @@ export default class Search extends Component {
         }}>
             <FastImage
                 style={{flex: 1, borderRadius: 100}}
-                source={userDetail[index].url ? { uri: userDetail[index].url } : require('./../../logo/ic_launcher.png')}
+                source={this.state.userDetail[index].url ? { uri: this.state.userDetail[index].url } : require('./../../logo/ic_launcher.png')}
             />
-            <Text>
-                {userDetail[index].displayName}
-            </Text>
         </TouchableOpacity>
     </View>
   )
@@ -61,34 +58,6 @@ export default class Search extends Component {
   // }
 
   async search() {
-    var regex = /[?&]([^=#]+)=([^&#]*)/g,
-      params = {},
-      match;
-    // var i = 0;
-    
-    while (match = regex.exec(this.state.search)) {
-        params[match[1]] = match[2];
-        // i++;
-    }
-    console.log(params);
-
-    // 'https://travelog-4e274.web.app/?user=' + this.props.route.params.userUid + '&id=' + this.props.route.params.itemId;
-    // 'https://travelog-4e274.web.app/?user=' + this.props.route.params.userUid;
-    if (params['user']) {
-      if (params['id']) {
-        navigation.push('ShowScreen', {
-          itemId: params['id'],
-          userUid: params['user'],
-        });
-      } else if (params['user'] != auth().currentUser.uid) {
-        navigation.push('Me', { /// Other
-          other: true,
-          userUid: params['user'],
-        });
-      }
-      return;
-    }
-
     if (this.state.search.length < 1) {
       return;
     }
@@ -99,7 +68,7 @@ export default class Search extends Component {
 
     var storageRef = await storage().ref();
 
-    if (this.props.route.params.follow || this.props.route.params.add) {
+    if (this.props.route.params) {
       await firestore()
         .collection("Users")
         .where("uid", "in", this.state.following)
@@ -154,6 +123,43 @@ export default class Search extends Component {
           }
         });
     } else {
+      var regex = /[?&]([^=#]+)=([^&#]*)/g,
+      params = {},
+      match;
+      // var i = 0;
+      
+      while (match = regex.exec(this.state.search)) {
+          params[match[1]] = match[2];
+          // i++;
+      }
+      console.log(params);
+
+      // 'https://travelog-4e274.web.app/?uid=' + this.props.route.params.itemId;
+      // 'https://travelog-4e274.web.app/?user=' + this.props.route.params.userUid;
+      if (params['id']) {
+        this.props.navigation.push('ShowScreen', {
+          itemId: params['id'],
+          onPop: () => { /* 검색을 통한 게시글 검색은 새로고침 기능 없음 */ },
+        });
+        return;
+      } else if (params['user']) {
+        if (params['user'] == auth().currentUser.uid) {
+          Alert.alert(
+            translate('MyAccount'),
+            [
+            {text: translate('OK'), onPress: () => console.log('OK Pressed')},
+            ],
+            { cancelable: false }
+          );
+        } else {
+          this.props.navigation.push('Me', { /// Other
+            other: true,
+            userUid: params['user'],
+          });
+        }
+        return; 
+      }
+
       await firestore()
         .collection("Users")
         .where("uid", ">=", this.state.search)
@@ -257,7 +263,7 @@ export default class Search extends Component {
           {item.uid}
         </ListItem.Subtitle>
       </ListItem.Content>
-      {this.props.route.params.add && <TouchableOpacity style={{marginRight:5}} onPress={() => {
+      {(this.props.route.params && this.props.route.params.add) && <TouchableOpacity style={{marginRight:5}} onPress={() => {
           if (this.state.users.length < 10 && !this.check(item.uid)) {
             this.setState({
               users: this.state.users.concat(item.uid),
@@ -282,7 +288,7 @@ export default class Search extends Component {
   )
 
   async componentDidMount() {
-    if (this.props.route.params.follow || this.props.route.params.add) { // Me의 follow나 AddList의 add user만 팔로우한 사람 검색
+    if (this.props.route.params) { // Me의 follow나 AddList의 add user만 팔로우한 사람 검색
       await firestore()
         .collection("Users")
         .doc(auth().currentUser.uid)
@@ -298,25 +304,24 @@ export default class Search extends Component {
             following: temp,
           });
         });
-    }
+      if (this.props.route.params.add) {
+        this.setState({
+          users: this.props.route.params.users,
+          userDetail: this.props.route.params.userDetail,
+        });
+      }
 
-    if (this.props.route.params.add) {
-      this.setState({
-        users: this.props.route.params.users,
-        userDetail: this.props.route.params.userDetail,
-      });
-    }
-
-    if (this.state.following.length == 0) {
-      Alert.alert(
-        translate("Error"),
-        "팔로우한 계정이 없습니다.",
-        [
-        {text: translate("OK"), onPress: () => console.log('OK Pressed')},
-        ],
-        { cancelable: false }
-      );
-      this.props.navigation.pop();
+      if (this.state.following.length == 0) {
+        Alert.alert(
+          translate("Error"),
+          "팔로우한 계정이 없습니다.",
+          [
+          {text: translate("OK"), onPress: () => console.log('OK Pressed')},
+          ],
+          { cancelable: false }
+        );
+        this.props.navigation.pop();
+      }
     }
   }
 
@@ -324,6 +329,7 @@ export default class Search extends Component {
     return(
       <SafeAreaView style={styles.container}>
         <SearchBar
+            style={{height: "10%"}}
             platform={Platform.OS}
             autoCapitalize='none'
             containerStyle={styles.cellView}
@@ -350,7 +356,7 @@ export default class Search extends Component {
                   renderItem={this.renderAvatar}
                   extraData={this.state}
               />
-              {this.props.route.params.add && <TouchableOpacity style={{marginRight:5}} onPress={() => {
+              {(this.props.route.params && this.props.route.params.add) && <TouchableOpacity style={{marginRight:5}} onPress={() => {
                 this.props.route.params.updateUser(this.state.users, this.state.userDetail);
                 this.props.navigation.pop();
               }}>

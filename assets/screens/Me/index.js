@@ -69,6 +69,7 @@ export default class Me extends Component {
         followersLength: 0,
         followingsLength: 0,
         viewsLength: 0,
+        logsLength: 0,
         list: [],
         follow: false,
         displayName: '',
@@ -159,8 +160,12 @@ export default class Me extends Component {
                 transaction.update(meRef, {
                     followingsLength: me.data().followingsLength + 1,
                 });
+                this.setState({
+                    follow: true,
+                    followersLength: this.state.followersLength + 1,
+                });
             } else {
-                if (myFollowing.data().date.seconds + 600 > now.seconds) { // 현재 시간보다 10분 후에만 viewcount 업데이트 가능
+                if (myFollowing.data().date.seconds + 600 < now.seconds) { // 현재 시간보다 10분 후에만 viewcount 업데이트 가능
                     // transaction.delete(sfDocRef);
                     transaction.delete(sfDocRefForMe);
                     transaction.update(userRef, {
@@ -168,6 +173,10 @@ export default class Me extends Component {
                     });
                     transaction.update(meRef, {
                         followingsLength: me.data().followingsLength - 1,
+                    });
+                    this.setState({
+                        follow: false,
+                        followersLength: this.state.followersLength - 1,
                     });
                 } else {
                     Alert.alert(translate("Alert"), "You can unfollow this account after 10 minutes."); /// 10분이 지난 후 언팔로우 할 수 있습니다.
@@ -192,9 +201,10 @@ export default class Me extends Component {
 
         console.log("uid:", uid);
 
+        var meRef = await firestore().collection("Users").doc(auth().currentUser.uid);
         var userRef = await firestore().collection("Users").doc(uid);
-        var followRef = await firestore().collection("Users").doc(auth().currentUser.uid).collection("following").doc(uid);
-        var viewRef = await userRef.collection("view").doc(auth().currentUser.uid);
+        var followRef = await meRef.collection("following").doc(uid);
+        var viewRef = await meRef.collection("viewProfile").doc(uid);
         var storageRef = await storage().ref();
 
         return firestore().runTransaction(async transaction => {
@@ -231,9 +241,10 @@ export default class Me extends Component {
                 console.log(e);
             } finally {
                 this.setState({
-                    followersLength : data.followersLength,
-                    followingsLength : data.followingsLength,
-                    viewsLength : data.viewsLength,
+                    followersLength: data.followersLength,
+                    followingsLength: data.followingsLength,
+                    logsLength: data.logsLength,
+                    viewsLength: data.viewsLength,
                     follow: sub_follow.exists,
                     displayName: data.displayName,
                     profileURL: URL,
@@ -263,18 +274,18 @@ export default class Me extends Component {
         } else {
             this.props.navigation.setOptions({ 
                 title: translate("OtherAccount"),
-                headerRight: () => 
-                <View style={{flexDirection: 'row',}}>
-                    <TouchableOpacity style={[styles.buttonContainer, styles.loginButton, {marginRight: 10, alignSelf: 'flex-end', height:45, width: "40%", }]} onPress={async () => { 
-                        if (!this.state.loading) {
-                            await this.follow()
-                            .then(() => console.log('Post likes incremented via a transaction'))
-                            .catch(error => console.error(error));
-                        }
-                    }}>
-                        <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}>{this.state.follow ? translate('Unfollow') : translate('Follow') }</Text>
-                    </TouchableOpacity>
-                </View>
+                // headerRight: () => 
+                // <View style={{flexDirection: 'row',}}>
+                //     <TouchableOpacity style={[styles.buttonContainer, styles.loginButton, {marginRight: 10, alignSelf: 'flex-end', height:45, width: "40%", }]} onPress={async () => { 
+                //         if (!this.state.loading) {
+                //             await this.follow()
+                //             .then(() => console.log('Post likes incremented via a transaction'))
+                //             .catch(error => console.error(error));
+                //         }
+                //     }}>
+                //         <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}>{this.state.follow ? translate('Unfollow') : translate('Follow') }</Text>
+                //     </TouchableOpacity>
+                // </View>
             });
         }
 
@@ -432,8 +443,8 @@ export default class Me extends Component {
                             alignItems: 'center',
                             justifyContent: 'center',
                         }}>
-                            <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}> {translate("Followers")} </Text>
-                            <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}> {this.state.followersLength} </Text>
+                            <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}> {"///Logs///"} </Text>
+                            <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}> {this.state.logsLength} </Text>
                         </View>
                         <TouchableOpacity 
                         style={{
@@ -488,6 +499,15 @@ export default class Me extends Component {
                     </View>
                     }
                 </View>
+                {this.state.other && <TouchableOpacity style={[styles.buttonContainer, styles.loginButton, {position: 'absolute', alignSelf: 'flex-end', top: 10, right: 10, borderRadius:5,}]} onPress={async () => { 
+                    if (!this.state.loading) {
+                        await this.follow()
+                        .then(() => console.log('Post likes incremented via a transaction'))
+                        .catch(error => console.error(error));
+                    }
+                }}>
+                    <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000', padding: 5}}>{this.state.follow ? translate('Unfollow') : translate('Follow') }</Text>
+                </TouchableOpacity>}
             </SafeAreaView>
         );
     }
@@ -511,5 +531,10 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         marginBottom:5,
+    },
+    loginButton: {
+        backgroundColor: "#002f6c",
+        borderColor: "#002f6c",
+        borderWidth: 1,
     },
 });

@@ -43,7 +43,7 @@ const locations = [[37.551161, 126.988228], [35.658405, 139.745300], [40.689306,
 export default class AddList extends Component {
     state = {
         edit: false,
-        category: 0, // 0: Travel, 1: Daily Life, : 
+        category: 0, // 0: Travel, 1: Daily Life, ...
         viewcode: 0, // 0: Map, 1: Normal
         locationChecked: true,
         dateChecked: true,
@@ -165,18 +165,28 @@ export default class AddList extends Component {
     renderAvatar = ({ item, index }) => ( // 추가할 사용자 표현
         <View>
             <TouchableOpacity style={{marginLeft:5, marginRight:5, flex:1, aspectRatio:1}} onPress={() => {
-                this.setState({
-                    users: this.state.users.filter((items, i) => i != index),
-                    userDetail: this.state.userDetail.filter((items, i) => i != index),
-                });
+                Alert.alert(
+                    `${this.state.userDetail[index].displayName}\n${this.state.users[index]}`,
+                    "/// 이 유저를 삭제하시겠습니까?",
+                    [
+                    {text: translate("Cancel"), onPress: () => console.log('Cancel Pressed')},
+                    {text: translate("OK"), onPress: () => {
+                        this.setState({
+                            users: this.state.users.filter((items, i) => i != index),
+                            userDetail: this.state.userDetail.filter((items, i) => i != index),
+                        });
+                    }},
+                    ],
+                    { cancelable: true }
+                );
+                return;
+                
+                
             }}>
                 <FastImage
                     style={{flex: 1, borderRadius: 100}}
-                    source={userDetail[index].url ? { uri: userDetail[index].url } : require('./../../logo/ic_launcher.png')}
+                    source={this.state.userDetail[index].url ? { uri: this.state.userDetail[index].url } : require('./../../logo/ic_launcher.png')}
                 />
-                <Text>
-                    {userDetail[index].displayName}
-                </Text>
             </TouchableOpacity>
         </View>
     )
@@ -213,6 +223,33 @@ export default class AddList extends Component {
             localSecurity = 0;
         }
 
+        var storageRef = await storage().ref();
+
+        var temp = [];
+
+        if (this.props.route.params.preUser) {
+            for (var i = 0; i < this.props.route.params.preUser.length; i++) {
+                const documentSnapshot = await firestore()
+                    .collection("Users")
+                    .doc(this.props.route.params.preUser[i])
+                    .get();
+
+                if (documentSnapshot.exists) {
+                    const data = documentSnapshot.data();
+                    try {
+                        var URL = await storageRef.child(`${this.props.route.params.preUser[i]}/profile/profile_144x144.jpeg`).getDownloadURL();
+                    } catch (e) {
+                        var URL = '';
+                    } finally {
+                        temp.push({
+                            displayName: data.displayName,
+                            url: URL,
+                        });
+                    }
+                }
+            }
+        }
+
         this.setState({
             category: this.props.route.params.category || parseInt(localCategory),
             edit: this.props.route.params.edit != null,
@@ -222,6 +259,8 @@ export default class AddList extends Component {
             link: this.props.route.params.link || '',
             viewcode: this.props.route.params.viewcode || parseInt(localViewcode),
             security: this.props.route.params.security || parseInt(localSecurity),
+            users: this.props.route.params.preUser || [],
+            userDetail: temp,
             ads: !adsFree,
             locationChecked: locationCheck == 'true' ? true : false,
             dateChecked: dateCheck == 'true' ? true : false,
@@ -230,6 +269,7 @@ export default class AddList extends Component {
             photoNumber: this.props.route.params.photoNumber || 0,
             preData: this.props.route.params.data || [],
         });
+
         this.props.navigation.setOptions({ title: this.state.edit ? translate("EditList") : translate("AddList") });
         // if (this.state.ads && !interstitial.loaded) {
         //     interstitial.load();
@@ -592,7 +632,7 @@ export default class AddList extends Component {
                     />
                     <CheckBox
                         containerStyle={styles.cell}
-                        title={"좋아요 숨기기"} /// edit
+                        title={"/// 좋아요 숨기기"} /// edit
                         iconType='material'
                         checkedIcon='check-box'
                         uncheckedIcon='check-box-outline-blank'
@@ -623,7 +663,7 @@ export default class AddList extends Component {
                         <View style={{alignSelf:'center', position:'absolute', borderBottomColor:'gray', borderBottomWidth:1, height:'50%', width:'80%'}}/>
                     </View>
                     <TouchableOpacity style={[styles.buttonContainer, styles.loginButton, {height:45, width: "80%", borderRadius:5,}]} onPress={async () => {
-                        if (this.state.title.length < 1 || this.state.subtitle.length < 1 || this.state.link.length < 1) {
+                        if (this.state.title.length < 1 || this.state.subtitle.length < 1) {
                             Alert.alert(
                                 translate("Error"),
                                 translate("AddListComment5"),
@@ -729,6 +769,15 @@ export default class AddList extends Component {
                                 .doc(documentSnapshot._documentPath._parts[1])
                                 .update({
                                     data: [...this.state.preData, ...updateData]
+                                })
+                            await firestore()
+                                .collection("Users")
+                                .doc(auth().currentUser.uid)
+                                .collection("log")
+                                .doc(documentSnapshot._documentPath._parts[1])
+                                .set({
+                                    date: firestore.Timestamp.fromMillis(this.state.date.getTime()),
+                                    security: this.state.security,
                                 });
                             Alert.alert(
                                 translate("Success"),
@@ -761,7 +810,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         alignItems: 'center',
-        backgroundColor: Appearance.getColorScheme() === 'dark' ? "#002f6c" : "#fff",
+        backgroundColor: Appearance.getColorScheme() === 'dark' ? "#000" : "#fff",
         width: "100%"
     },
     viewContainer: {
