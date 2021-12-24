@@ -103,6 +103,8 @@ export default class Home extends Component {
                                 modifyDate: data.modifyDate,
                                 category: data.category,
                                 data: data.data,
+                                likeCount: data.likeCount,
+                                dislikeCount: data.dislikeCount,
                                 likeNumber: data.likeNumber,
                                 viewcode: data.viewcode,
                                 viewCount: data.viewCount,
@@ -148,7 +150,22 @@ export default class Home extends Component {
             <TouchableOpacity style={{marginRight:10, alignItems: 'center'}} onPress={() => { 
                     this.props.navigation.push('ShowScreen', {
                         itemId: item.id,
-                        userUid: item.uid,
+                        title: item.title,
+                        subtitle: item.subtitle,
+                        link: item.link,
+                        url: item.url, // 썸네일 URL
+                        userUid: item.uid, // log의 소유자
+                        displayName: item.displayName,
+                        profileURL: item.profileURL,
+                        date: item.date,
+                        modifyDate: item.modifyDate,
+                        category: item.category,
+                        data: item.data,
+                        likeNumber: item.likeNumber,
+                        likeCount: item.likeCount,
+                        dislikeCount: item.dislikeCount,
+                        viewcode: item.viewcode,
+                        viewCount: item.viewCount,
                         onPop: () => this.refresh(),
                     }) 
                 }}>
@@ -167,14 +184,30 @@ export default class Home extends Component {
                 onPress={() => { 
                     this.props.navigation.push('ShowScreen', {
                         itemId: item.id,
-                        userUid: item.uid,
+                        title: item.title,
+                        subtitle: item.subtitle,
+                        link: item.link,
+                        url: item.url, // 썸네일 URL
+                        userUid: item.uid, // log의 소유자
+                        displayName: item.displayName,
+                        profileURL: item.profileURL,
+                        date: item.date,
+                        modifyDate: item.modifyDate,
+                        category: item.category,
+                        data: item.data,
+                        likeNumber: item.likeNumber,
+                        likeCount: item.likeCount,
+                        dislikeCount: item.dislikeCount,
+                        viewcode: item.viewcode,
+                        viewCount: item.viewCount,
                         onPop: () => this.refresh(),
                     }) 
                 }}
             >
                 <TouchableOpacity style={{flex:1/7, aspectRatio:1}} onPress={() => { 
                     if (auth().currentUser.uid != item.uid) {
-                        this.props.navigation.push('Other', {
+                        this.props.navigation.push('Me', {
+                            other: true,
                             userUid: item.uid,
                         }); 
                         return;

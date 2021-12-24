@@ -90,8 +90,6 @@ export default class Me extends Component {
                 endDate: firestore.Timestamp.fromMillis((new Date()).getTime()),
             });
         }
-        console.log(initial);
-        console.log(this.state.endDate);
         const uid = this.state.other ? this.props.route.params.userUid : auth().currentUser.uid;
         var storageRef = await storage().ref();
         if (!this.state.lazyend) {
@@ -114,7 +112,9 @@ export default class Me extends Component {
                             var URL = "";
                             var data = post.data();
                             try {
-                                var URL = await storageRef.child(uid + "/" + querySnapshot.docs[i].id + "/" + data.data[data.thumbnail].photo).getDownloadURL();
+                                var photo = (data.thumbnail >= 0 && data.thumbnail < data.data.length) ? data.data[data.thumbnail].photo : data.data[0].photo;
+                                photo = photo.substr(0, photo.lastIndexOf('.'));
+                                URL = await storageRef.child(uid + "/" + querySnapshot.docs[i].id + "/" + photo + "_144x144.jpeg").getDownloadURL();
                             } catch (e) {
                                 console.log(e);
                             } finally {
@@ -132,6 +132,8 @@ export default class Me extends Component {
                                     category: data.category,
                                     data: data.data, // 가장 중요
                                     likeNumber: data.likeNumber,
+                                    likeCount: data.likeCount,
+                                    dislikeCount: data.dislikeCount,
                                     viewcode: data.viewcode,
                                     viewCount: data.viewCount,
                                 });
@@ -139,7 +141,6 @@ export default class Me extends Component {
                         }
                     }
                 });
-            console.log(temp);
             if (temp.length > 0) {
                 this.setState({
                     endDate: temp[temp.length - 1].date,
@@ -362,7 +363,22 @@ export default class Me extends Component {
             bottomDivider
             onPress={() => { this.props.navigation.push('ShowScreen', {
                 itemId: item.id,
-                userUid: auth().currentUser.uid,
+                title: item.title,
+                subtitle: item.subtitle,
+                link: item.link,
+                url: item.url, // 썸네일 URL
+                userUid: item.uid, // log의 소유자
+                displayName: item.displayName,
+                profileURL: item.profileURL,
+                date: item.date,
+                modifyDate: item.modifyDate,
+                category: item.category,
+                data: item.data,
+                likeNumber: item.likeNumber,
+                likeCount: item.likeCount,
+                dislikeCount: item.dislikeCount,
+                viewcode: item.viewcode,
+                viewCount: item.viewCount,
                 onPop: () => this.refresh(),
             }) }}
         >
@@ -372,7 +388,7 @@ export default class Me extends Component {
             source={{ 
               uri: item.url,
               priority: FastImage.priority.high,
-              }}
+            }}
           />
         </View>
         <ListItem.Content>
