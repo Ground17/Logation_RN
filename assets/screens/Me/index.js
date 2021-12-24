@@ -75,55 +75,87 @@ export default class Me extends Component {
         displayName: '',
         profileURL: '', // 사진 URL
         ads: !adsFree,
-        loading: true,
+        loading: false,
+        initialLoading: true,
         lazyend: false,
         endDate: firestore.Timestamp.fromMillis((new Date()).getTime()),
     }
 
-    lazy = async () => {
+    lazy = async (initial = false) => {
+        if (initial) {
+            this.setState({
+                initialLoading: true,
+                list: [],
+                lazyend: false,
+                endDate: firestore.Timestamp.fromMillis((new Date()).getTime()),
+            });
+        }
+        console.log(initial);
+        console.log(this.state.endDate);
         const uid = this.state.other ? this.props.route.params.userUid : auth().currentUser.uid;
-        
-        if (!this.state.lazyend && !this.state.loading) {
+        var storageRef = await storage().ref();
+        if (!this.state.lazyend) {
             const temp = [];
             await firestore()
-                .collection(uid)
-                .orderBy("modifyDate", "desc")
+                .collection("Users/" + uid + "/log")
+                .where("security", "in", this.state.other ? [0, 1] : [0, 1, 2])
+                .orderBy("date", "desc")
                 .startAfter(this.state.endDate)
                 .limit(10)
                 .get()
                 .then(async (querySnapshot) => {
                     for (var i = 0; i < querySnapshot.docs.length; i++) {
-                        const data = querySnapshot.docs[i].data();
-                        var URL = "";
-                        try {
-                            var URL = await storageRef.child(uid + "/" + querySnapshot.docs[i].id + "/" + data.data[data.thumbnail].photo).getDownloadURL();
-                        } catch (e) {
-                            console.log(e);
-                        } finally {
-                            temp.push({ 
-                                name: data.title,
-                                subtitle: data.subtitle,
-                                url: URL,
-                                id: querySnapshot.docs[i].id,
-                                viewcode: data.viewcode,
-                                data: data.data, // 가장 중요
-                            });
+                        const post = await firestore()
+                            .collection("Posts")
+                            .doc(querySnapshot.docs[i].id)
+                            .get();
+                        
+                        if (post.exists) {
+                            var URL = "";
+                            var data = post.data();
+                            try {
+                                var URL = await storageRef.child(uid + "/" + querySnapshot.docs[i].id + "/" + data.data[data.thumbnail].photo).getDownloadURL();
+                            } catch (e) {
+                                console.log(e);
+                            } finally {
+                                temp.push({ 
+                                    title: data.title,
+                                    subtitle: data.subtitle,
+                                    link: data.link,
+                                    url: URL, // 썸네일 URL
+                                    id: querySnapshot.docs[i].id, // log의 id
+                                    uid: data.uid, // log의 소유자
+                                    displayName: this.state.displayName,
+                                    profileURL: this.state.profileURL,
+                                    date: data.date,
+                                    modifyDate: data.modifyDate,
+                                    category: data.category,
+                                    data: data.data, // 가장 중요
+                                    likeNumber: data.likeNumber,
+                                    viewcode: data.viewcode,
+                                    viewCount: data.viewCount,
+                                });
+                            }
                         }
                     }
                 });
-
-            if (temp.length != 10) {
+            console.log(temp);
+            if (temp.length > 0) {
+                this.setState({
+                    endDate: temp[temp.length - 1].date,
+                    list: this.state.list.concat(temp),
+                });
+            } else {
                 this.setState({
                     lazyend: true,
-                    endDate: temp[temp.length - 1].data.modifyDate,
-                    list: this.state.list.concat(temp),
-                });
-            } else { 
-                this.setState({
-                    endDate: temp[temp.length - 1].data.modifyDate,
-                    list: this.state.list.concat(temp),
                 });
             }
+        }
+
+        if (initial) {
+            this.setState({
+                initialLoading: false,
+            });
         }
     }
 
@@ -186,17 +218,10 @@ export default class Me extends Component {
     }
 
     refresh = async () =>  {
-        // if (this.state.loading) {
-        //     return;
-        // }
-
         const uid = this.props.route != null ? this.props.route.params.userUid : auth().currentUser.uid;
         this.setState({
-            list: [],
             profileURL: '', // 사진 URL
             loading: true,
-            lazyend: false,
-            endDate: firestore.Timestamp.fromMillis((new Date()).getTime()),
         });
 
         console.log("uid:", uid);
@@ -206,6 +231,8 @@ export default class Me extends Component {
         var followRef = await meRef.collection("following").doc(uid);
         var viewRef = await meRef.collection("viewProfile").doc(uid);
         var storageRef = await storage().ref();
+
+        await this.lazy(true);
 
         return firestore().runTransaction(async transaction => {
             const user = await transaction.get(userRef);
@@ -230,8 +257,6 @@ export default class Me extends Component {
                     });
                 }
             }
-
-            await this.lazy();
 
             const data = user.data();
             var URL = "";
@@ -352,7 +377,7 @@ export default class Me extends Component {
         </View>
         <ListItem.Content>
           <ListItem.Title style={{fontWeight: 'bold', color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}>
-            {item.name}
+            {item.title}
           </ListItem.Title>
           <ListItem.Subtitle style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}>
             {item.subtitle}
@@ -364,7 +389,8 @@ export default class Me extends Component {
     render() {
         return(
             <SafeAreaView style={styles.container}>
-                {this.props.route == null && <View style={styles.title}>
+                {this.props.route == null && 
+                <View style={styles.title}>
                     <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', height: "100%"}}>
                         <View style={{justifyContent: 'flex-start', marginLeft: 10}}>
                             <Image
@@ -400,6 +426,10 @@ export default class Me extends Component {
                         </View>
                     </View>
                 </View>}
+                { this.state.initialLoading ? <View style={{width: "100%", height: "100%", alignItems: 'center', justifyContent: 'center', backgroundColor: Appearance.getColorScheme() === 'dark' ? '#121212' : '#fff'}}>
+                     <ActivityIndicator size="large" color={Appearance.getColorScheme() === 'dark' ? '#01579b' : '#002f6c'} />
+                </View> 
+                : 
                 <View style={[{width: '100%', backgroundColor: Appearance.getColorScheme() === 'dark' ? '#121212' : '#fff' }]}>
                     <View style={{
                         marginTop:10,
@@ -485,12 +515,12 @@ export default class Me extends Component {
                         />}
                     </View>
                     {this.state.list.length > 0 ? <FlatList
-                        style={{width: "100%", backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff" }}
+                        style={{width: "100%", height: "100%", backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff" }}
                         keyExtractor={this.keyExtractor}
                         data={this.state.list}
                         renderItem={this.renderItem}
-                        onRefresh={() => this.refresh}
-                        onEndReached={this.lazy}
+                        onRefresh={() => this.lazy(true)}
+                        onEndReached={() => this.lazy()}
                         onEndReachedThreshold={.7}
                         refreshing={this.state.loading}
                     />
@@ -498,7 +528,7 @@ export default class Me extends Component {
                         <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000', textAlign: 'center'}}>{translate("MeEmpty")}</Text>
                     </View>
                     }
-                </View>
+                </View> }
                 {this.state.other && <TouchableOpacity style={[styles.buttonContainer, styles.loginButton, {position: 'absolute', alignSelf: 'flex-end', top: 10, right: 10, borderRadius:5,}]} onPress={async () => { 
                     if (!this.state.loading) {
                         await this.follow()

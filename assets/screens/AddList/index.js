@@ -726,6 +726,7 @@ export default class AddList extends Component {
                         .add({
                             category: this.state.category,
                             date: firestore.Timestamp.fromMillis(this.state.date.getTime()),
+                            modifyDate: firestore.Timestamp.fromMillis((new Date()).getTime()),
                             link: this.state.link,
                             title: this.state.title,
                             subtitle: this.state.subtitle,
@@ -744,6 +745,7 @@ export default class AddList extends Component {
                             .collection("Users")
                             .doc(auth().currentUser.uid)
                             .update({
+                                logsLength: firestore.FieldValue.increment(1),
                                 modifyDate: firestore.Timestamp.fromMillis((new Date()).getTime()),
                             });
                             // var filename = this.state.thumbnail.split('/');

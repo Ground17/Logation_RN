@@ -30,14 +30,23 @@ export default class Home extends Component {
     state = {
         list: [],
         ads: true,
-        loading: true,
+        loading: false,
+        initialLoading: true,
+        endDate: firestore.Timestamp.fromMillis((new Date()).getTime()),
     }
 
-    async refresh() {
-        this.setState({
-            list: [],
-            loading: true,
-        });
+    async refresh(initial = false) {
+        if (initial) {
+            this.setState({
+                initialLoading: true,
+                list: [],
+                endDate: firestore.Timestamp.fromMillis((new Date()).getTime()),
+            });
+        } else {
+            this.setState({
+                loading: true,
+            });
+        }
 
         var storageRef = await storage().ref();
         const userList = [];
@@ -46,7 +55,7 @@ export default class Home extends Component {
             .collection(`Users/${auth().currentUser.uid}/following`)
             .get()
             .then(async (querySnapshot) => {
-                for (var i=0; i < querySnapshot.docs.length; i++) {
+                for (var i = 0; i < querySnapshot.docs.length; i++) {
                     userList.push(querySnapshot.docs[i].id);
                 }
             }).catch((e) => {
@@ -54,64 +63,70 @@ export default class Home extends Component {
             });
 
         if (userList.length > 0) {
+            const temp = [];
             await firestore()
-                .collection("Users")
+                .collection("Posts")
                 .where("uid", "in", userList)
+                .where("security", "==", 0)
                 .orderBy("modifyDate", "desc")
-                .limit(10)
+                .startAfter(this.state.endDate)
+                .limit(15)
                 .get()
-                .then(async (querySnapshot) => {
-                    console.log("collectionPath", querySnapshot.docs);
-                    const temp = [];
-                    for (var i=0; i < querySnapshot.docs.length; i++) {
-                        console.log("collectionPath", querySnapshot.docs[i].data().uid);
-                        await firestore()
-                        .collection(querySnapshot.docs[i].data().uid)
-                        // .where("uid", "in", userList)
-                        .where("security", "==", 0)
-                        .orderBy("modifyDate", "desc")
-                        .limit(2)
-                        .get()
-                        .then(async (querySnap) => {
-                            for (var j=0; j < querySnap.docs.length; j++) {
-                                var data = querySnap.docs[j].data();
-                                var URL = "";
-                                var profileURL = "";
-                                try {
-                                    URL = await storageRef.child(querySnapshot.docs[i].data().uid + "/" + querySnap.docs[j].id + "/" + (data.thumbnail >= 0 && data.thumbnail < data.data.length ? data.data[data.thumbnail].photo : data.data[0].photo)).getDownloadURL();
-                                    profileURL = await storageRef.child(querySnapshot.docs[i].data().uid + "/" + querySnapshot.docs[i].data().profile).getDownloadURL();
-                                } catch (e) {
-                                    console.log(e);
-                                } finally {
-                                    temp.push({
-                                        title: data.title,
-                                        subtitle: data.subtitle,
-                                        url: URL,
-                                        id: querySnap.docs[j].id,
-                                        uid: querySnapshot.docs[i].data().uid,
-                                        displayName: querySnapshot.docs[i].data().displayName,
-                                        profileURL: profileURL,
-                                        date: data.date,
-                                        link: data.link,
-                                        category: data.category,
-                                        data: data.data,
-                                        likenumber: data.likenumber,
-                                        viewcode: data.viewcode,
-                                        viewcount: data.viewcount,
-                                    });
-                                }
+                .then(async (querySnap) => {
+                    for (var j = 0; j < querySnap.docs.length; j++) {
+                        var data = querySnap.docs[j].data();
+                        var displayName = data.uid;
+                        var URL = "";
+                        var profileURL = "";
+                        try {
+                            const user = await firestore().collection("Users").doc(data.uid).get();
+                            if (user.exists) {
+                                displayName = user.data().displayName;
                             }
-                        });
+                            var photo = (data.thumbnail >= 0 && data.thumbnail < data.data.length) ? data.data[data.thumbnail].photo : data.data[0].photo;
+                            photo = photo.substr(0, photo.lastIndexOf('.'));
+                            URL = await storageRef.child(data.uid + "/" + querySnap.docs[j].id + "/" + photo + "_1080x1080.jpeg").getDownloadURL();
+                            profileURL = await storageRef.child(`${data.uid}/profile/profile_144x144.jpeg`).getDownloadURL() || '';
+                        } catch (e) {
+                            console.log(e);
+                        } finally {
+                            temp.push({
+                                title: data.title,
+                                subtitle: data.subtitle,
+                                link: data.link,
+                                url: URL, // 썸네일 URL
+                                id: querySnap.docs[j].id, // log의 id
+                                uid: data.uid, // log의 소유자
+                                displayName: displayName,
+                                profileURL: profileURL,
+                                date: data.date,
+                                modifyDate: data.modifyDate,
+                                category: data.category,
+                                data: data.data,
+                                likeNumber: data.likeNumber,
+                                viewcode: data.viewcode,
+                                viewCount: data.viewCount,
+                            });
+                        }
                     }
-                    this.setState({
-                        list: temp,
-                    });
                 });
+            if (temp.length > 0) {
+                this.setState({
+                    endDate: temp[temp.length - 1].modifyDate,
+                    list: this.state.list.concat(temp),
+                });
+            }
         }
-        
-        this.setState({
-            loading: false,
-        });
+
+        if (initial) {
+            this.setState({
+                initialLoading: false,
+            });
+        } else {
+            this.setState({
+                loading: false,
+            });
+        }
     }
 
     async componentDidMount() {
@@ -119,7 +134,7 @@ export default class Home extends Component {
             ads: !adsFree,
         });
 
-        await this.refresh();
+        await this.refresh(true);
     }
 
     constructor(props) {
@@ -211,7 +226,7 @@ export default class Home extends Component {
                                     color={ Appearance.getColorScheme() === 'dark' ? '#ffffff' : '#002f6c' }
                                 />
                             </TouchableOpacity>
-                            <TouchableOpacity style={{marginRight:10}} onPress={() => { this.refresh() }}>
+                            <TouchableOpacity style={{marginRight:10}} onPress={() => { this.refresh(true) }}>
                                 <Icon
                                     name='refresh'
                                     size={24}
@@ -231,7 +246,7 @@ export default class Home extends Component {
                         />}
                     </View>
                 </View>
-                {this.state.loading ? <View style={{flex: 1, width: "100%", height: "100%", alignItems: 'center', justifyContent: 'center', backgroundColor: Appearance.getColorScheme() === 'dark' ? '#000' : '#fff'}}>
+                {this.state.initialLoading ? <View style={{width: "100%", height: "100%", alignItems: 'center', justifyContent: 'center', backgroundColor: Appearance.getColorScheme() === 'dark' ? '#121212' : '#fff'}}>
                      <ActivityIndicator size="large" color={Appearance.getColorScheme() === 'dark' ? '#01579b' : '#002f6c'} />
                 </View> 
                 : this.state.list.length > 0 ? <FlatList
@@ -239,7 +254,9 @@ export default class Home extends Component {
                     keyExtractor={this.keyExtractor}
                     data={this.state.list}
                     renderItem={this.renderItem}
-                    onRefresh={() => this.refresh()}
+                    onRefresh={() => this.refresh(true)}
+                    onEndReached={() => this.refresh()}
+                    onEndReachedThreshold={.7}
                     refreshing={this.state.loading}
                 />
                 : <View style={{width: "100%", height: "100%", backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff"}}>
