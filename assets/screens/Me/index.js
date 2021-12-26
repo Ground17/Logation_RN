@@ -138,6 +138,8 @@ export default class Me extends Component {
                                     viewCount: data.viewCount,
                                 });
                             }
+                        } else {
+                            /// delete log in User
                         }
                     }
                 });

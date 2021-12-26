@@ -24,6 +24,7 @@ import Search from './assets/screens/Search';
 import Notification from './assets/screens/Notification';
 import ShowScreen from './assets/screens/ShowScreen';
 import ShowItem from './assets/screens/ShowItem';
+import ShowDetail from './assets/screens/ShowDetail';
 import AddList from './assets/screens/AddList';
 import EditProfile from './assets/screens/EditProfile';
 import Following from './assets/screens/Following';
@@ -332,6 +333,15 @@ export default class App extends Component {
               },
             }}/>
             <Stack.Screen name="Language" component={Language} options={{
+              headerStyle: {
+                backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#01579b',
+              },
+              headerTintColor: '#fff',
+              headerTitleStyle: {
+                fontWeight: 'bold',
+              },
+            }}/>
+            <Stack.Screen name="ShowDetail" component={ShowDetail} options={{
               headerStyle: {
                 backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#01579b',
               },

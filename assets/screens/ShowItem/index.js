@@ -17,7 +17,8 @@ import {
   Platform,
 } from 'react-native';
 
-import FastImage from 'react-native-fast-image';
+// import FastImage from 'react-native-fast-image';
+import ImageModal from 'react-native-image-modal';
 
 import { TouchableOpacity } from 'react-native-gesture-handler';
 
@@ -453,12 +454,12 @@ export default class ShowItem extends Component {
                     });
                   }
                 }}>
-                <FastImage
+                <ImageModal
+                  imageBackgroundColor="#000000"
                   style={{width: this.state.imgWidth, height: this.state.imgHeight}}
                   source={{ 
                     uri: this.state.url,
-                    priority: FastImage.priority.high,
-                    }}
+                  }}
                 />
                 </TouchableOpacity>
               </View>
