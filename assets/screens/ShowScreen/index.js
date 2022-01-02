@@ -443,7 +443,7 @@ export default class ShowScreen extends Component {
 
       for (var i=0; i < this.state.data.length; i++) {
         try {
-          var URL = await storageRef.child(this.props.route.params.userUid + "/" + this.props.route.params.itemId + "/" + data.data[i].photo).getDownloadURL();
+          var URL = await storageRef.child(this.props.route.params.userUid + "/" + this.props.route.params.itemId + "/" + this.state.data[i].photo).getDownloadURL();
           modifiedList = modifiedList.concat({ 
             date: this.state.data[i].date,
             title: this.state.data[i].title,
@@ -493,59 +493,72 @@ export default class ShowScreen extends Component {
         title: "///Logs///",
         headerRight: () => 
         <View style={{flexDirection: 'row',}}>
-            { auth().currentUser.uid == this.props.route.params.userUid ?
-               !this.state.edit ?
-                <TouchableOpacity style={{
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  paddingLeft: 5,
-                  paddingRight: 20,
-                }} onPress={() => {// 수정창(EditScreen) 열기
-                  // this.props.navigation.push('EditScreen', {
-                  //   itemId: this.props.route.params.itemId,
-                  //   userUid: this.props.route.params.userUid,
-                  //   latitude: this.state.list[0].lat,
-                  //   longitude: this.state.list[0].long,
-                  //   onPop: () => this.refresh(),
-                  // })
-                  this.setState({edit: true});
-                }}>
-                  <Icon
-                    name="edit"
-                    size={24}
-                    color='#fff'
-                  />
-                </TouchableOpacity>
-                : <TouchableOpacity style={{
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    paddingLeft: 5,
-                    paddingRight: 20,
-                  }} onPress={() => {
-                  if (this.state.changed) {
-                    Alert.alert(
-                      translate('Confirm'), //확인
-                      translate('EditScreenComment1'), //변경점을 저장하시겠습니까?
-                      [
-                          {text: translate('Cancel'), onPress: () => {}},
-                          {text: translate('OK'), onPress: async () => {
-                            await this.update();
-                            this.props.navigation.pop();
-                          }},
-                      ],
-                      { cancelable: false }
-                    );
-                  } else {
-                    this.props.navigation.pop();
-                  }
-                }}>
-                  <Icon
-                    name="check-circle"
-                    size={24}
-                    color='#fff'
-                  />
-                </TouchableOpacity>
-               : <View></View> }
+          <TouchableOpacity style={{
+            alignItems: 'center',
+            justifyContent: 'center',
+            paddingLeft: 5,
+            paddingRight: 5,
+          }} onPress={() => { 
+            this.props.navigation.push('ShowDetail', {
+              title: this.state.title,
+              subtitle: this.state.subtitle,
+              date: this.state.date.toDate(),
+              modifyDate: this.state.modifyDate.toDate(),
+              link: this.state.link,
+              viewCount: this.state.viewCount,
+              profileURL: this.state.profileURL,
+              displayName: this.state.displayName,
+              userUid: this.props.route.params.userUid,
+            });
+          }}>
+            <Icon
+              name='info'
+              size={24}
+              color='#fff'
+            />
+          </TouchableOpacity>
+          <TouchableOpacity style={{
+            alignItems: 'center',
+            justifyContent: 'center',
+            paddingLeft: 5,
+            paddingRight: 5,
+          }} onPress={() => { 
+            if (this.state.viewcode > 0) {
+              this.setState({
+                viewcode: 0,
+              });
+            } else {
+              this.setState({
+                viewcode: 1,
+              });
+            }
+
+            if (this.state.edit) {
+              this.setState({
+                changed: true,
+              });
+            }
+          }}>
+            <Icon
+              name='tune'
+              size={24}
+              color='#fff'
+            />
+          </TouchableOpacity>
+          <TouchableOpacity style={{
+            alignItems: 'center',
+            justifyContent: 'center',
+            paddingLeft: 5,
+            paddingRight: 20,
+          }} onPress={() => {
+            /// 슬라이드 쇼 애니메이션 만들기
+          }}>
+            <Icon
+              name="play-circle"
+              size={24}
+              color='#fff'
+            />
+          </TouchableOpacity>
         </View>
       });
       
@@ -708,7 +721,7 @@ export default class ShowScreen extends Component {
           }
           { !this.state.loading && <DraggableFlatList /// 밑에 깔 것
             horizontal
-            style={{backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff", width: "100%", height: "2%", alignItems:'center', justifyContent:'center' }}
+            style={{backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff", width: "100%", height: "2%" }}
             keyExtractor={(item, index) => `draggable-item-${item.key}`}
             data={this.state.list}
             renderItem={this.renderItem}
@@ -722,125 +735,55 @@ export default class ShowScreen extends Component {
             }}
           /> }
 
-          { this.state.edit ? 
-            <View style={styles.floatingViewStyle}>
-              <TouchableOpacity onPress={() => { 
+          <View style={styles.floatingViewStyle}>
+            <TouchableOpacity onPress={async () => {
+              console.log('up');
+              var sfDocRef = firestore().collection(this.props.route.params.userUid).doc(this.props.route.params.itemId);
+              await firestore().runTransaction(async (transaction) => {
+                var sfDoc = await transaction.get(sfDocRef);
+                if (!sfDoc.exists) {
+                  throw "Document not exists!";
+                }
+
+                var updateLike = this.state.like;
+                if (updateLike.hasOwnProperty(auth().currentUser.uid) && updateLike[auth().currentUser.uid]) {
+                  delete updateLike[auth().currentUser.uid];
+                } else {
+                  updateLike[auth().currentUser.uid] = true;
+                }
+                await transaction.update(sfDocRef, { like: updateLike });
+                var localLikeCount = 0;
+                var localDislikeCount = 0;
+
                 this.setState({
-                  delete: !this.state.delete,
+                  liked: false,
+                  disliked: false,
                 });
-              }}>
-                <View style={{alignItems: 'center', justifyContent: 'space-around', height: "100%", width: TAB_ITEM_WIDTH}}>
-                  <Icon
-                    reverse
-                    name={this.state.delete ? 'delete' : 'edit'}
-                    color='#bdbdbd'
-                    size={25}
-                  />
-                  <Text style={{textAlign: 'center', color: "#fff", fontSize: 10}}> {translate("Mode") + (this.state.delete ? translate("Delete") : translate("Edit") )} </Text>
-                </View>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={async () => { // EditList로 이동
-                if (this.state.changed) {
-                  Alert.alert(
-                    translate('Confirm'), //확인
-                    translate('EditScreenComment1'), //변경점을 저장하시겠습니까?
-                    [
-                        {text: translate('Cancel'), onPress: () => this.goEditList()},
-                        {text: translate('OK'), onPress: async () => {
-                          await this.update();
-                          this.goEditList();
-                        }},
-                    ],
-                    { cancelable: false }
-                  );
-                } else {
-                  this.goEditList();
-                }
-              }}>
-                <View style={{alignItems: 'center', justifyContent: 'space-around', height: "100%", width: TAB_ITEM_WIDTH}}>
-                  <Icon
-                    reverse
-                    name='library-add'
-                    color='#bdbdbd'
-                    size={25}
-                  />
-                  <Text style={{textAlign: 'center', color: "#fff", fontSize: 10}}> {translate("EditList")} </Text>
-                </View>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => { 
-                if (this.state.viewcode > 0) {
-                  this.setState({
-                    viewcode: 0,
-                    changed: true,
-                  });
-                } else {
-                  this.setState({
-                    viewcode: 1,
-                    changed: true,
-                  });
-                }
-              }}>
-                <View style={{alignItems: 'center', justifyContent: 'space-around', height: "100%", width: TAB_ITEM_WIDTH}}>
-                  <Icon
-                    reverse
-                    name='tune'
-                    color='#bdbdbd'
-                    size={25}
-                  />
-                  <Text style={{textAlign: 'center', color: "#fff", fontSize: 10}}> {translate("Change")} </Text>
-                </View>
-              </TouchableOpacity>
-            </View>
-            :
-            <View style={styles.floatingViewStyle}>
-              <TouchableOpacity onPress={async () => {
-                console.log('up');
-                var sfDocRef = firestore().collection(this.props.route.params.userUid).doc(this.props.route.params.itemId);
-                await firestore().runTransaction(async (transaction) => {
-                  var sfDoc = await transaction.get(sfDocRef);
-                  if (!sfDoc.exists) {
-                    throw "Document not exists!";
+                Object.keys(updateLike).map((key, i) => {
+                  if (key == auth().currentUser.uid) {
+                    this.setState({
+                      liked: updateLike[key],
+                      disliked: !updateLike[key],
+                    });
                   }
 
-                  var updateLike = this.state.like;
-                  if (updateLike.hasOwnProperty(auth().currentUser.uid) && updateLike[auth().currentUser.uid]) {
-                    delete updateLike[auth().currentUser.uid];
+                  if (updateLike[key]) {
+                    localLikeCount++;
                   } else {
-                    updateLike[auth().currentUser.uid] = true;
+                    localDislikeCount++;
                   }
-                  await transaction.update(sfDocRef, { like: updateLike });
-                  var localLikeCount = 0;
-                  var localDislikeCount = 0;
-
-                  this.setState({
-                    liked: false,
-                    disliked: false,
-                  });
-                  Object.keys(updateLike).map((key, i) => {
-                    if (key == auth().currentUser.uid) {
-                      this.setState({
-                        liked: updateLike[key],
-                        disliked: !updateLike[key],
-                      });
-                    }
-
-                    if (updateLike[key]) {
-                      localLikeCount++;
-                    } else {
-                      localDislikeCount++;
-                    }
-                  });
-                  this.setState({
-                    like: updateLike,
-                    likeCount: localLikeCount,
-                    dislikeCount: localDislikeCount,
-                  });
-                }).then(async () => {
-                    console.log("success");
-                }).catch(async (err) => {
-                    console.error(err);
                 });
-              }}>
+                this.setState({
+                  like: updateLike,
+                  likeCount: localLikeCount,
+                  dislikeCount: localDislikeCount,
+                });
+              }).then(async () => {
+                  console.log("success");
+              }).catch(async (err) => {
+                  console.error(err);
+              });
+            }}>
               <View style={{alignItems: 'center', justifyContent: 'space-around', height: "100%", width: TAB_ITEM_WIDTH}}>
                 <Icon
                   reverse
@@ -909,7 +852,35 @@ export default class ShowScreen extends Component {
                 <Text style={{textAlign: 'center', color: "#fff", fontSize: 10}}> {this.state.dislikeCount} </Text>
               </View>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => {
+            { auth().currentUser.uid == this.props.route.params.userUid || <TouchableOpacity onPress={async () => { // EditList로 이동
+                if (this.state.changed) {
+                  Alert.alert(
+                    translate('Confirm'), //확인
+                    translate('EditScreenComment1'), //변경점을 저장하시겠습니까?
+                    [
+                        {text: translate('Cancel'), onPress: () => this.goEditList()},
+                        {text: translate('OK'), onPress: async () => {
+                          await this.update();
+                          this.goEditList();
+                        }},
+                    ],
+                    { cancelable: false }
+                  );
+                } else {
+                  this.goEditList();
+                }
+              }}>
+                <View style={{alignItems: 'center', justifyContent: 'space-around', height: "100%", width: TAB_ITEM_WIDTH}}>
+                  <Icon
+                    reverse
+                    name='library-add'
+                    color='#bdbdbd'
+                    size={25}
+                  />
+                  <Text style={{textAlign: 'center', color: "#fff", fontSize: 10}}> {translate("EditList")} </Text>
+                </View>
+              </TouchableOpacity> }
+            { !this.state.edit ? <TouchableOpacity onPress={() => {
               const url = 'https://travelog-4e274.web.app/?user=' + this.props.route.params.userUid + '&id=' + this.props.route.params.itemId;
               const title = 'URL Content';
               const message = 'Please check this out.';
@@ -947,65 +918,52 @@ export default class ShowScreen extends Component {
                 />
                 <Text style={{textAlign: 'center', color: "#fff", fontSize: 10}}> {translate("Share")} </Text>
               </View>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => {
-              if (this.state.viewcode > 0) {
-                this.setState({
-                  viewcode: 0
-                });
-              } else {
-                this.setState({
-                  viewcode: this.state.viewcode + 1
-                });
-              }
+            </TouchableOpacity> : <TouchableOpacity onPress={() => { 
+              this.setState({
+                delete: !this.state.delete,
+              });
             }}>
               <View style={{alignItems: 'center', justifyContent: 'space-around', height: "100%", width: TAB_ITEM_WIDTH}}>
                 <Icon
                   reverse
-                  name='tune'
+                  name={this.state.delete ? 'delete' : 'edit'}
                   color='#bdbdbd'
                   size={25}
                 />
-                <Text style={{textAlign: 'center', color: "#fff", fontSize: 10}}> {translate("Change")} </Text>
+                <Text style={{textAlign: 'center', color: "#fff", fontSize: 10}}> {translate("Mode") + (this.state.delete ? translate("Delete") : translate("Edit") )} </Text>
               </View>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={async () => { 
-              try {
-                const supported = await Linking.canOpenURL(this.state.link);
-
-                if (supported) {
-                  Alert.alert(
-                    translate("Confirm"),
-                    translate("LaunchConfirm") + this.state.link,
-                    [
-                    {text: translate('Cancel'), onPress: () => { }},
-                    {text: translate('OK'), onPress: async () => {
-                      await Linking.openURL(this.state.link);
-                    }},
-                    ],
-                    { cancelable: false }
-                  );
+            </TouchableOpacity> }
+            { auth().currentUser.uid == this.props.route.params.userUid || <TouchableOpacity onPress={async () => {
+                if (!this.state.edit) {
+                  this.setState({edit: true});
                 } else {
-                  Alert.alert(translate("ShowItemAndShowScreen") + (this.state.link || "undefined"));
+                  if (this.state.changed) {
+                    Alert.alert(
+                      translate('Confirm'), //확인
+                      translate('EditScreenComment1'), //변경점을 저장하시겠습니까?
+                      [
+                          {text: translate('Cancel'), onPress: () => {}},
+                          {text: translate('OK'), onPress: async () => {
+                            await this.update();
+                          }},
+                      ],
+                      { cancelable: false }
+                    );
+                  } 
+                  this.setState({edit: false});
                 }
-              } catch (e) {
-                Alert.alert(translate("ShowItemAndShowScreen") + (this.state.link || "undefined"));
-              }
-              
-            }}>
-              <View style={{alignItems: 'center', justifyContent: 'space-around', height: "100%", width: TAB_ITEM_WIDTH}}>
-                <Icon
-                  reverse
-                  name='launch'
-                  color='#bdbdbd'
-                  size={25}
-                />
-                <Text style={{textAlign: 'center', color: "#fff", fontSize: 10}}> {translate("Launch")} </Text>
-              </View>
-            </TouchableOpacity>
-
+              }}>
+                <View style={{alignItems: 'center', justifyContent: 'space-around', height: "100%", width: TAB_ITEM_WIDTH}}>
+                  <Icon
+                    reverse
+                    name={!this.state.edit ? 'edit' : 'check-circle'}
+                    color='#bdbdbd'
+                    size={25}
+                  />
+                  <Text style={{textAlign: 'center', color: "#fff", fontSize: 10}}> {translate("EditList")} </Text>
+                </View>
+              </TouchableOpacity> }
           </View>
-        }
         </SafeAreaView>
       );
     }

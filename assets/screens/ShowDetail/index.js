@@ -7,12 +7,15 @@ import {
   TouchableOpacity,
   Alert,
   Appearance,
+  Linking,
 } from 'react-native';
 
-import { Divider, Input, Avatar } from 'react-native-elements';
+import { ListItem, Divider, Input, Avatar, Button } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
 import auth from '@react-native-firebase/auth';
+
+import FastImage from 'react-native-fast-image';
 
 import { translate } from '../Utils';
 
@@ -26,26 +29,86 @@ export default class ShowDetail extends Component {
       <SafeAreaView style={styles.container}>
         <View style={{width: "100%", height: "100%", backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff"}}>
           <Text>
-            {제목}
+            {this.props.route.params.title}
           </Text>
           <Text>
-            {부제목}
+            {this.props.route.params.subtitle}
           </Text>
           <Text>
-            {날짜}
+            {`///날짜: ${this.props.route.params.date}`}
           </Text>
           <Text>
-            {수정 날짜}
+            {`///수정일: ${this.props.route.params.modifyDate}`}
           </Text>
+          <TouchableOpacity onPress={async () => { 
+            try {
+              const supported = await Linking.canOpenURL(this.props.route.params.link);
+
+              if (supported) {
+                Alert.alert(
+                  translate("Confirm"),
+                  translate("LaunchConfirm") + this.props.route.params.link,
+                  [
+                  {text: translate('Cancel'), onPress: () => { }},
+                  {text: translate('OK'), onPress: async () => {
+                    await Linking.openURL(this.props.route.params.link);
+                  }},
+                  ],
+                  { cancelable: false }
+                );
+              } else {
+                Alert.alert(translate("ShowItemAndShowScreen") + (this.props.route.params.link || "undefined"));
+              }
+            } catch (e) {
+              Alert.alert(translate("ShowItemAndShowScreen") + (this.props.route.params.link || "undefined"));
+            }
+            
+          }}>
+            <View style={{alignItems: 'center', justifyContent: 'space-around', flexDirection: 'row',}}>
+              <Text>
+                {"/// 관련 링크 ///"}
+              </Text>
+              <Icon
+                reverse
+                name='launch'
+                color='#bdbdbd'
+                size={25}
+              />
+              <Text style={{textAlign: 'center', color: "#fff", fontSize: 10}}> {translate("Launch")} </Text>
+            </View>
+          </TouchableOpacity>
           <Text>
-            {관련 링크}
+            {this.props.route.params.viewCount}
           </Text>
-          <Text>
-            {조회수}
-          </Text>
-          <Text>
-            {프로필}
-          </Text>
+          <ListItem
+            containerStyle={{backgroundColor: Appearance.getColorScheme() === 'dark' ? '#121212' : '#fff'}}
+            onPress={() => { 
+              if (this.props.route == null) {
+                this.props.navigation.push('Me', {
+                  other: true,
+                  userUid: this.props.route.params.userUid,
+                });
+              }
+            }}
+          >
+            <View style={{flex:1/5, aspectRatio:1}}>
+              <FastImage
+                style={{flex: 1, borderRadius: 100}}
+                source={this.props.route.params.profileURL ? {
+                    uri:
+                    this.props.route.params.profileURL,
+                } : require('./../../logo/ic_launcher.png')}
+              />
+            </View>
+            <ListItem.Content>
+              <ListItem.Title style={{fontWeight: 'bold', color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}>
+                {this.props.route.params.displayName}
+              </ListItem.Title>
+              <ListItem.Subtitle style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}>
+                {this.props.route.params.userUid}
+              </ListItem.Subtitle>
+            </ListItem.Content>
+          </ListItem>
         </View>
       </SafeAreaView>
     );
