@@ -133,7 +133,7 @@ export default class AddList extends Component {
     // )
 
     renderItem = ({ item, index, drag, isActive }) => ( // 추가할 사진 표현
-        <View style={{backgroundColor: this.state.thumbnail == index ? 'yellow' : null}}>
+        <View>
             <Avatar
                 rounded
                 size="large"
@@ -150,6 +150,12 @@ export default class AddList extends Component {
                 activeOpacity={1}
             >
             </Avatar>
+            {this.state.thumbnail == index && <Icon
+                style={{position: 'absolute', top: 0, right: 0}}
+                name='verified'
+                size={24}
+                color='yellow'
+            />}
         </View>
     )
 

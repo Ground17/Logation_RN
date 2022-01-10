@@ -16,7 +16,6 @@ import {
   Appearance,
   Animated,
   Dimensions,
-  ImageBackground,
 } from 'react-native';
 
 import FastImage from 'react-native-fast-image';
@@ -45,6 +44,9 @@ const SPACING_FOR_CARD_INSET = width * 0.1 - 10;
 
 const TAB_ITEM_WIDTH = width / 5;
 
+let showing = false; // 슬라이드쇼 진행중...
+let showIndex = 0; // 슬라이드쇼 진행 index
+
 export default class ShowScreen extends Component {
     state = {
       edit: false,
@@ -72,127 +74,12 @@ export default class ShowScreen extends Component {
       viewCount: 0,
       marginBottom: 1,
       thumbnail: 0,
+      userUid: '',
       displayName: '',
       profileURL: '',
       _map: React.createRef(),
       _scrollView: React.createRef(),
-      mapAnimation: new Animated.Value(0),
     };
-
-    keyExtractorForMap = (item, index) => `M${index.toString()}`;
-    keyExtractor = (item, index) => index.toString();
-
-    renderItem = ({ item, index, drag, isActive }) => ( // map, page view 공통적용
-      <View style={{flex:1, aspectRatio:1}}>
-        <TouchableOpacity
-          onPress={() => { 
-            if (this.state.edit) {
-              if (this.state.delete) {
-                this.alertDelete(item);
-              } else {
-                this.goEditItem(item, index);
-              }
-            }
-          }}
-        >
-          <FastImage
-            style={{flex: 1, borderRadius: 100}}
-            source={{ 
-              uri: item.url,
-              priority: FastImage.priority.high,
-            }}
-          />
-        </TouchableOpacity>
-      </View>
-      
-    );
-
-    renderPage = ({ item, index }) => ( // page view에 적용
-      <TouchableOpacity
-        style={styles.card}
-        onPress={() => { 
-          if (!this.state.edit) {
-            this.props.navigation.push('ShowItem', {
-              date: data.date.toDate(),
-              title: data.title,
-              subtitle: data.subtitle,
-              userUid: this.props.route.params.userUid,
-              itemId: this.props.route.params.itemId,
-              url: data.url,
-              lat: data.lat,
-              long: data.long,
-              photo: data.photo,
-              index: index,
-              link: this.state.link,
-              list: this.state.list,
-              thumbnail: this.state.thumbnail,
-              onPop: () => this.refresh(),
-            });
-          } else {
-            if (this.state.delete) {
-              this.alertDelete(item);
-            } else {
-              this.goEditItem(item, index);
-            }
-          }
-        }}
-      >
-        <View style={{flex:1, aspectRatio: CARD_WIDTH / CARD_HEIGHT}}>
-          <FastImage
-            style={{flex: 1}}
-            source={{ 
-              uri: item.url,
-              priority: FastImage.priority.high,
-              }}
-          />
-          <View style={styles.stock}>
-            <Text style={{fontWeight: 'bold', color: '#fff', marginLeft: 10}}>
-              {item.title}
-            </Text>
-            <Text style={{color: '#fff', marginLeft: 10}}>
-              {item.subtitle}
-            </Text>
-          </View>
-        </View>
-      </TouchableOpacity>
-    )
-
-    // renderGrid = ({ item, index }) => (
-    //   <TouchableHighlight onPress={() => {
-    //     this.props.navigation.push('ShowItem', {
-    //         date: item.date.toDate(),
-    //         title: item.title,
-    //         subtitle: item.subtitle,
-    //         userUid: this.props.route.params.userUid,
-    //         itemId: this.props.route.params.itemId,
-    //         url: item.url,
-    //         lat: item.lat,
-    //         long: item.long,
-    //         photo: item.photo,
-    //         index: index,
-    //         link: this.state.link,
-    //         onPop: () => this.refresh(),
-    //     })
-    //   }} 
-    //     style={{flex:1/3, aspectRatio:1}}
-    //   >
-    //     <View style={{flex: 1}}>
-    //       <FastImage
-    //         style={{flex: 1}}
-    //         source={{ 
-    //           uri: item.url,
-    //           priority: FastImage.priority.high,
-    //           }}
-    //         resizeMode={FastImage.resizeMode.cover}
-    //       />
-    //       <View style={styles.stock}>
-    //         <Text style={{fontWeight: 'bold', color: '#fff', marginLeft: 3}}>
-    //           {item.title}
-    //         </Text>
-    //       </View>
-    //     </View>
-    //   </TouchableHighlight>
-    // )
 
     async update() {
       if (!this.state.edit) {
@@ -236,14 +123,13 @@ export default class ShowScreen extends Component {
           changed: false,
           edit: false,
         });
-
-        // await this.props.route.params.onPop();
       }
     }
 
 
     goEditList() {
-      this.props.navigation.push('EditList', {
+      this.props.navigation.push('AddList', {
+        edit: true,
         category: this.state.category,
         date: this.state.date,
         title: this.state.title,
@@ -252,6 +138,25 @@ export default class ShowScreen extends Component {
         photoNumber: this.state.list.length,
         itemId: this.props.route.params.itemId,
         viewcode: this.state.viewcode,
+        onPop: () => this.refresh(),
+      });
+    }
+
+    goEditItem(item, index) {
+      this.props.navigation.push('ShowItem', {
+        edit: true,
+        date: item.date.toDate(),
+        title: item.title,
+        userUid: this.state.userUid,
+        itemId: this.props.route.params.itemId,
+        url: item.url,
+        lat: item.lat,
+        long: item.long,
+        photo: item.photo,
+        index: index,
+        link: this.state.link,
+        list: this.state.list,
+        thumbnail: this.state.thumbnail,
         onPop: () => this.refresh(),
       });
     }
@@ -352,6 +257,8 @@ export default class ShowScreen extends Component {
                 likeCount: data.likeCount,
                 dislikeCount: data.dislikeCount,
                 viewCount: data.viewCount,
+                likeNumber: data.likeNumber,
+                userUid: data.uid,
               });
             } else {
               this.setState({
@@ -422,13 +329,13 @@ export default class ShowScreen extends Component {
           const now = new Date();
           if (documentSnapshot.exists) {
             const data = documentSnapshot.data();
-            var likes = false;
-            var dislikes = false;
+            let likes = false;
+            let dislikes = false;
 
-            if (data.dislike) { // 1시간이 지날 때만 갱신
-              dislikes = true;
-            } else {
+            if (data.like) {
               likes = true;
+            } else {
+              dislikes = true;
             }
 
             this.setState({
@@ -441,9 +348,11 @@ export default class ShowScreen extends Component {
       var storageRef = storage().ref();
       var modifiedList = [];
 
-      for (var i=0; i < this.state.data.length; i++) {
+      for (var i = 0; i < this.state.data.length; i++) {
         try {
-          var URL = await storageRef.child(this.props.route.params.userUid + "/" + this.props.route.params.itemId + "/" + this.state.data[i].photo).getDownloadURL();
+          var photo = this.state.data[i].photo;
+          photo = photo.substr(0, photo.lastIndexOf('.'));
+          var URL = await storageRef.child(this.state.userUid + "/" + this.props.route.params.itemId + "/" + photo + "_1080x1080.jpeg").getDownloadURL();
           modifiedList = modifiedList.concat({ 
             date: this.state.data[i].date,
             title: this.state.data[i].title,
@@ -460,6 +369,7 @@ export default class ShowScreen extends Component {
 
       this.setState({
         list: modifiedList,
+        loading: false,
       });
     }
 
@@ -484,8 +394,9 @@ export default class ShowScreen extends Component {
         likeCount: this.props.route.params.likeCount || 0,
         dislikeCount: this.props.route.params.dislikeCount || 0,
         viewCount: this.props.route.params.viewCount || 0,
-        displayName: this.props.route.params.viewCount,
-        profileURL: this.props.route.params.profileURL,
+        displayName: this.props.route.params.displayName || '',
+        profileURL: this.props.route.params.profileURL || '',
+        userUid: this.props.route.params.userUid || '',
         marginBottom: 1,
       });
 
@@ -499,17 +410,19 @@ export default class ShowScreen extends Component {
             paddingLeft: 5,
             paddingRight: 5,
           }} onPress={() => { 
-            this.props.navigation.push('ShowDetail', {
-              title: this.state.title,
-              subtitle: this.state.subtitle,
-              date: this.state.date.toDate(),
-              modifyDate: this.state.modifyDate.toDate(),
-              link: this.state.link,
-              viewCount: this.state.viewCount,
-              profileURL: this.state.profileURL,
-              displayName: this.state.displayName,
-              userUid: this.props.route.params.userUid,
-            });
+            if (!this.state.loading) {
+              this.props.navigation.push('ShowDetail', {
+                title: this.state.title,
+                subtitle: this.state.subtitle,
+                date: this.state.date.toDate(),
+                modifyDate: this.state.modifyDate.toDate(),
+                link: this.state.link,
+                viewCount: this.state.viewCount,
+                profileURL: this.state.profileURL,
+                displayName: this.state.displayName,
+                userUid: this.state.userUid,
+              });
+            }
           }}>
             <Icon
               name='info'
@@ -549,53 +462,63 @@ export default class ShowScreen extends Component {
             alignItems: 'center',
             justifyContent: 'center',
             paddingLeft: 5,
-            paddingRight: 20,
+            paddingRight: 10,
           }} onPress={() => {
-            /// 슬라이드 쇼 애니메이션 만들기
+            showing = !showing;
+            showIndex = 0;
+            this.callback();
           }}>
             <Icon
-              name="play-circle"
+              name="play-circle-outline"
               size={24}
               color='#fff'
             />
           </TouchableOpacity>
         </View>
       });
-      
-      this.state.mapAnimation.addListener(({ value }) => {
-        let index = Math.floor(value / CARD_WIDTH + 0.3); // animate 30% away from landing on the next item
-        if (index >= this.state.list.length) {
-          index = this.state.list.length - 1;
-        }
-        if (index <= 0) {
-          index = 0;
-        }
 
-        if( this.state.mapIndex !== index ) {
-          this.setState({mapIndex: index});
-          try {
-            this.state._map.current.animateCamera(
-              {
-                center: {
-                  latitude: this.state.list[index].lat,
-                  longitude: this.state.list[index].long,
-                }
-              },
-              350
-            );
-          } catch (e) {
-            console.log(e);
-          }
-        }
-      });
-
-      // data length가 0일 경우 delete 기능 작동
+      /// data length가 0일 경우 delete 기능 작동
       await this.refresh();
     }
 
-    componentWillUnmount() {
-      this.state.mapAnimation.removeAllListeners();
-    }
+    callback = () => {
+      if (!showing || this.state.loading || this.state.edit || showIndex >= this.state.list.length) { 
+        showing = false;
+        showIndex = 0;
+        return;
+      }
+
+      try {
+        this.state._map.current.animateCamera(
+          {
+            center: {
+              latitude: this.state.list[showIndex].lat,
+              longitude: this.state.list[showIndex].long,
+            }
+          },
+          { 
+            duration: 1000
+          }
+        ); 
+      } catch (e) {
+        console.log(e);
+      }
+
+      let x = (showIndex * CARD_WIDTH) + (showIndex * 20); 
+      if (Platform.OS === 'ios') {
+        x = x - SPACING_FOR_CARD_INSET;
+      }
+
+      try {
+        this.state._scrollView.current.scrollTo({x: x, y: 0, animated: true});
+      } catch (e) {
+        console.log(e);
+      }
+
+      showIndex++;
+
+      setTimeout(this.callback, 2500);
+    };
 
     render() {
       return(
@@ -604,7 +527,7 @@ export default class ShowScreen extends Component {
                 <ActivityIndicator size="large" color={Appearance.getColorScheme() === 'dark' ? '#01579b' : '#002f6c'} />
             </View> 
             : 
-          <View style={{width: "100%", height: "91%"}}> 
+          <View style={{width: "100%", height: "90%"}}> 
             { this.state.viewcode == 0 ? 
             <MapView
               ref={this.state._map}
@@ -632,55 +555,77 @@ export default class ShowScreen extends Component {
                 strokeColor="#002f6c" // fallback for when `strokeColors` is not supported by the map-provider
                 strokeWidth={6}
               />
-                {this.state.list.map((data, index) => (
-                  <Marker
-                    draggable={this.state.edit}
-                    coordinate={ {latitude: data.lat, longitude: data.long} }
-                    anchor={{x: 0.5, y: 0.5}}
-                    onPress={e => {
-                      let x = (index * CARD_WIDTH) + (index * 20); 
-                      if (Platform.OS === 'ios') {
-                        x = x - SPACING_FOR_CARD_INSET;
-                      }
-                      try {
-                        this.state._map.current.animateCamera(
-                          {
-                            center: {
-                              latitude: data.lat,
-                              longitude: data.long,
-                            }
-                          },
-                          350
-                        ); 
-                      } catch (e) {
-                        console.log(e);
-                      }
-
-                      this.state._scrollView.current.scrollTo({x: x, y: 0, animated: true});
-                    }}
-                    onDragEnd={(e) => {
-                      console.log(e);
-                      var updateList = this.state.list;
-                      updateList[index].lat = e.nativeEvent.coordinate.latitude;
-                      updateList[index].long = e.nativeEvent.coordinate.longitude;
-                      this.setState({ 
-                        list: updateList,
-                        changed: true,
-                        lat: e.nativeEvent.coordinate.latitude,
-                        long: e.nativeEvent.coordinate.longitude,
+              {this.state.list.map((item, index) => (
+                <Marker
+                  draggable={this.state.edit}
+                  coordinate={ {latitude: item.lat, longitude: item.long} }
+                  anchor={{x: 0.5, y: 0.5}}
+                  onPress={e => {
+                    if (!this.state.edit) {
+                      this.props.navigation.push('ShowItem', {
+                        edit: false,
+                        date: item.date.toDate(),
+                        title: item.title,
+                        userUid: this.state.userUid,
+                        itemId: this.props.route.params.itemId,
+                        url: item.url,
+                        lat: item.lat,
+                        long: item.long,
+                        photo: item.photo,
+                        index: index,
+                        link: this.state.link,
+                        list: this.state.list,
+                        thumbnail: this.state.thumbnail,
+                        changed: item.changed,
+                        onPop: () => this.refresh(),
                       });
-                      return;
-                    }}
-                  >
-                    <View>
-                        <ImageBackground source={require('./../../logo/marker.png')} style={{height:64, width:64, justifyContent:'center'}}>
-                            <Text style={{textAlign: 'center', fontWeight: 'bold', fontSize: 20}}>{index + 1}</Text>
-                        </ImageBackground>
-                    </View>
-                  </Marker>
-                ))}
+                    } else {
+                      if (this.state.delete) {
+                        this.alertDelete(item);
+                      } else {
+                        this.goEditItem(item, index);
+                      }
+                    }
+                  }}
+                  onDragEnd={(e) => {
+                    console.log(e);
+                    var updateList = this.state.list;
+                    updateList[index].lat = e.nativeEvent.coordinate.latitude;
+                    updateList[index].long = e.nativeEvent.coordinate.longitude;
+                    updateList[index].changed = true; // 마커가 초기 저장 때와 달리 변경됨
+                    this.setState({ 
+                      list: updateList,
+                      changed: true,
+                      lat: e.nativeEvent.coordinate.latitude,
+                      long: e.nativeEvent.coordinate.longitude,
+                    });
+                    return;
+                  }}
+                >
+                  <View>
+                    <FastImage
+                      style={{ height: height * 0.2, width: width * 0.3 }}
+                      source={{ 
+                        uri: item.url,
+                      }}
+                    />
+                    { this.state.thumbnail == index && <Icon
+                      style={{position: 'absolute', top: 0, right: 0}}
+                      name='verified'
+                      size={24}
+                      color='yellow'
+                    /> }
+                    { item.changed && <Icon
+                      style={{position: 'absolute', bottom: 0, right: 0}}
+                      name='edit'
+                      size={24}
+                      color='#002f6c'
+                    /> }
+                  </View>
+                </Marker>
+              ))}
             </MapView>
-            : <View style={{backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff"}}>
+            : <View style={{backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff", height: "100%"}}>
                 <Animated.ScrollView
                   ref={this.state._scrollView}
                   horizontal
@@ -698,22 +643,72 @@ export default class ShowScreen extends Component {
                     right: SPACING_FOR_CARD_INSET
                   }}
                   contentContainerStyle={{
+                    alignItems: 'center',
                     paddingHorizontal: Platform.OS === 'android' ? SPACING_FOR_CARD_INSET : 0
                   }}
-                  onScroll={Animated.event(
-                    [
-                      {
-                        nativeEvent: {
-                          contentOffset: {
-                            x: this.state.mapAnimation,
-                          }
-                        },
-                      },
-                    ],
-                    {useNativeDriver: true}
-                  )}
                 >
-                  {this.state.list.map(this.renderPage)}
+                  {this.state.list.map((item, index) => 
+                    <TouchableOpacity
+                      style={styles.card}
+                      onPress={() => { 
+                        if (!this.state.edit) {
+                          this.props.navigation.push('ShowItem', {
+                            edit: false,
+                            date: item.date.toDate(),
+                            title: item.title,
+                            userUid: this.state.userUid,
+                            itemId: this.props.route.params.itemId,
+                            url: item.url,
+                            lat: item.lat,
+                            long: item.long,
+                            photo: item.photo,
+                            index: index,
+                            link: this.state.link,
+                            list: this.state.list,
+                            thumbnail: this.state.thumbnail,
+                            changed: item.changed,
+                            onPop: () => this.refresh(),
+                          });
+                        } else {
+                          if (this.state.delete) {
+                            this.alertDelete(item);
+                          } else {
+                            this.goEditItem(item, index);
+                          }
+                        }
+                      }}
+                    >
+                      <View style={{flex:1, aspectRatio: CARD_WIDTH / CARD_HEIGHT}}>
+                        <FastImage
+                          style={{flex: 1}}
+                          source={{ 
+                            uri: item.url,
+                            priority: FastImage.priority.high,
+                          }}
+                        />
+                        { this.state.thumbnail == index && <Icon
+                          style={{position: 'absolute', top: 0, right: 0}}
+                          name='verified'
+                          size={24}
+                          color='yellow'
+                        /> }
+                        { item.changed && <Icon
+                          style={{position: 'absolute', bottom: 0, right: 0}}
+                          name='edit'
+                          size={24}
+                          color='#002f6c'
+                        /> }
+                        <View style={styles.stock}>
+                          <Text style={{fontWeight: 'bold', color: '#fff', marginLeft: 10}}>
+                            {item.title}
+                          </Text>
+                          <Text style={{color: '#fff', marginLeft: 10}}>
+                            {item.subtitle}
+                          </Text>
+                        </View>
+                      </View>
+                    </TouchableOpacity>
+                  )}
                 </Animated.ScrollView>
             </View>
             }
@@ -721,10 +716,57 @@ export default class ShowScreen extends Component {
           }
           { !this.state.loading && <DraggableFlatList /// 밑에 깔 것
             horizontal
-            style={{backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff", width: "100%", height: "2%" }}
-            keyExtractor={(item, index) => `draggable-item-${item.key}`}
+            style={{backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff", height: "3%"}}
+            keyExtractor={(item, index) => `draggable-item-${index}`}
             data={this.state.list}
-            renderItem={this.renderItem}
+            extraData={this.state}
+            contentContainerStyle = {{flexGrow: 1, justifyContent:'center',}}
+            renderItem={({ item, index, drag, isActive }) => <View style={{width: "100%", height: "100%"}}> 
+                <TouchableOpacity
+                  style={{paddingLeft: 10, paddingRight: 10}}
+                  onPress={() => { 
+                    try {
+                      this.state._map.current.animateCamera(
+                        {
+                          center: {
+                            latitude: this.state.list[index].lat,
+                            longitude: this.state.list[index].long,
+                          }
+                        },
+                        { 
+                          duration: 1000
+                        }
+                      ); 
+                    } catch (e) {
+                      console.log(e);
+                    }
+
+                    let x = (index * CARD_WIDTH) + (index * 20); 
+                    if (Platform.OS === 'ios') {
+                      x = x - SPACING_FOR_CARD_INSET;
+                    }
+
+                    try {
+                      this.state._scrollView.current.scrollTo({x: x, y: 0, animated: true});
+                    } catch (e) {
+                      console.log(e);
+                    }
+                    if (this.state.edit) {
+                      if (this.state.delete) {
+                        this.alertDelete(item);
+                      } else {
+                        this.goEditItem(item, index);
+                      }
+                    }
+                  }}
+                  onLongPress={drag}
+                >
+                  <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}>
+                    { index + 1 }
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            }
             onDragEnd={({ data }) => {
               if (this.state.edit) {
                 this.setState({ 
@@ -735,54 +777,82 @@ export default class ShowScreen extends Component {
             }}
           /> }
 
-          <View style={styles.floatingViewStyle}>
+          { !this.state.loading && <View style={styles.floatingViewStyle}>
             <TouchableOpacity onPress={async () => {
               console.log('up');
-              var sfDocRef = firestore().collection(this.props.route.params.userUid).doc(this.props.route.params.itemId);
-              await firestore().runTransaction(async (transaction) => {
-                var sfDoc = await transaction.get(sfDocRef);
-                if (!sfDoc.exists) {
-                  throw "Document not exists!";
-                }
+              await firestore()
+                .collection("Users")
+                .doc(auth().currentUser.uid)
+                .collection("like")
+                .doc(this.props.route.params.itemId)
+                .get()
+                .then(async (documentSnapshot) => {
+                  let now = firestore.Timestamp.fromMillis((new Date()).getTime());
+                  let liked = this.state.liked;
+                  let disliked = this.state.disliked;
+                  let localLikeCount = this.state.likeCount;
+                  let localDislikeCount = this.state.dislikeCount;
 
-                var updateLike = this.state.like;
-                if (updateLike.hasOwnProperty(auth().currentUser.uid) && updateLike[auth().currentUser.uid]) {
-                  delete updateLike[auth().currentUser.uid];
-                } else {
-                  updateLike[auth().currentUser.uid] = true;
-                }
-                await transaction.update(sfDocRef, { like: updateLike });
-                var localLikeCount = 0;
-                var localDislikeCount = 0;
-
-                this.setState({
-                  liked: false,
-                  disliked: false,
-                });
-                Object.keys(updateLike).map((key, i) => {
-                  if (key == auth().currentUser.uid) {
-                    this.setState({
-                      liked: updateLike[key],
-                      disliked: !updateLike[key],
-                    });
-                  }
-
-                  if (updateLike[key]) {
+                  if (!documentSnapshot.exists) {
+                    await documentSnapshot.ref.set({ like: true, datetime: now });
+                    liked = true;
                     localLikeCount++;
+                    await firestore()
+                      .collection("Posts")
+                      .doc(this.props.route.params.itemId)
+                      .update({
+                        likeCount: firestore.FieldValue.increment(1),
+                      });
                   } else {
-                    localDislikeCount++;
+                    const data = documentSnapshot.data();
+                    if (data.datetime.seconds + 60 < now.seconds) { // 1분이 지날 때만 갱신
+                      if (data.like) {
+                        await documentSnapshot.ref.delete();
+                        liked = false;
+                        localLikeCount--;
+                        await firestore()
+                          .collection("Posts")
+                          .doc(this.props.route.params.itemId)
+                          .update({
+                            likeCount: firestore.FieldValue.increment(-1),
+                          });
+                      } else {
+                        await documentSnapshot.ref.set({ like: true, datetime: now });
+                        liked = true;
+                        disliked = false;
+                        localLikeCount++;
+                        localDislikeCount--;
+                        await firestore()
+                          .collection("Posts")
+                          .doc(this.props.route.params.itemId)
+                          .update({
+                            likeCount: firestore.FieldValue.increment(1),
+                            dislikeCount: firestore.FieldValue.increment(-1),
+                          });
+                      }
+                    } else {
+                      Alert.alert(
+                        translate('Alert'), //확인
+                        translate('/// 일정시간 후 수정 가능합니다.'), //변경점을 저장하시겠습니까?
+                        [
+                            {text: translate('OK'), onPress: async () => {} },
+                        ],
+                        { cancelable: true }
+                      );
+                    }
                   }
+
+                  this.setState({
+                    liked: liked, // 사용자의 좋아요 여부 확인
+                    disliked: disliked, // 사용자의 싫어요 여부 확인
+                    likeCount: localLikeCount,
+                    dislikeCount: localDislikeCount,
+                  });
+                }).then(async () => {
+                    console.log("success");
+                }).catch(async (err) => {
+                    console.error(err);
                 });
-                this.setState({
-                  like: updateLike,
-                  likeCount: localLikeCount,
-                  dislikeCount: localDislikeCount,
-                });
-              }).then(async () => {
-                  console.log("success");
-              }).catch(async (err) => {
-                  console.error(err);
-              });
             }}>
               <View style={{alignItems: 'center', justifyContent: 'space-around', height: "100%", width: TAB_ITEM_WIDTH}}>
                 <Icon
@@ -791,56 +861,84 @@ export default class ShowScreen extends Component {
                   color={this.state.liked ? '#4f83cc' : '#bdbdbd'}
                   size={25}
                 />
-                <Text style={{textAlign: 'center', color: "#fff", fontSize: 10}}> {this.state.likeCount} </Text>
+                <Text style={{textAlign: 'center', color: "#fff", fontSize: 10}}> {this.state.likeNumber ? this.state.likeCount : "///좋아요"} </Text>
               </View>
             </TouchableOpacity>
             <TouchableOpacity onPress={async () => {
               console.log('down');
-              var sfDocRef = firestore().collection(this.props.route.params.userUid).doc(this.props.route.params.itemId);
-              await firestore().runTransaction(async (transaction) => {
-                var sfDoc = await transaction.get(sfDocRef);
-                if (!sfDoc.exists) {
-                  throw "Document not exists!";
-                }
+              await firestore()
+                .collection("Users")
+                .doc(auth().currentUser.uid)
+                .collection("like")
+                .doc(this.props.route.params.itemId)
+                .get()
+                .then(async (documentSnapshot) => {
+                  let now = firestore.Timestamp.fromMillis((new Date()).getTime());
+                  let liked = this.state.liked;
+                  let disliked = this.state.disliked;
+                  let localLikeCount = this.state.likeCount;
+                  let localDislikeCount = this.state.dislikeCount;
 
-                var updateLike = this.state.like;
-                if (updateLike.hasOwnProperty(auth().currentUser.uid) && !updateLike[auth().currentUser.uid]) {
-                  delete updateLike[auth().currentUser.uid];
-                } else {
-                  updateLike[auth().currentUser.uid] = false;
-                }
-                await transaction.update(sfDocRef, { like: updateLike });
-                var localLikeCount = 0;
-                var localDislikeCount = 0;
-
-                this.setState({
-                  liked: false,
-                  disliked: false,
-                });
-                Object.keys(updateLike).map((key, i) => {
-                  if (key == auth().currentUser.uid) {
-                    this.setState({
-                      liked: updateLike[key],
-                      disliked: !updateLike[key],
-                    });
-                  }
-
-                  if (updateLike[key]) {
-                    localLikeCount++;
-                  } else {
+                  if (!documentSnapshot.exists) {
+                    await documentSnapshot.ref.set({ like: false, datetime: now });
+                    disliked = true;
                     localDislikeCount++;
+                    await firestore()
+                      .collection("Posts")
+                      .doc(this.props.route.params.itemId)
+                      .update({
+                        dislikeCount: firestore.FieldValue.increment(1),
+                      });
+                  } else {
+                    const data = documentSnapshot.data();
+                    if (data.datetime.seconds + 60 < now.seconds) { // 1분이 지날 때만 갱신
+                      if (!data.like) {
+                        await documentSnapshot.ref.delete();
+                        disliked = false;
+                        localDislikeCount--;
+                        await firestore()
+                          .collection("Posts")
+                          .doc(this.props.route.params.itemId)
+                          .update({
+                            dislikeCount: firestore.FieldValue.increment(-1),
+                          });
+                      } else {
+                        await documentSnapshot.ref.set({ like: false, datetime: now });
+                        liked = false;
+                        disliked = true;
+                        localLikeCount--;
+                        localDislikeCount++;
+                        await firestore()
+                          .collection("Posts")
+                          .doc(this.props.route.params.itemId)
+                          .update({
+                            likeCount: firestore.FieldValue.increment(-1),
+                            dislikeCount: firestore.FieldValue.increment(1),
+                          });
+                      }
+                    } else {
+                      Alert.alert(
+                        translate('Alert'), //확인
+                        translate('/// 일정시간 후 수정 가능합니다.'), //변경점을 저장하시겠습니까?
+                        [
+                            {text: translate('OK'), onPress: async () => {} },
+                        ],
+                        { cancelable: true }
+                      );
+                    }
                   }
+
+                  this.setState({
+                    liked: liked, // 사용자의 좋아요 여부 확인
+                    disliked: disliked, // 사용자의 싫어요 여부 확인
+                    likeCount: localLikeCount,
+                    dislikeCount: localDislikeCount,
+                  });
+                }).then(async () => {
+                    console.log("success");
+                }).catch(async (err) => {
+                    console.error(err);
                 });
-                this.setState({
-                  like: updateLike,
-                  likeCount: localLikeCount,
-                  dislikeCount: localDislikeCount,
-                });
-              }).then(async () => {
-                  console.log("success");
-              }).catch(async (err) => {
-                  console.error(err);
-              });
             }}>
               <View style={{alignItems: 'center', justifyContent: 'space-around', height: "100%", width: TAB_ITEM_WIDTH}}>
                 <Icon
@@ -849,10 +947,10 @@ export default class ShowScreen extends Component {
                   color={this.state.disliked ? '#bc477b' : '#bdbdbd'}
                   size={25}
                 />
-                <Text style={{textAlign: 'center', color: "#fff", fontSize: 10}}> {this.state.dislikeCount} </Text>
+                <Text style={{textAlign: 'center', color: "#fff", fontSize: 10}}> {this.state.likeNumber ? this.state.dislikeCount : "///싫어요"} </Text>
               </View>
             </TouchableOpacity>
-            { auth().currentUser.uid == this.props.route.params.userUid || <TouchableOpacity onPress={async () => { // EditList로 이동
+            { auth().currentUser.uid == this.state.userUid && <TouchableOpacity onPress={async () => { // EditList로 이동
                 if (this.state.changed) {
                   Alert.alert(
                     translate('Confirm'), //확인
@@ -881,7 +979,7 @@ export default class ShowScreen extends Component {
                 </View>
               </TouchableOpacity> }
             { !this.state.edit ? <TouchableOpacity onPress={() => {
-              const url = 'https://travelog-4e274.web.app/?user=' + this.props.route.params.userUid + '&id=' + this.props.route.params.itemId;
+              const url = 'https://travelog-4e274.web.app/?id=' + this.props.route.params.itemId;
               const title = 'URL Content';
               const message = 'Please check this out.';
               const options = Platform.select({
@@ -933,7 +1031,7 @@ export default class ShowScreen extends Component {
                 <Text style={{textAlign: 'center', color: "#fff", fontSize: 10}}> {translate("Mode") + (this.state.delete ? translate("Delete") : translate("Edit") )} </Text>
               </View>
             </TouchableOpacity> }
-            { auth().currentUser.uid == this.props.route.params.userUid || <TouchableOpacity onPress={async () => {
+            { auth().currentUser.uid == this.state.userUid && <TouchableOpacity onPress={async () => {
                 if (!this.state.edit) {
                   this.setState({edit: true});
                 } else {
@@ -963,7 +1061,7 @@ export default class ShowScreen extends Component {
                   <Text style={{textAlign: 'center', color: "#fff", fontSize: 10}}> {translate("EditList")} </Text>
                 </View>
               </TouchableOpacity> }
-          </View>
+          </View> }
         </SafeAreaView>
       );
     }
@@ -977,7 +1075,7 @@ const styles = StyleSheet.create({
     },
     floatingViewStyle: {
       width: "100%",
-      height: "9%",
+      height: "7%",
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-around',

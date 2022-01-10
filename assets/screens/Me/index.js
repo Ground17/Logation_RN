@@ -370,8 +370,8 @@ export default class Me extends Component {
                 link: item.link,
                 url: item.url, // 썸네일 URL
                 userUid: item.uid, // log의 소유자
-                displayName: item.displayName,
-                profileURL: item.profileURL,
+                displayName: this.state.displayName,
+                profileURL: this.state.profileURL,
                 date: item.date,
                 modifyDate: item.modifyDate,
                 category: item.category,

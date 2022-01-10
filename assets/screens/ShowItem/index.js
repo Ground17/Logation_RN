@@ -13,7 +13,6 @@ import {
   Alert,
   PermissionsAndroid,
   Appearance,
-  ImageBackground,
   Platform,
 } from 'react-native';
 
@@ -37,6 +36,7 @@ import { translate } from '../Utils';
 
 export default class ShowItem extends Component {
     state = {
+      edit: false,
       imgWidth: 0,
       imgHeight: 0,
       url: '', // 사진 url
@@ -493,8 +493,12 @@ export default class ShowItem extends Component {
                   onPress={e => console.log(e.nativeEvent)}
                 >
                   <View>
-                      <ImageBackground source={require('./../../logo/marker.png')} style={{height:64, width:64, justifyContent:'center'}}>
-                      </ImageBackground>
+                    <FastImage
+                      style={{ height: 75, width:75 }}
+                      source={{ 
+                        uri: '',
+                      }}
+                    />
                   </View>
                 </Marker>
               </MapView>
