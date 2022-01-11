@@ -22,7 +22,7 @@ import FastImage from 'react-native-fast-image';
 
 import { TouchableOpacity } from 'react-native-gesture-handler';
 
-import DraggableFlatList from "react-native-draggable-flatlist"; /// important!!!
+import DraggableFlatList from "react-native-draggable-flatlist"; // important!!!
 
 import Share from 'react-native-share';
 
@@ -60,8 +60,8 @@ export default class ShowScreen extends Component {
       latDelta: 0.922,
       longDelta: 0.421,
       category: 0,
-      date: new Date(),
-      modifyDate: new Date(),
+      date: firestore.Timestamp.fromMillis((new Date()).getTime()),
+      modifyDate: firestore.Timestamp.fromMillis((new Date()).getTime()),
       title: '',
       subtitle: '',
       link: '',
@@ -82,14 +82,13 @@ export default class ShowScreen extends Component {
     };
 
     async update() {
-      if (!this.state.edit) {
-        return;
-      }
+      // if (!this.state.edit) {
+      //   return;
+      // }
 
       if (this.state.changed) {
         this.setState({
           loading: true,
-          data: [],
         });
         await firestore()
         .collection("Users")
@@ -97,18 +96,19 @@ export default class ShowScreen extends Component {
         .update({
           modifyDate: firestore.Timestamp.fromMillis((new Date()).getTime()),
         });
+        let updateData = [];
+
         for (var i = 0; i < this.state.list.length; i++) {
-          this.setState({
-            data: this.state.data.concat({ 
-              date: this.state.list[i].date,
-              title: this.state.list[i].title,
-              changed: this.state.list[i].changed,
-              photo: this.state.list[i].photo,
-              lat: this.state.list[i].lat,
-              long: this.state.list[i].long,
-            }),
+          updateData.push({
+            date: this.state.list[i].date,
+            title: this.state.list[i].title,
+            changed: this.state.list[i].changed,
+            photo: this.state.list[i].photo,
+            lat: this.state.list[i].lat,
+            long: this.state.list[i].long,
           });
         }
+
         await firestore()
           .collection(auth().currentUser.uid)
           .doc(this.props.route.params.itemId)
@@ -122,6 +122,7 @@ export default class ShowScreen extends Component {
           loading: false,
           changed: false,
           edit: false,
+          data: updateData,
         });
       }
     }
@@ -131,20 +132,21 @@ export default class ShowScreen extends Component {
       this.props.navigation.push('AddList', {
         edit: true,
         category: this.state.category,
-        date: this.state.date,
+        date: this.state.date.toDate(),
         title: this.state.title,
         subtitle: this.state.subtitle,
         link: this.state.link,
         photoNumber: this.state.list.length,
         itemId: this.props.route.params.itemId,
         viewcode: this.state.viewcode,
+        preData: [], // 추후 수정 가능성
         onPop: () => this.refresh(),
       });
     }
 
-    goEditItem(item, index) {
+    goShowItem(item, index) {
+      this.setState({edit: false, changed: false,});
       this.props.navigation.push('ShowItem', {
-        edit: true,
         date: item.date.toDate(),
         title: item.title,
         userUid: this.state.userUid,
@@ -157,6 +159,7 @@ export default class ShowScreen extends Component {
         link: this.state.link,
         list: this.state.list,
         thumbnail: this.state.thumbnail,
+        changed: item.changed,
         onPop: () => this.refresh(),
       });
     }
@@ -175,13 +178,29 @@ export default class ShowScreen extends Component {
                   var array = await storage()
                   .ref(`${auth().currentUser.uid}/${this.props.route.params.itemId}`)
                   .listAll();
+
                   for (var i = 0; i < array._items.length; i++) {
                     await array._items[i].delete();
                   }
+
                   await firestore()
-                    .collection(auth().currentUser.uid)
+                    .collection("Posts")
                     .doc(this.props.route.params.itemId)
                     .delete();
+
+                  await firestore()
+                    .collection("Users")
+                    .doc(auth().currentUser.uid)
+                    .collection("log")
+                    .doc(this.props.route.params.itemId)
+                    .delete();
+
+                  await firestore()
+                    .collection("Users")
+                    .doc(auth().currentUser.uid).update({
+                      logsLength: firestore.FieldValue.increment(-1),
+                      modifyDate: firestore.Timestamp.fromMillis((new Date()).getTime()),
+                    });
                 } catch (e) {
                   console.log(e);
                 } finally {
@@ -229,6 +248,7 @@ export default class ShowScreen extends Component {
         loading: true,
         likeNumber: false,
         delete: false, // true: delete, false: edit
+        edit: false,
         marginBottom: 1,
       });
 
@@ -272,16 +292,17 @@ export default class ShowScreen extends Component {
       if (this.state.data.length == 0) {
         Alert.alert(
           translate('Alert'), // 알림
-          '/// 유효한 로그가 아닙니다. ///', /// 추후 삭제 검토
+          translate('ShowScreenComment1'), // 유효한 로그가 아닙니다.
           [
               {
                 text: translate('OK'),
                 onPress: async () => {
-                  this.props.navigation.pop();
+                  console.log("OK");
+                  this.alertDelete();
                 }
               },
           ],
-          { cancelable: false }
+          { cancelable: true }
         );
         return;
       }
@@ -387,8 +408,8 @@ export default class ShowScreen extends Component {
         latDelta: 0.922,
         longDelta: 0.421,
         category: this.props.route.params.category || 0,
-        modifyDate: this.props.route.params.modifyDate || new Date(),
-        date: this.props.route.params.date || new Date(),
+        modifyDate: this.props.route.params.modifyDate || firestore.Timestamp.fromMillis((new Date()).getTime()),
+        date: this.props.route.params.date || firestore.Timestamp.fromMillis((new Date()).getTime()),
         title: this.props.route.params.title || '',
         subtitle: this.props.route.params.subtitle || '',
         likeCount: this.props.route.params.likeCount || 0,
@@ -401,7 +422,7 @@ export default class ShowScreen extends Component {
       });
 
       this.props.navigation.setOptions({
-        title: "///Logs///",
+        title: translate("Log"),
         headerRight: () => 
         <View style={{flexDirection: 'row',}}>
           <TouchableOpacity style={{
@@ -477,7 +498,6 @@ export default class ShowScreen extends Component {
         </View>
       });
 
-      /// data length가 0일 경우 delete 기능 작동
       await this.refresh();
     }
 
@@ -562,28 +582,23 @@ export default class ShowScreen extends Component {
                   anchor={{x: 0.5, y: 0.5}}
                   onPress={e => {
                     if (!this.state.edit) {
-                      this.props.navigation.push('ShowItem', {
-                        edit: false,
-                        date: item.date.toDate(),
-                        title: item.title,
-                        userUid: this.state.userUid,
-                        itemId: this.props.route.params.itemId,
-                        url: item.url,
-                        lat: item.lat,
-                        long: item.long,
-                        photo: item.photo,
-                        index: index,
-                        link: this.state.link,
-                        list: this.state.list,
-                        thumbnail: this.state.thumbnail,
-                        changed: item.changed,
-                        onPop: () => this.refresh(),
-                      });
+                      this.goShowItem(item, index);
                     } else {
                       if (this.state.delete) {
                         this.alertDelete(item);
                       } else {
-                        this.goEditItem(item, index);
+                        Alert.alert(
+                          translate('Confirm'), //확인
+                          translate('EditScreenComment1'), //변경점을 저장하시겠습니까?
+                          [
+                              {text: translate('Cancel'), onPress: () => {}},
+                              {text: translate('OK'), onPress: async () => {
+                                await this.update();
+                                this.goShowItem(item, index);
+                              }},
+                          ],
+                          { cancelable: false }
+                        );
                       }
                     }
                   }}
@@ -611,7 +626,7 @@ export default class ShowScreen extends Component {
                     />
                     { this.state.thumbnail == index && <Icon
                       style={{position: 'absolute', top: 0, right: 0}}
-                      name='verified'
+                      name='stars'
                       size={24}
                       color='yellow'
                     /> }
@@ -652,28 +667,23 @@ export default class ShowScreen extends Component {
                       style={styles.card}
                       onPress={() => { 
                         if (!this.state.edit) {
-                          this.props.navigation.push('ShowItem', {
-                            edit: false,
-                            date: item.date.toDate(),
-                            title: item.title,
-                            userUid: this.state.userUid,
-                            itemId: this.props.route.params.itemId,
-                            url: item.url,
-                            lat: item.lat,
-                            long: item.long,
-                            photo: item.photo,
-                            index: index,
-                            link: this.state.link,
-                            list: this.state.list,
-                            thumbnail: this.state.thumbnail,
-                            changed: item.changed,
-                            onPop: () => this.refresh(),
-                          });
+                          this.goShowItem(item, index);
                         } else {
                           if (this.state.delete) {
                             this.alertDelete(item);
                           } else {
-                            this.goEditItem(item, index);
+                            Alert.alert(
+                              translate('Confirm'), //확인
+                              translate('EditScreenComment1'), //변경점을 저장하시겠습니까?
+                              [
+                                  {text: translate('Cancel'), onPress: () => {}},
+                                  {text: translate('OK'), onPress: async () => {
+                                    await this.update();
+                                    this.goShowItem(item, index);
+                                  }},
+                              ],
+                              { cancelable: false }
+                            );
                           }
                         }
                       }}
@@ -714,7 +724,7 @@ export default class ShowScreen extends Component {
             }
           </View> 
           }
-          { !this.state.loading && <DraggableFlatList /// 밑에 깔 것
+          { !this.state.loading && <DraggableFlatList // 밑에 깔 것
             horizontal
             style={{backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff", height: "3%"}}
             keyExtractor={(item, index) => `draggable-item-${index}`}
@@ -750,13 +760,6 @@ export default class ShowScreen extends Component {
                       this.state._scrollView.current.scrollTo({x: x, y: 0, animated: true});
                     } catch (e) {
                       console.log(e);
-                    }
-                    if (this.state.edit) {
-                      if (this.state.delete) {
-                        this.alertDelete(item);
-                      } else {
-                        this.goEditItem(item, index);
-                      }
                     }
                   }}
                   onLongPress={drag}
@@ -833,7 +836,7 @@ export default class ShowScreen extends Component {
                     } else {
                       Alert.alert(
                         translate('Alert'), //확인
-                        translate('/// 일정시간 후 수정 가능합니다.'), //변경점을 저장하시겠습니까?
+                        translate('ShowScreenComment2'), // 일정시간 후 수정 가능합니다.
                         [
                             {text: translate('OK'), onPress: async () => {} },
                         ],
@@ -861,7 +864,7 @@ export default class ShowScreen extends Component {
                   color={this.state.liked ? '#4f83cc' : '#bdbdbd'}
                   size={25}
                 />
-                <Text style={{textAlign: 'center', color: "#fff", fontSize: 10}}> {this.state.likeNumber ? this.state.likeCount : "///좋아요"} </Text>
+                <Text style={{textAlign: 'center', color: "#fff", fontSize: 10}}> {this.state.likeNumber ? this.state.likeCount : translate('like')} </Text>
               </View>
             </TouchableOpacity>
             <TouchableOpacity onPress={async () => {
@@ -919,7 +922,7 @@ export default class ShowScreen extends Component {
                     } else {
                       Alert.alert(
                         translate('Alert'), //확인
-                        translate('/// 일정시간 후 수정 가능합니다.'), //변경점을 저장하시겠습니까?
+                        translate('ShowScreenComment2'), // 일정시간 후 수정 가능합니다.
                         [
                             {text: translate('OK'), onPress: async () => {} },
                         ],
@@ -947,7 +950,7 @@ export default class ShowScreen extends Component {
                   color={this.state.disliked ? '#bc477b' : '#bdbdbd'}
                   size={25}
                 />
-                <Text style={{textAlign: 'center', color: "#fff", fontSize: 10}}> {this.state.likeNumber ? this.state.dislikeCount : "///싫어요"} </Text>
+                <Text style={{textAlign: 'center', color: "#fff", fontSize: 10}}> {this.state.likeNumber ? this.state.dislikeCount : translate('dislike')} </Text>
               </View>
             </TouchableOpacity>
             { auth().currentUser.uid == this.state.userUid && <TouchableOpacity onPress={async () => { // EditList로 이동

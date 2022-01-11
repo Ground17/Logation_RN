@@ -43,7 +43,7 @@ export default class Login extends Component {
     const uid = auth().currentUser.uid;
     const userRef = firestore().collection("Users").doc(uid);
     const user = await userRef.get();
-    if (!user.exists) { /// Login 후에 진행하도록 변경
+    if (!user.exists) { // Login 후에 진행하도록 변경
         const now = firestore.Timestamp.fromMillis((new Date()).getTime());
         await userRef.set({
             followersLength: 0,

@@ -18,7 +18,7 @@ import { translate } from '../Utils';
 
 export default class Notification extends Component {
   async componentDidMount() {
-    this.props.navigation.setOptions({ title: translate("Notifications") });
+    this.props.navigation.setOptions({ title: translate("Notifications") + translate("beta") });
   }
 
   render() {

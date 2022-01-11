@@ -54,7 +54,7 @@ function Main({ navigation }) {
   const { initializeAppLanguage } = useContext(LocalizationContext);
    
   firestore().collection("Users").doc(auth().currentUser.uid).get().then((user) => {
-    if (!user.exists) { /// Login 후에 진행하도록 변경
+    if (!user.exists) { // Login 후에 진행하도록 변경
       console.log('User signed out!');
       navigation.reset({
         index: 0,
@@ -80,7 +80,7 @@ function Main({ navigation }) {
       }
       console.log(params);
 
-      // 'https://travelog-4e274.web.app/?uid=' + this.props.route.params.itemId;
+      // 'https://travelog-4e274.web.app/?id=' + this.props.route.params.itemId;
       // 'https://travelog-4e274.web.app/?user=' + this.props.route.params.userUid;
       if (!params['user'] || !params['id']) {
           return;
@@ -91,7 +91,7 @@ function Main({ navigation }) {
           onPop: () => this.refresh(),
         });
       } else if (params['user'] != auth().currentUser.uid) {
-        navigation.push('Me', { /// Other
+        navigation.push('Me', { // Other
           other: true,
           userUid: params['user'],
         });

@@ -36,14 +36,13 @@ import { translate } from '../Utils';
 
 export default class ShowItem extends Component {
     state = {
-      edit: false,
       imgWidth: 0,
       imgHeight: 0,
       url: '', // 사진 url
       exURL: '',
       date: new Date(),
       title: '',
-      subtitle: '',
+      changedLocation: false,
       index: 0,
       lat: 37,
       long: 127,
@@ -61,117 +60,50 @@ export default class ShowItem extends Component {
         <View style={{flexDirection: 'row',
                 alignItems: 'center',
                 justifyContent: 'center',}}>
-            { auth().currentUser.uid == this.props.route.params.userUid ?
-              <TouchableOpacity style={{
+              { auth().currentUser.uid == this.props.route.params.userUid &&
+                <TouchableOpacity style={{
                   alignItems: 'center',
                   justifyContent: 'center',
                   paddingLeft: 5,
                   paddingRight: 5,
-                }} onPress={async () => { 
-                  if (supported) {
-                    Alert.alert(
-                      translate("Confirm"),
-                      translate("Thumbnail"),
-                      [
-                      {text: translate('Cancel'), onPress: () => { }},
-                      {text: translate('OK'), onPress: async () => {
-                        this.setState({
-                          thumbnail: this.state.index,
-                          changed: true,
-                        });
-                      }},
-                      ],
-                      { cancelable: true }
-                    );
-                  }
-                }}>
-                <Icon
-                  name='face'
-                  size={24}
-                  color='#fff'
-                />
-              </TouchableOpacity>
-            : <View style={{paddingRight: 15}}></View> }
-            <TouchableOpacity style={{
-                alignItems: 'center',
-                justifyContent: 'center',
-                paddingLeft: 5,
-                paddingRight: 5,
-              }} onPress={async () => { 
-                try {
-                  const supported = await Linking.canOpenURL(this.props.route.params.link);
-
-                  if (supported) {
-                    Alert.alert(
-                      translate("Confirm"),
-                      translate("LaunchConfirm") + this.props.route.params.link,
-                      [
-                      {text: translate('Cancel'), onPress: () => { }},
-                      {text: translate('OK'), onPress: async () => {
-                        await Linking.openURL(this.props.route.params.link);
-                      }},
-                      ],
-                      { cancelable: false }
-                    );
-                  } else {
-                    Alert.alert(translate("ShowItemAndShowScreen") + (this.props.route.params.link || "undefined"));
-                  }
-                } catch (e) {
-                  Alert.alert(translate("ShowItemAndShowScreen") + (this.props.route.params.link || "undefined"));
-                }
-              }}>
-              <Icon
-                name='launch'
-                size={24}
-                color='#fff'
-              />
-            </TouchableOpacity>
-            {
-              auth().currentUser.uid == this.props.route.params.userUid ? 
-                <TouchableOpacity style={{
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    paddingLeft: 5,
-                    paddingRight: 20,
-                  }} onPress={async () => {
-                  // this.props.navigation.push('EditItem', {
-                  //   date: this.props.route.params.date,
-                  //   title: this.props.route.params.title,
-                  //   subtitle: this.props.route.params.subtitle,
-                  //   userUid: this.props.route.params.userUid,
-                  //   itemId: this.props.route.params.itemId,
-                  //   url: this.props.route.params.url,
-                  //   lat: this.props.route.params.lat,
-                  //   long: this.props.route.params.long,
-                  //   photo: this.props.route.params.photo,
-                  //   index: this.props.route.params.index,
-                  //   onPop: () => {
-                  //     this.props.route.params.onPop();
-                  //     this.props.navigation.pop();
-                  //   },
-                  // });
-
+                }} onPress={async () => {
                   if (!this.state.changed) {
                     if (this.state.list.length < 2) { // 삭제
                       Alert.alert(
-                        translate("Alert"), //알림
-                        translate("EditItemComment1"), //이 로그를 지우시겠습니까? 이 행동은 돌이킬 수 없습니다.
+                        translate("Alert"), // 알림
+                        translate("EditItemComment1"), // 이 로그를 지우시겠습니까? 이 행동은 돌이킬 수 없습니다.
                         [
-                        {text: translate('Cancel'), onPress: () => {  }}, //아니요
-                        {text: translate('OK'), onPress: async () => {  //예
+                        {text: translate('Cancel'), onPress: () => {  }}, // 아니요
+                        {text: translate('OK'), onPress: async () => {  // 예
                           this.setState({loading: true});
                           try {
                             var array = await storage()
                             .ref(`${auth().currentUser.uid}/${this.props.route.params.itemId}`)
                             .listAll();
-                            console.log(array._items);
+                            
                             for (var i = 0; i < array._items.length; i++) {
                               await array._items[i].delete();
                             }
+
                             await firestore()
-                              .collection(auth().currentUser.uid)
+                              .collection("Posts")
                               .doc(this.props.route.params.itemId)
                               .delete();
+
+                            await firestore()
+                              .collection("Users")
+                              .doc(auth().currentUser.uid)
+                              .collection("log")
+                              .doc(this.props.route.params.itemId)
+                              .delete();
+
+                            await firestore()
+                              .collection("Users")
+                              .doc(auth().currentUser.uid).update({
+                                logsLength: firestore.FieldValue.increment(-1),
+                                modifyDate: firestore.Timestamp.fromMillis((new Date()).getTime()),
+                              });
+
                           } catch (e) {
                             console.log(e);
                           } finally {
@@ -227,7 +159,53 @@ export default class ShowItem extends Component {
                         { cancelable: false }
                       );
                     }
-                  } else { // 수정 저장
+                  } 
+                }}>
+                  <Icon
+                    name={"delete"}
+                    size={24}
+                    color='#fff'
+                  />
+                </TouchableOpacity>
+            }
+            { auth().currentUser.uid == this.props.route.params.userUid && 
+              <TouchableOpacity style={{
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  paddingLeft: 5,
+                  paddingRight: 5,
+                }} onPress={async () => { // 썸네일 관련
+                  if (this.state.thumbnail != this.state.index) {
+                    Alert.alert(
+                      translate("Confirm"),
+                      translate("Thumbnail"),
+                      [
+                      {text: translate('Cancel'), onPress: () => { }},
+                      {text: translate('OK'), onPress: async () => {
+                        this.setState({
+                          thumbnail: this.state.index,
+                          changed: true,
+                        });
+                      }},
+                      ],
+                      { cancelable: true }
+                    );
+                  }
+                }}>
+                <Icon
+                  name='stars'
+                  size={24}
+                  color='#fff'
+                />
+              </TouchableOpacity> }
+            { auth().currentUser.uid == this.props.route.params.userUid && 
+                <TouchableOpacity style={{
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  paddingLeft: 5,
+                  paddingRight: 10,
+                }} onPress={async () => {
+                  if (this.state.changed) {
                     if (this.state.title.length < 1) {
                       Alert.alert(
                         translate('Error'), //오류
@@ -239,12 +217,14 @@ export default class ShowItem extends Component {
                       );
                       return;
                     }
-                    this.setState({loading: true})
-                    var updateData = this.state.list;
+
+                    this.setState({loading: true});
+
+                    let updateData = this.state.list;
                     if (this.state.url != this.state.exURL) {
                       try {
-                        var filename = this.state.url.split('/');
-                        var storageRef = storage().ref(`${auth().currentUser.uid}/${this.props.route.params.itemId}/${filename[filename.length - 1]}`);
+                        let filename = this.state.url.split('/');
+                        let storageRef = storage().ref(`${auth().currentUser.uid}/${this.props.route.params.itemId}/${filename[filename.length - 1]}`);
                         await storageRef.putFile(`${this.state.url}`);
                         await storage()
                           .ref(`${auth().currentUser.uid}/${this.props.route.params.itemId}/${this.props.route.params.photo}`)
@@ -261,49 +241,38 @@ export default class ShowItem extends Component {
                       long: this.state.long,
                       photo: this.state.photo,
                       title: this.state.title,
-                      subtitle: this.state.subtitle,
+                      changed: this.state.changedLocation,
                     };
                     
                     firestore()
-                    .collection(auth().currentUser.uid)
-                    .doc(this.props.route.params.itemId)
-                    .update({
-                      data: updateData,
-                      modifyDate: firestore.Timestamp.fromMillis((new Date()).getTime()),
-                    })
-                    .then(async () => {
-                      try {
-                        await firestore()
-                          .collection("Users")
-                          .doc(auth().currentUser.uid).update({
-                            modifyDate: firestore.Timestamp.fromMillis((new Date()).getTime()),
-                          });
-
-                        if (this.state.thumbnail == this.state.index) {
+                      .collection("Posts")
+                      .doc(this.props.route.params.itemId)
+                      .update({
+                        data: updateData,
+                        modifyDate: firestore.Timestamp.fromMillis((new Date()).getTime()),
+                        thumbnail: this.state.thumbnail,
+                      })
+                      .then(async () => {
+                        try {
                           await firestore()
-                          .collection(auth().currentUser.uid)
-                          .doc(this.props.route.params.itemId)
-                          .update({
-                            thumbnail: this.state.index,
-                          });
+                            .collection("Users")
+                            .doc(auth().currentUser.uid).update({
+                              modifyDate: firestore.Timestamp.fromMillis((new Date()).getTime()),
+                            });
+                        } catch (e) {
+                          console.log(e);
+                        } finally {
+                          this.props.route.params.onPop();
                         }
-                      } catch (e) {
-                        console.log(e);
-                      } finally {
-                        this.props.route.params.onPop();
-                      }
-                    });
-                  }
-                  
+                      });
+                  } 
                 }}>
                   <Icon
-                    name={!this.state.changed ? "delete" : "check-circle"}
+                    name={"check-circle"}
                     size={24}
                     color='#fff'
                   />
-                </TouchableOpacity>
-              : <View style={{paddingRight: 15}}></View>
-            }
+                </TouchableOpacity>}
         </View>
       });
 
@@ -318,7 +287,7 @@ export default class ShowItem extends Component {
       this.setState({
         date: this.props.route.params.date,
         title: this.props.route.params.title,
-        subtitle: this.props.route.params.subtitle,
+        changedLocation: this.props.route.params.changed,
         url: this.props.route.params.url,
         exURL: this.props.route.params.url,
         photo: this.props.route.params.photo,
@@ -394,50 +363,79 @@ export default class ShowItem extends Component {
               >
                 {this.props.route.params.date.toString()}
               </Text>
-              {this.state.show && <DateTimePicker
-                style={{width: "100%"}}
-                mode="date"
-                value={this.state.date}
-                is24Hour={true}
-                display="default"
-                onChange={ (event, selectedDate) => {
-                  var currentDate = selectedDate || new Date();
-                  if (Platform.OS === 'android') {
-                    currentDate.setHours(this.state.date.getHours(), this.state.date.getMinutes(), this.state.date.getSeconds());
-                    this.setState({
-                      show: false,
-                    });
-                  }
-                  this.setState({
-                    changed: true,
-                    date: currentDate,
-                  });
-                }}
-              />}
-              {this.state.show && <DateTimePicker
-                style={{width: "100%"}}
-                mode="time"
-                value={this.state.date}
-                is24Hour={true}
-                display="default"
-                onChange={ (event, selectedDate) => {
-                  const currentDate = selectedDate || new Date();
-                  if (Platform.OS === 'android') {
-                    this.setState({
-                      show: false,
-                    });
-                  }
-                  this.setState({
-                    changed: true,
-                    date: currentDate,
-                  });
-                }}
-              /> }
+              {this.state.show && 
+              <View style={{width: "100%", alignItems: 'center'}}>
+                  <DateTimePicker
+                      style={{width: "100%"}}
+                      mode="date"
+                      value={this.state.date}
+                      is24Hour={true}
+                      display={Platform.OS === 'android' ? "default" : "inline"}
+                      onChange={ (event, selectedDate) => {
+                          var currentDate = selectedDate || new Date();
+                          if (Platform.OS === 'android') {
+                              currentDate.setHours(this.state.date.getHours(), this.state.date.getMinutes(), this.state.date.getSeconds());
+                              this.setState({
+                                  show: false,
+                              });
+                          }
+
+                          this.setState({
+                            changed: true,
+                            date: currentDate,
+                          });
+                      }}
+                  />
+                  <DateTimePicker
+                      style={{width: "100%"}}
+                      mode="time"
+                      value={this.state.date}
+                      is24Hour={true}
+                      display={Platform.OS === 'android' ? "default" : "inline"}
+                      onChange={ (event, selectedDate) => {
+                          const currentDate = selectedDate || new Date();
+                          if (Platform.OS === 'android') {
+                              this.setState({
+                                  show: false,
+                              });
+                          }
+
+                          this.setState({
+                            changed: true,
+                            date: currentDate,
+                          });
+                      }}
+                  />
+              </View>}
               <View style={{
                   alignItems: 'center',
                   justifyContent: 'center',
               }}>
-                <TouchableOpacity onPress={() => {
+                <View>
+                  <ImageModal
+                    resizeMode="contain"
+                    imageBackgroundColor="#000000"
+                    style={{width: this.state.imgWidth, height: this.state.imgHeight}}
+                    source={{ 
+                      uri: this.state.url,
+                    }}
+                  />
+                  { this.state.thumbnail == this.state.index && <Icon
+                    style={{position: 'absolute', top: 0, right: 0}}
+                    name='stars'
+                    size={24}
+                    color='yellow'
+                  /> }
+                  { this.state.changedLocation && <Icon
+                    style={{position: 'absolute', bottom: 0, right: 0}}
+                    name='edit'
+                    size={24}
+                    color='#002f6c'
+                  /> }
+                </View>
+              </View>
+              <TouchableOpacity 
+                style={[styles.buttonContainer, styles.loginButton, {marginTop: 5, height:45, width: "100%", borderRadius:5,}]} onPress={() => { 
                   if (auth().currentUser.uid == this.props.route.params.userUid) {
                     ImagePicker.openPicker({
                       width: 1024,
@@ -453,16 +451,9 @@ export default class ShowItem extends Component {
                       });
                     });
                   }
-                }}>
-                <ImageModal
-                  imageBackgroundColor="#000000"
-                  style={{width: this.state.imgWidth, height: this.state.imgHeight}}
-                  source={{ 
-                    uri: this.state.url,
-                  }}
-                />
-                </TouchableOpacity>
-              </View>
+              }}>
+                <Text style={styles.loginText}>{translate("EditPhotos")}</Text>
+              </TouchableOpacity>
               <MapView
                 style={{flex: 1, aspectRatio: 1, width: "100%"}}
                 provider={PROVIDER_GOOGLE} // remove if not using Google Maps
@@ -486,18 +477,18 @@ export default class ShowItem extends Component {
                     lat: e.nativeEvent.coordinate.latitude, 
                     long: e.nativeEvent.coordinate.longitude, 
                     changed: true,
+                    changedLocation: true,
                   })}
-                  anchor={{x: 0.5, y: 0.5}}
+                  anchor={{x: 0.5, y: 0}}
                   coordinate={ {latitude: this.props.route.params.lat, longitude: this.props.route.params.long} }
                   title={this.props.route.params.title}
                   onPress={e => console.log(e.nativeEvent)}
                 >
                   <View>
-                    <FastImage
-                      style={{ height: 75, width:75 }}
-                      source={{ 
-                        uri: '',
-                      }}
+                    <Icon
+                      name='push-pin'
+                      size={48}
+                      color='#002f6c'
                     />
                   </View>
                 </Marker>
@@ -542,5 +533,18 @@ const styles = StyleSheet.create({
     },
     text: {
       marginLeft: 10,
+    },
+    buttonContainer: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom:5,
+    },
+    loginButton: {
+        backgroundColor: "#002f6c",
+        borderColor: "#002f6c",
+        borderWidth: 1,
+    },
+    loginText: {
+        color: 'white',
     },
 });

@@ -19,7 +19,7 @@ import FastImage from 'react-native-fast-image';
 
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
-import DraggableFlatList from "react-native-draggable-flatlist"; /// important!!!
+import DraggableFlatList from "react-native-draggable-flatlist"; // important!!!
 
 import ImagePicker from 'react-native-image-crop-picker';
 import { Picker } from '@react-native-community/picker';
@@ -152,7 +152,7 @@ export default class AddList extends Component {
             </Avatar>
             {this.state.thumbnail == index && <Icon
                 style={{position: 'absolute', top: 0, right: 0}}
-                name='verified'
+                name='stars'
                 size={24}
                 color='yellow'
             />}
@@ -173,7 +173,7 @@ export default class AddList extends Component {
             <TouchableOpacity style={{marginLeft:5, marginRight:5, flex:1, aspectRatio:1}} onPress={() => {
                 Alert.alert(
                     `${this.state.userDetail[index].displayName}\n${this.state.users[index]}`,
-                    "/// 이 유저를 삭제하시겠습니까?",
+                    translate("AddListComment8"),
                     [
                     {text: translate("Cancel"), onPress: () => console.log('Cancel Pressed')},
                     {text: translate("OK"), onPress: () => {
@@ -387,18 +387,18 @@ export default class AddList extends Component {
                                 this.setState({viewcode: itemIndex})
                             }>
                             <Picker.Item label={translate("Map")} value={0} color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
-                            <Picker.Item label={"///translate('Grid')///"} value={1} color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
+                            <Picker.Item label={translate('Grid')} value={1} color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
                         </Picker>
-                        <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}> {"///공개 범위///"} </Text>
+                        <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}> {translate("security")} </Text>
                         <Picker
                             selectedValue={this.state.security}
                             style={{width: 100}}
                             onValueChange={(itemValue, itemIndex) =>
                                 this.setState({security: itemIndex})
                             }>
-                            <Picker.Item label={"///공개"} value={0} color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
-                            <Picker.Item label={"///일부 공개"} value={1} color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
-                            <Picker.Item label={"///비공개"} value={2} color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
+                            <Picker.Item label={translate('public')} value={0} color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
+                            <Picker.Item label={translate('public-link') + translate('beta')} value={1} color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
+                            <Picker.Item label={translate('private') + translate('beta')} value={2} color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
                         </Picker>
                     </View>
                     <Text  
@@ -512,7 +512,7 @@ export default class AddList extends Component {
                             }}
                             defaultValue={this.state.littleTitle}
                             inputStyle={styles.inputs}
-                            placeholder={"///title///"}
+                            placeholder={translate("Title")}
                             placeholderTextColor="#bdbdbd"
                         />
                         <DraggableFlatList
@@ -638,7 +638,7 @@ export default class AddList extends Component {
                     />
                     <CheckBox
                         containerStyle={styles.cell}
-                        title={"/// 좋아요 숨기기"} /// edit
+                        title={translate('좋아요/싫어요 개수 표시')}
                         iconType='material'
                         checkedIcon='check-box'
                         uncheckedIcon='check-box-outline-blank'
@@ -647,7 +647,7 @@ export default class AddList extends Component {
                         onPress={() => this.setState({likeChecked: !this.state.likeChecked})}
                     />
                     <TouchableOpacity style={[styles.buttonContainer, styles.loginButton, {height:45, width: "80%", borderRadius:5,}]} onPress={async () => {
-                        /// follow 창 열기
+                        // follow 창 열기
                         this.props.navigation.push('Search', {
                             add: true,
                             users: this.state.users,
@@ -655,7 +655,7 @@ export default class AddList extends Component {
                             updateUser: this.updateUser,
                         });
                     }}>
-                        <Text style={styles.loginText}>{"/// 비공개일 때 접근 허용 유저 (최대 10명) ///"}</Text>
+                        <Text style={styles.loginText}>{translate("allowUser")}</Text>
                     </TouchableOpacity>
                     { this.state.users.length > 0 && <View style={{ flex: 1, width: "100%", height: 30, marginBottom: 5, backgroundColor: Appearance.getColorScheme() === 'dark' ? '#121212' : '#ffffff' }}>
                         <FlatList

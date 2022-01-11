@@ -28,7 +28,7 @@ export default class ShowDetail extends Component {
   };
 
   async componentDidMount() {
-    this.props.navigation.setOptions({ title: "/// 세부정보 ///" });
+    this.props.navigation.setOptions({ title: translate("ShowDetail") });
 
     if (this.props.route.params.displayName == '') {
       let displayName = '';
@@ -63,10 +63,10 @@ export default class ShowDetail extends Component {
             {this.props.route.params.subtitle}
           </Text>
           <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}>
-            {`///날짜: ${this.props.route.params.date}`}
+            {`${translate('date')}: ${this.props.route.params.date}`}
           </Text>
           <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}>
-            {`///수정일: ${this.props.route.params.modifyDate}`}
+            {`${translate('modifyDate')}: ${this.props.route.params.modifyDate}`}
           </Text>
           <TouchableOpacity onPress={async () => { 
             try {
@@ -94,7 +94,7 @@ export default class ShowDetail extends Component {
           }}>
             <View style={{alignItems: 'center', justifyContent: 'space-around', flexDirection: 'row',}}>
               <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}>
-                {"/// 소유자가 설정한 관련 링크로 이동 ///"}
+                {translate("ShowDetailComment1")}
               </Text>
               <Icon
                 reverse
@@ -105,7 +105,7 @@ export default class ShowDetail extends Component {
             </View>
           </TouchableOpacity>
           <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}>
-            {"/// ViewCount: " + this.props.route.params.viewCount}
+            {`${translate("Views")}: ${this.props.route.params.viewCount}`}
           </Text>
           <ListItem
             containerStyle={{backgroundColor: Appearance.getColorScheme() === 'dark' ? '#121212' : '#fff'}}

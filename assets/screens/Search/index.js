@@ -134,7 +134,7 @@ export default class Search extends Component {
       }
       console.log(params);
 
-      // 'https://travelog-4e274.web.app/?uid=' + this.props.route.params.itemId;
+      // 'https://travelog-4e274.web.app/?id=' + this.props.route.params.itemId;
       // 'https://travelog-4e274.web.app/?user=' + this.props.route.params.userUid;
       if (params['id']) {
         this.props.navigation.push('ShowScreen', {
@@ -152,7 +152,7 @@ export default class Search extends Component {
             { cancelable: false }
           );
         } else {
-          this.props.navigation.push('Me', { /// Other
+          this.props.navigation.push('Me', { // Other
             other: true,
             userUid: params['user'],
           });
@@ -273,7 +273,14 @@ export default class Search extends Component {
               }),
             });
           } else {
-            /// 최대 10명까지 등록할 수 있습니다.
+            Alert.alert(
+              translate("Error"),
+              translate("SearchComment2"),
+              [
+              {text: translate("OK"), onPress: () => console.log('OK Pressed')},
+              ],
+              { cancelable: false }
+            );
           }
           console.log("users: ", this.state.users);
         }}>
@@ -314,7 +321,7 @@ export default class Search extends Component {
       if (this.state.following.length == 0) {
         Alert.alert(
           translate("Error"),
-          "팔로우한 계정이 없습니다.",
+          translate("SearchComment3"),
           [
           {text: translate("OK"), onPress: () => console.log('OK Pressed')},
           ],
@@ -333,7 +340,7 @@ export default class Search extends Component {
             platform={Platform.OS}
             autoCapitalize='none'
             containerStyle={styles.cellView}
-            placeholder={translate("SearchComment1")} //사용자의 이름을 입력해주세요...
+            placeholder={translate("SearchComment1")} // 사용자의 이름을 입력해주세요...
             onChangeText={this.updateSearch}
             value={this.state.search}
             searchIcon={false}

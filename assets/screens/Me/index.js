@@ -139,7 +139,7 @@ export default class Me extends Component {
                                 });
                             }
                         } else {
-                            /// delete log in User
+                            // delete log in User
                         }
                     }
                 });
@@ -214,7 +214,7 @@ export default class Me extends Component {
                         followersLength: this.state.followersLength - 1,
                     });
                 } else {
-                    Alert.alert(translate("Alert"), "You can unfollow this account after 10 minutes."); /// 10분이 지난 후 언팔로우 할 수 있습니다.
+                    Alert.alert(translate("Alert"), "You can unfollow this account after 10 minutes."); // 10분이 지난 후 언팔로우 할 수 있습니다.
                 }
             }
         });
@@ -491,7 +491,7 @@ export default class Me extends Component {
                             alignItems: 'center',
                             justifyContent: 'center',
                         }}>
-                            <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}> {"///Logs///"} </Text>
+                            <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}> {translate("Log")} </Text>
                             <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}> {this.state.logsLength} </Text>
                         </View>
                         <TouchableOpacity 
