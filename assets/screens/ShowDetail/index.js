@@ -57,10 +57,10 @@ export default class ShowDetail extends Component {
       <SafeAreaView style={styles.container}>
         <View style={{width: "100%", height: "100%", backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff"}}>
           <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}>
-            {this.props.route.params.title}
+            {`${translate("Title")}: ${this.props.route.params.title}`}
           </Text>
           <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}>
-            {this.props.route.params.subtitle}
+            {`${translate("Subtitle")}: ${this.props.route.params.subtitle}`}
           </Text>
           <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}>
             {`${translate('date')}: ${this.props.route.params.date}`}

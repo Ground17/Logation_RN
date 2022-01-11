@@ -638,7 +638,7 @@ export default class AddList extends Component {
                     />
                     <CheckBox
                         containerStyle={styles.cell}
-                        title={translate('좋아요/싫어요 개수 표시')}
+                        title={translate('likeNumber')} // 좋아요/싫어요 개수 표시
                         iconType='material'
                         checkedIcon='check-box'
                         uncheckedIcon='check-box-outline-blank'
