@@ -312,13 +312,13 @@ export default class ShowScreen extends Component {
         .doc(this.props.route.params.itemId)
         .get()
         .then(async (documentSnapshot) => {
-          const now = new Date();
+          const now = firestore.Timestamp.fromMillis((new Date()).getTime());
           if (documentSnapshot.exists) {
             const data = documentSnapshot.data();
 
             if (data.date.seconds + 3600 < now.seconds) { // 1시간이 지날 때만 갱신
               await documentSnapshot.ref.set({
-                date: firestore.Timestamp.fromMillis(now.getTime()),
+                date: firestore.Timestamp.fromMillis(now),
               });
 
               await firestore()
@@ -330,7 +330,7 @@ export default class ShowScreen extends Component {
             }
           } else {
             await documentSnapshot.ref.set({
-              date: firestore.Timestamp.fromMillis(now.getTime()),
+              date: firestore.Timestamp.fromMillis(now),
             });
 
             await firestore()
@@ -347,7 +347,6 @@ export default class ShowScreen extends Component {
         .doc(this.props.route.params.itemId)
         .get()
         .then(async (documentSnapshot) => {
-          const now = new Date();
           if (documentSnapshot.exists) {
             const data = documentSnapshot.data();
             let likes = false;
@@ -366,14 +365,15 @@ export default class ShowScreen extends Component {
           }
         });
 
-      var storageRef = storage().ref();
-      var modifiedList = [];
+      let storageRef = storage().ref();
+      let modifiedList = [];
 
-      for (var i = 0; i < this.state.data.length; i++) {
+      for (let i = 0; i < this.state.data.length; i++) {
+        let URL = "";
         try {
-          var photo = this.state.data[i].photo;
+          let photo = this.state.data[i].photo;
           photo = photo.substr(0, photo.lastIndexOf('.'));
-          var URL = await storageRef.child(this.state.userUid + "/" + this.props.route.params.itemId + "/" + photo + "_1080x1080.jpeg").getDownloadURL();
+          URL = await storageRef.child(this.state.userUid + "/" + this.props.route.params.itemId + "/" + photo + "_1080x1080.jpeg").getDownloadURL();
           modifiedList = modifiedList.concat({ 
             date: this.state.data[i].date,
             title: this.state.data[i].title,
@@ -385,6 +385,29 @@ export default class ShowScreen extends Component {
           });
         } catch (error) {
             console.log(error);
+            try {
+              URL = await storageRef.child(this.state.userUid + "/" + this.props.route.params.itemId + "/" + this.state.data[i].photo).getDownloadURL();
+              modifiedList = modifiedList.concat({ 
+                date: this.state.data[i].date,
+                title: this.state.data[i].title,
+                changed: this.state.data[i].changed,
+                url: URL,
+                photo: this.state.data[i].photo,
+                lat: this.state.data[i].lat,
+                long: this.state.data[i].long,
+              });
+            } catch (error) {
+                console.log(error);
+                  modifiedList = modifiedList.concat({ 
+                  date: this.state.data[i].date,
+                  title: this.state.data[i].title,
+                  changed: this.state.data[i].changed,
+                  url: URL,
+                  photo: this.state.data[i].photo,
+                  lat: this.state.data[i].lat,
+                  long: this.state.data[i].long,
+                });
+            }
         }
       }
 

@@ -21,14 +21,13 @@ import ImagePicker from 'react-native-image-crop-picker';
 import { ListItem, Button, Input } from 'react-native-elements'
 
 import auth from '@react-native-firebase/auth';
-// import { InterstitialAd, TestIds, } from '@react-native-firebase/admob';
-import { AdMobInterstitial } from 'react-native-admob';
+import { InterstitialAd, TestIds } from '@react-native-admob/admob';
 import storage from '@react-native-firebase/storage';
 import firestore from '@react-native-firebase/firestore';
 
 import { adsFree, translate, adInterstitialUnitId } from '../Utils';
 
-// const interstitial = InterstitialAd.createForAdRequest(adInterstitialUnitId);
+const interstitial = InterstitialAd.createAd(adInterstitialUnitId);
 
 export default class EditProfile extends Component {
     state = {
@@ -36,6 +35,7 @@ export default class EditProfile extends Component {
         profileURL: '',
         loading: false,
         ads: true,
+        adLoaded: false,
     }
 
     async componentDidMount() {
@@ -45,15 +45,6 @@ export default class EditProfile extends Component {
             profileURL: this.props.route.params.profileURL
         });
         this.props.navigation.setOptions({ title: translate("EditProfile") });
-        
-        // if (this.state.ads && !interstitial.loaded) {
-        //     interstitial.load();
-        // }
-        AdMobInterstitial.setTestDevices([AdMobInterstitial.simulatorId]);
-        AdMobInterstitial.setAdUnitID(adInterstitialUnitId);
-        if (this.state.ads) {
-            AdMobInterstitial.requestAd().catch(error => console.warn(error));
-        }
     }
 
     render() {
@@ -167,12 +158,14 @@ export default class EditProfile extends Component {
                         } catch (e) {
                             console.log(e);
                         } finally {
-                            // if (this.state.ads && interstitial.loaded) {
-                            //     interstitial.show();
-                            // }
                             if (this.state.ads) {
-                                AdMobInterstitial.showAd().catch(error => console.warn(error));
+                                try {
+                                    interstitial?.show();
+                                } catch (e) {
+                                    console.log(e);
+                                }
                             }
+
                             this.props.navigation.replace('Main');
                         }
                     }

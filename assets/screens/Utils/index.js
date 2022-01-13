@@ -12,6 +12,8 @@ import RNIap, {
 
 import AsyncStorage from '@react-native-community/async-storage';
 
+import { TestIds } from '@react-native-admob/admob';
+
 import functions from '@react-native-firebase/functions';
 import messaging from '@react-native-firebase/messaging';
 

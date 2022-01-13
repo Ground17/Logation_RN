@@ -32,6 +32,7 @@ import Purchase from './assets/screens/Purchase';
 import Language from './assets/screens/Language';
 import { translate, LocalizationProvider, LocalizationContext, Style, TAB_ITEM_WIDTH, } from './assets/screens/Utils';
 
+
 // import admob, { MaxAdContentRating } from '@react-native-firebase/admob';
 
 import 'react-native-gesture-handler';
@@ -225,7 +226,7 @@ export default class App extends Component {
   constructor(props) {
     super(props);
   }
-
+  
   render() {
     return (
       <LocalizationProvider>

@@ -19,12 +19,13 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import { ListItem, Button, } from 'react-native-elements';
 
 import auth from '@react-native-firebase/auth';
-// import { BannerAd, TestIds, BannerAdSize } from '@react-native-firebase/admob';
-import { AdMobBanner } from 'react-native-admob';
+import { BannerAd, TestIds, BannerAdSize } from '@react-native-admob/admob';
 import storage from '@react-native-firebase/storage';
 import firestore from '@react-native-firebase/firestore';
 
 import { adsFree, translate, adBannerUnitId } from '../Utils';
+
+import { requestTrackingPermission } from 'react-native-tracking-transparency';
 
 export default class Home extends Component {
     state = {
@@ -132,6 +133,9 @@ export default class Home extends Component {
     }
 
     async componentDidMount() {
+        const trackingStatus = await requestTrackingPermission();
+        console.log(trackingStatus);
+
         this.setState({
             ads: !adsFree,
         });
@@ -271,11 +275,10 @@ export default class Home extends Component {
                 </View>
                 <View style={{ width: '100%' }}>
                     <View style={{alignItems: 'center', backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff"}}>
-                        {this.state.ads && <AdMobBanner
-                            adSize="banner"
-                            adUnitID={adBannerUnitId}
-                            testDevices={[AdMobBanner.simulatorId]}
-                            onAdFailedToLoad={error => console.error(error)}
+                        {this.state.ads && <BannerAd
+                            size={BannerAdSize.BANNER}
+                            unitId={adBannerUnitId}
+                            onAdFailedToLoad={(error) => console.log(error)}
                         />}
                     </View>
                 </View>

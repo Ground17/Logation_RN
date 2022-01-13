@@ -22,8 +22,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import { ListItem, Avatar, Button } from 'react-native-elements'
 
 import auth from '@react-native-firebase/auth';
-// import { BannerAd, TestIds, BannerAdSize } from '@react-native-firebase/admob';
-import { AdMobBanner } from 'react-native-admob';
+import { BannerAd, TestIds, BannerAdSize } from '@react-native-admob/admob';
 
 import storage from '@react-native-firebase/storage';
 import firestore from '@react-native-firebase/firestore';
@@ -525,11 +524,9 @@ export default class Me extends Component {
                         </View>
                     </View>
                     <View style={{alignItems: 'center', marginBottom: 5}}>
-                        {this.state.ads && <AdMobBanner
-                            adSize="banner"
-                            adUnitID={adBannerUnitId}
-                            testDevices={[AdMobBanner.simulatorId]}
-                            onAdFailedToLoad={error => console.error(error)}
+                        {this.state.ads && <BannerAd
+                            size={BannerAdSize.BANNER}
+                            unitId={adBannerUnitId}
                         />}
                     </View>
                     {this.state.list.length > 0 ? <FlatList

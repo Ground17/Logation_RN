@@ -20,10 +20,9 @@ import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 
 import { GoogleSignin, GoogleSigninButton, statusCodes } from '@react-native-community/google-signin';
-import appleAuth, { AppleButton, } from '@invertase/react-native-apple-authentication';
+import appleAuth, { appleAuthAndroid, AppleButton, } from '@invertase/react-native-apple-authentication';
 
-// import { BannerAd, TestIds, BannerAdSize } from '@react-native-firebase/admob';
-import { AdMobBanner } from 'react-native-admob';
+import { BannerAd, TestIds, BannerAdSize } from '@react-native-admob/admob';
 
 import { adsFree, translate, LocalizationContext, adBannerUnitId } from '../Utils';
 
@@ -67,39 +66,82 @@ export default class Login extends Component {
     this.props.navigation.replace('Main');
   }
 
+  getRandomString = (length: any) => {
+    let randomChars =
+        'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+    let result = ''
+    for (let i = 0; i < length; i++) {
+        result += randomChars.charAt(Math.floor(Math.random() * randomChars.length))
+    }
+    return result
+  }
+
   async appleLogin() {
-    try {
-      // 1). start a apple sign-in request
-      const appleAuthRequestResponse = await appleAuth.performRequest({
-        requestedOperation: appleAuth.Operation.LOGIN,
-        requestedScopes: [appleAuth.Scope.EMAIL, appleAuth.Scope.FULL_NAME],
-      });
+    if (Platform.OS == 'ios') {
+      try {
+        // 1). start a apple sign-in request
+        const appleAuthRequestResponse = await appleAuth.performRequest({
+          requestedOperation: appleAuth.Operation.LOGIN,
+          requestedScopes: [appleAuth.Scope.EMAIL, appleAuth.Scope.FULL_NAME],
+        });
 
-      if (!appleAuthRequestResponse.identityToken) {
-        throw 'Apple Sign-In failed - no identify token returned';
+        if (!appleAuthRequestResponse.identityToken) {
+          throw 'Apple Sign-In failed - no identify token returned';
+        }
+        
+        // 2). if the request was successful, extract the token and nonce
+        const { identityToken, nonce } = appleAuthRequestResponse;
+
+        if (identityToken) {
+          // 3). create a Firebase `AppleAuthProvider` credential
+          const appleCredential = auth.AppleAuthProvider.credential(identityToken, nonce);
+
+          const userCredential = await auth().signInWithCredential(appleCredential);
+          // user is now signed in, any Firebase `onAuthStateChanged` listeners you have will trigger
+          await this.checkUser();
+          return;
+        } 
+      } catch (e) {
+        Alert.alert(
+          translate('LoginError'), //로그인 에러
+          e.toString(),
+          [
+            {text: translate('OK'), onPress: () => console.log('OK Pressed')},
+          ],
+          { cancelable: false }
+        );
       }
-      
-      // 2). if the request was successful, extract the token and nonce
-      const { identityToken, nonce } = appleAuthRequestResponse;
+    } else {
+      try {
+        const rawNonce = this.getRandomString(24);
+        const state = this.getRandomString(24);
 
-      if (identityToken) {
-        // 3). create a Firebase `AppleAuthProvider` credential
-        const appleCredential = auth.AppleAuthProvider.credential(identityToken, nonce);
+        appleAuthAndroid.configure({
+            clientId: 'com.firebaseapp.travelog-4e274',
+            redirectUri: 'https://travelog-4e274.firebaseapp.com/__/auth/handler',
+            responseType: appleAuthAndroid.ResponseType.ALL,
+            scope: appleAuthAndroid.Scope.ALL,
+            nonce: rawNonce,
+            state,
+        });
 
-        const userCredential = await auth().signInWithCredential(appleCredential);
-        // user is now signed in, any Firebase `onAuthStateChanged` listeners you have will trigger
+        const response = await appleAuthAndroid.signIn();
+
+        const appleCredential = await auth.AppleAuthProvider.credential(response.id_token, rawNonce);
+
+        const appleUserCredential = await auth().signInWithCredential(appleCredential);
         await this.checkUser();
         return;
-      } 
-    } catch (e) {
-      Alert.alert(
-        translate('LoginError'), //로그인 에러
-        e.toString(),
-        [
-          {text: translate('OK'), onPress: () => console.log('OK Pressed')},
-        ],
-        { cancelable: false }
-      );
+      } catch (e) {
+        Alert.alert(
+          translate('LoginError'), //로그인 에러
+          e.toString(),
+          [
+            {text: translate('OK'), onPress: () => console.log('OK Pressed')},
+          ],
+          { cancelable: false }
+        );
+      }
     }
   }
 
@@ -318,9 +360,9 @@ export default class Login extends Component {
               color={GoogleSigninButton.Color.Dark}
               onPress={() => this.googleLogin()}
           />
-          {Platform.OS == 'ios' && <AppleButton
+          {(Platform.OS == 'ios' || appleAuthAndroid.isSupported) && <AppleButton
               style={styles.cell}
-              buttonStyle={AppleButton.Style.BLACK}
+              buttonStyle={Appearance.getColorScheme() === 'dark' ? AppleButton.Style.WHITE : AppleButton.Style.BLACK}
               buttonType={AppleButton.Type.SIGN_IN}
               onPress={() => this.appleLogin()}
           />}
@@ -328,11 +370,9 @@ export default class Login extends Component {
               <View style={{alignSelf:'center', position:'absolute', borderBottomColor:'gray', borderBottomWidth:1, height:'50%', width:'80%'}}/>
           </View>
           <View style={{width: "80%", alignItems: "center"}}>
-            {this.state.ads && <AdMobBanner
-                adSize="banner"
-                adUnitID={adBannerUnitId}
-                testDevices={[AdMobBanner.simulatorId]}
-                onAdFailedToLoad={error => console.error(error)}
+            {this.state.ads && <BannerAd
+                size={BannerAdSize.BANNER}
+                unitId={adBannerUnitId}
             />}
           </View>
         </View>

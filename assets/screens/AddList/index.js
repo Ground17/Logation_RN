@@ -27,8 +27,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { Input, CheckBox, ListItem, Avatar } from 'react-native-elements';
 
 import auth from '@react-native-firebase/auth';
-// import { InterstitialAd, TestIds } from '@react-native-firebase/admob';
-import { AdMobInterstitial } from 'react-native-admob';
+import { InterstitialAd, TestIds } from '@react-native-admob/admob';
 import storage from '@react-native-firebase/storage';
 import firestore from '@react-native-firebase/firestore';
 
@@ -36,7 +35,7 @@ import { adsFree, translate, ProgressBar, adInterstitialUnitId } from '../Utils'
 
 import AsyncStorage from '@react-native-community/async-storage';
 
-// const interstitial = InterstitialAd.createForAdRequest(adInterstitialUnitId);
+const interstitial = InterstitialAd.createAd(adInterstitialUnitId);
 
 const locations = [[37.551161, 126.988228], [35.658405, 139.745300], [40.689306, -74.044361], [51.500700, -0.124607], [48.858369, 2.294480], [-33.856792, 151.214657], [40.431867, 116.570375]];
 
@@ -233,7 +232,7 @@ export default class AddList extends Component {
 
         var temp = [];
 
-        if (this.props.route.params.preUser) {
+        if (this.props.route.params != null) {
             for (var i = 0; i < this.props.route.params.preUser.length; i++) {
                 const documentSnapshot = await firestore()
                     .collection("Users")
@@ -257,35 +256,26 @@ export default class AddList extends Component {
         }
 
         this.setState({
-            category: this.props.route.params.category || parseInt(localCategory),
-            edit: this.props.route.params.edit != null,
-            date: this.props.route.params.date || '',
-            title: this.props.route.params.title || '',
-            subtitle: this.props.route.params.subtitle || '',
-            link: this.props.route.params.link || '',
-            viewcode: this.props.route.params.viewcode || parseInt(localViewcode),
-            security: this.props.route.params.security || parseInt(localSecurity),
-            users: this.props.route.params.preUser || [],
+            category: this.props.route.params?.category || parseInt(localCategory),
+            edit: this.props.route.params?.edit != null,
+            date: this.props.route.params?.date || new Date(),
+            title: this.props.route.params?.title || '',
+            subtitle: this.props.route.params?.subtitle || '',
+            link: this.props.route.params?.link || '',
+            viewcode: this.props.route.params?.viewcode || parseInt(localViewcode),
+            security: this.props.route.params?.security || parseInt(localSecurity),
+            users: this.props.route.params?.preUser || [],
             userDetail: temp,
             ads: !adsFree,
             locationChecked: locationCheck == 'true' ? true : false,
             dateChecked: dateCheck == 'true' ? true : false,
             likeChecked: likeCheck == 'true' ? true : false,
             littleTitle: '',
-            photoNumber: this.props.route.params.photoNumber || 0,
-            preData: this.props.route.params.data || [],
+            photoNumber: this.props.route.params?.photoNumber || 0,
+            preData: this.props.route.params?.data || [],
         });
 
         this.props.navigation.setOptions({ title: this.state.edit ? translate("EditList") : translate("AddList") });
-        // if (this.state.ads && !interstitial.loaded) {
-        //     interstitial.load();
-        // }
-
-        AdMobInterstitial.setTestDevices([AdMobInterstitial.simulatorId]);
-        AdMobInterstitial.setAdUnitID(adInterstitialUnitId);
-        if (this.state.ads) {
-            AdMobInterstitial.requestAd().catch(error => console.warn(error));
-        }
     }
     
     render() {
@@ -795,12 +785,15 @@ export default class AddList extends Component {
                                 ],
                                 { cancelable: false }
                             );
-                            // if (this.state.ads && interstitial.loaded) {
-                            //     interstitial.show();
-                            // }
+                            
                             if (this.state.ads) {
-                                AdMobInterstitial.showAd().catch(error => console.warn(error));
+                                try {
+                                    interstitial?.show();
+                                } catch (e) {
+                                    console.log(e);
+                                }
                             }
+
                             this.setState({loading: false});
                             // this.props.route.params.onPop();
                             this.props.navigation.pop();
