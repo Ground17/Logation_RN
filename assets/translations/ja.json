@@ -24,7 +24,7 @@
     "Followings":"フォローイング",
     "Purchase":"購入/購入の取り消し(広告削除)",
     "Language" : "言語変更",
-    "AddListComment1":"写真が多いほどアップロードに長い時間がかかります。",
+    "AddListComment1":"写真が多いほどアップロードに長い時間がかかります。 バグではない場合、アップロード中にアプリを終了しないでください。",
     "Category":"カテゴリ",
     "Travel":"旅行",
     "DailyLife":"日常",
@@ -117,7 +117,7 @@
     "Notice" : "お知らせ事項",
     "MeEmpty" : "データがありません。 上段メニューから追加できます。",
     "HomeEmpty" : "データがありません。 他のアカウントをもっとフォローしてください!",
-    "beta": "(ベータ)", 
+    "beta": "", 
     "AddListComment8" : "このユーザーを削除しますか？",
     "public": "公開",
     "public-link": "一部公開",
@@ -133,8 +133,10 @@
     "modifyDate": "修正日",
     "ShowDetailComment1": "所有者が設定した関連リンクに移動",
     "EditPhotos" : "写真修正",
+    "EditLog" : "ログ修正",
     "ShowScreenComment1" : "有効なログではありません。",
     "ShowScreenComment2" : "一定時間後に修正できます。",
     "like": "好きです",
-    "dislike": "嫌いです"
+    "dislike": "嫌いです",
+    "mailAddress": "バグ、翻訳ミスのお問い合わせメール"
 }

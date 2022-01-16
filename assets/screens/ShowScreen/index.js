@@ -77,6 +77,7 @@ export default class ShowScreen extends Component {
       userUid: '',
       displayName: '',
       profileURL: '',
+      preUser: [],
       _map: React.createRef(),
       _scrollView: React.createRef(),
     };
@@ -110,12 +111,12 @@ export default class ShowScreen extends Component {
         }
 
         await firestore()
-          .collection(auth().currentUser.uid)
+          .collection("Posts")
           .doc(this.props.route.params.itemId)
           .update({
               thumbnail: 0,
               viewcode: this.state.viewcode,
-              data: this.state.data,
+              data: updateData,
               modifyDate: firestore.Timestamp.fromMillis((new Date()).getTime()),
           });
         this.setState({
@@ -129,6 +130,7 @@ export default class ShowScreen extends Component {
 
 
     goEditList() {
+      this.setState({edit: false, changed: false,});
       this.props.navigation.push('AddList', {
         edit: true,
         category: this.state.category,
@@ -139,8 +141,9 @@ export default class ShowScreen extends Component {
         photoNumber: this.state.list.length,
         itemId: this.props.route.params.itemId,
         viewcode: this.state.viewcode,
-        preData: [], // 추후 수정 가능성
-        onPop: () => this.refresh(),
+        preData: this.state.data,
+        preUser: this.state.preUser,
+        onPop: () => this.refresh(true),
       });
     }
 
@@ -160,7 +163,7 @@ export default class ShowScreen extends Component {
         list: this.state.list,
         thumbnail: this.state.thumbnail,
         changed: item.changed,
-        onPop: () => this.refresh(),
+        onPop: () => this.refresh(true),
       });
     }
 
@@ -236,7 +239,7 @@ export default class ShowScreen extends Component {
       }
     }
 
-    async refresh() { // 보기 모드에서만 활성화
+    async refresh(force=false) { // 보기 모드에서만 활성화
       if (this.state.edit) {
         return;
       }
@@ -252,7 +255,7 @@ export default class ShowScreen extends Component {
         marginBottom: 1,
       });
 
-      if (this.state.data.length == 0) {
+      if (this.state.data.length == 0 || force) {
         await firestore()
         .collection("Posts")
         .doc(this.props.route.params.itemId)
@@ -279,6 +282,7 @@ export default class ShowScreen extends Component {
                 viewCount: data.viewCount,
                 likeNumber: data.likeNumber,
                 userUid: data.uid,
+                preUser: data.account,
               });
             } else {
               this.setState({
@@ -441,6 +445,7 @@ export default class ShowScreen extends Component {
         displayName: this.props.route.params.displayName || '',
         profileURL: this.props.route.params.profileURL || '',
         userUid: this.props.route.params.userUid || '',
+        preUser: this.props.route.params.preUser || [],
         marginBottom: 1,
       });
 
@@ -513,7 +518,7 @@ export default class ShowScreen extends Component {
             this.callback();
           }}>
             <Icon
-              name="play-circle-outline"
+              name="not-started"
               size={24}
               color='#fff'
             />
@@ -1001,7 +1006,7 @@ export default class ShowScreen extends Component {
                     color='#bdbdbd'
                     size={25}
                   />
-                  <Text style={{textAlign: 'center', color: "#fff", fontSize: 10}}> {translate("EditList")} </Text>
+                  <Text style={{textAlign: 'center', color: "#fff", fontSize: 10}}> {translate("AddPhotos")} </Text>
                 </View>
               </TouchableOpacity> }
             { !this.state.edit ? <TouchableOpacity onPress={() => {
@@ -1084,7 +1089,7 @@ export default class ShowScreen extends Component {
                     color='#bdbdbd'
                     size={25}
                   />
-                  <Text style={{textAlign: 'center', color: "#fff", fontSize: 10}}> {translate("EditList")} </Text>
+                  <Text style={{textAlign: 'center', color: "#fff", fontSize: 10}}> {translate("EditLog")} </Text>
                 </View>
               </TouchableOpacity> }
           </View> }

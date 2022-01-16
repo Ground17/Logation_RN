@@ -24,7 +24,7 @@
     "Followings" : "Followings",
     "Purchase" : "Kauf / Stornierung (werbefrei)",
     "Language" : "Sprache ändern",
-    "AddListComment1" : "Je mehr Bilder Sie haben, desto länger kann das Hochladen dauern.",
+    "AddListComment1" : "Je mehr Bilder Sie haben, desto länger kann das Hochladen dauern. Bitte beenden Sie die App nicht während des Hochladens, es sei denn, es handelt sich um einen Fehler ...",
     "Category" : "Kategorie",
     "Travel" : "Reise",
     "DailyLife" : "Alltag",
@@ -117,7 +117,7 @@
     "Notice" : "Hinweis",
     "MeEmpty" : "Die Daten sind nicht verfügbar. Sie können es über das Hauptmenü hinzufügen.",
     "HomeEmpty" : "Die Daten sind nicht verfügbar. Folgen Sie anderen Konten mehr!",
-    "beta": "(Beta)", 
+    "beta": "", 
     "AddListComment8" : "Möchten Sie diesen Benutzer löschen?",
     "public": "Allgemein",
     "public-link": "Verknüpfung",
@@ -133,8 +133,10 @@
     "modifyDate": "Änderungsdatum",
     "ShowDetailComment1": "Gehen Sie zu dem entsprechenden Link, der vom Eigentümer festgelegt wurde",
     "EditPhotos" : "Foto bearbeiten",
+    "EditLog" : "Log bearbeiten",
     "ShowScreenComment1" : "Dies ist kein gültiges Log.",
     "ShowScreenComment2" : "Es kann nach einer bestimmten Zeit geändert werden.",
     "like": "Likes",
-    "dislike": "Dislikes"
+    "dislike": "Dislikes",
+    "mailAddress": "Bug, Anfrage-E-Mail zu Übersetzungsfehlern"
 }

@@ -24,7 +24,7 @@
     "Followings" : "Abonnements",
     "Purchase" : "Achat / Annulation (sans publicité)",
     "Language" : "Changement de langage",
-    "AddListComment1" : "Plus vous avez de photos, plus le téléchargement peut prendre de temps.",
+    "AddListComment1" : "Plus vous avez de photos, plus le téléchargement peut prendre de temps. Veuillez ne pas mettre fin à l'application pendant le téléchargement, sauf s'il s'agit d'un bogue...",
     "Category" : "Catégorie",
     "Travel" : "Voyage",
     "DailyLife" : "La vie quotidienne",
@@ -117,7 +117,7 @@
     "Notice" : "Avis",
     "MeEmpty" : "Les données ne sont pas disponibles. Vous pouvez l'ajouter à partir du menu supérieur.",
     "HomeEmpty" : "Les données ne sont pas disponibles. Suivez davantage les autres comptes!",
-    "beta": "(Bêta)", 
+    "beta": "", 
     "AddListComment8" : "Voulez-vous supprimer cet utilisateur?",
     "public": "Publique",
     "public-link": "Lien",
@@ -133,8 +133,10 @@
     "modifyDate": "Date modifiée",
     "ShowDetailComment1": "Accédez au lien correspondant défini par le propriétaire",
     "EditPhotos" : "Modifier photo",
+    "EditLog" : "Modifier Bûche",
     "ShowScreenComment1" : "Ce journal n'est pas valide.",
     "ShowScreenComment2" : "Il peut être modifié après un certain temps.",
     "like": "aime",
-    "dislike": "n'aime pas"
+    "dislike": "n'aime pas",
+    "mailAddress": "Bogue, e-mail de demande d'erreur de traduction"
 }

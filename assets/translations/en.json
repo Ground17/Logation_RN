@@ -24,7 +24,7 @@
     "Followings" : "Followings",
     "Purchase" : "Purchase / Cancel (Ad free)",
     "Language" : "Change Language",
-    "AddListComment1" : "The more pictures you have, the more time it can take to upload.",
+    "AddListComment1" : "The more pictures you have, the more time it can take to upload. Please don't terminate app while uploading unless it's a bug...",
     "Category" : "Category",
     "Travel" : "Travel",
     "DailyLife" : "Daily Life",
@@ -117,7 +117,7 @@
     "Notice" : "Notice",
     "MeEmpty" : "The data is not available. You can add it from the top menu.",
     "HomeEmpty" : "The data is not available. Follow other accounts more!",
-    "beta": "(Beta)", 
+    "beta": "", 
     "AddListComment8" : "Do you want to delete this user?",
     "public": "Public",
     "public-link": "Link",
@@ -133,8 +133,10 @@
     "modifyDate": "Modified Date",
     "ShowDetailComment1": "Go to the relevant link set by the owner",
     "EditPhotos" : "Edit Photo",
+    "EditLog": "Edit Log",
     "ShowScreenComment1" : "This is not a valid log.",
     "ShowScreenComment2" : "It can be modified after a certain time.",
     "like": "likes",
-    "dislike": "dislikes"
+    "dislike": "dislikes",
+    "mailAddress": "Bug, translation error inquiry email"
 }

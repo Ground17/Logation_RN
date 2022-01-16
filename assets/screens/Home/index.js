@@ -151,7 +151,7 @@ export default class Home extends Component {
 
     renderItem = ({ item }) => (
         <View style={{ width: "100%", }}>
-            <TouchableOpacity style={{marginRight:10, alignItems: 'center'}} onPress={() => { 
+            <TouchableOpacity style={{alignItems: 'center'}} onPress={() => { 
                     this.props.navigation.push('ShowScreen', {
                         itemId: item.id,
                         title: item.title,
@@ -170,11 +170,12 @@ export default class Home extends Component {
                         dislikeCount: item.dislikeCount,
                         viewcode: item.viewcode,
                         viewCount: item.viewCount,
+                        preUser: item.account,
                         onPop: () => this.refresh(),
                     }) 
                 }}>
                 <FastImage
-                    style={{ width: 200, height: 200 }}
+                    style={{ width: "100%", height: 200 }}
                     source={{
                         uri: item.url,
                         priority: FastImage.priority.high,
@@ -204,6 +205,7 @@ export default class Home extends Component {
                         dislikeCount: item.dislikeCount,
                         viewcode: item.viewcode,
                         viewCount: item.viewCount,
+                        preUser: item.account,
                         onPop: () => this.refresh(),
                     }) 
                 }}

@@ -24,7 +24,7 @@
     "Followings" : "팔로잉",
     "Purchase" : "구매 / 구매 취소 (광고 제거)",
     "Language" : "언어 변경",
-    "AddListComment1" : "사진이 많을수록 업로드에 긴 시간이 소요됩니다.",
+    "AddListComment1" : "사진이 많을수록 업로드에 긴 시간이 소요됩니다. 버그가 아니라면, 업로드하는 동안 앱을 종료하지 말아주세요...",
     "Category" : "카테고리",
     "Travel" : "여행",
     "DailyLife" : "일상",
@@ -117,7 +117,7 @@
     "Notice" : "공지사항",
     "MeEmpty" : "데이터가 없습니다. 상단 메뉴에서 추가할 수 있습니다.",
     "HomeEmpty" : "데이터가 없습니다. 다른 계정을 더 팔로우해보세요!",
-    "beta": "(베타)", 
+    "beta": "", 
     "AddListComment8" : "이 유저를 삭제하시겠습니까?",
     "public": "공개",
     "public-link": "일부 공개",
@@ -133,8 +133,10 @@
     "modifyDate": "수정일",
     "ShowDetailComment1": "소유자가 설정한 관련 링크로 이동",
     "EditPhotos" : "사진 수정",
+    "EditLog" : "로그 수정",
     "ShowScreenComment1" : "유효한 로그가 아닙니다.",
     "ShowScreenComment2" : "일정시간 후 수정 가능합니다.",
     "like": "좋아요",
-    "dislike": "싫어요"
+    "dislike": "싫어요",
+    "mailAddress": "버그, 번역 오류 문의 메일"
 }

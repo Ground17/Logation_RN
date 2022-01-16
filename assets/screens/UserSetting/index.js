@@ -113,6 +113,13 @@ export default class UserSetting extends Component {
                 <Text style={{color: Appearance.getColorScheme() === 'dark' ? "#fff" : '#002f6c'}}>{translate("Notice")}</Text>
               </TouchableOpacity>
             </View>
+            <View style={{marginTop: 5, marginBottom: 5}}>
+              <View style={{alignSelf:'center', position:'absolute', borderBottomColor:'gray', borderBottomWidth:1, height:'50%', width:'80%'}}/>
+            </View>
+            <View style={{width: "80%", alignItems: 'center', justifyContent: 'space-around'}}>
+              <Text style={{color: Appearance.getColorScheme() === 'dark' ? "#fff" : '#002f6c'}}>{translate("mailAddress")}</Text>
+              <Text selectable style={{color: Appearance.getColorScheme() === 'dark' ? "#fff" : '#002f6c'}}>{"ground171717@gmail.com"}</Text>
+            </View>
             <View style={{marginTop: 5, marginBottom: 10}}>
               <View style={{alignSelf:'center', position:'absolute', borderBottomColor:'gray', borderBottomWidth:1, height:'50%', width:'80%'}}/>
             </View>

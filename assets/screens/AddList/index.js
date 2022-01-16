@@ -57,6 +57,7 @@ export default class AddList extends Component {
         title: '',
         subtitle: '',
         littleTitle: '',
+        itemId: '',
         thumbnail: 0,
         loading: false,
         preData: [], // 기존 데이터
@@ -149,7 +150,7 @@ export default class AddList extends Component {
                 activeOpacity={1}
             >
             </Avatar>
-            {this.state.thumbnail == index && <Icon
+            {(this.state.thumbnail == index + this.state.photoNumber) && <Icon
                 style={{position: 'absolute', top: 0, right: 0}}
                 name='stars'
                 size={24}
@@ -271,11 +272,12 @@ export default class AddList extends Component {
             dateChecked: dateCheck == 'true' ? true : false,
             likeChecked: likeCheck == 'true' ? true : false,
             littleTitle: '',
+            itemId: this.props.route.params?.itemId || '',
             photoNumber: this.props.route.params?.photoNumber || 0,
-            preData: this.props.route.params?.data || [],
+            preData: this.props.route.params?.preData || [],
         });
 
-        this.props.navigation.setOptions({ title: this.state.edit ? translate("EditList") : translate("AddList") });
+        this.props.navigation.setOptions({ title: this.props.route.params?.edit != null ? translate("EditList") : translate("AddList") });
     }
     
     render() {
@@ -463,7 +465,7 @@ export default class AddList extends Component {
                             </TouchableOpacity>
                             <TouchableOpacity style={{marginRight:5}} onPress={() => {
                                 this.setState({
-                                    thumbnail: this.state.activeItem != -1 && this.state.activeItem < this.state.data.length ? this.state.activeItem : 0,
+                                    thumbnail: this.state.activeItem != -1 && this.state.activeItem < this.state.data.length ? (this.state.activeItem + this.state.photoNumber) : 0,
                                 });
                              }}>
                                 <Icon
@@ -545,7 +547,7 @@ export default class AddList extends Component {
                             for (var i = 0; i<images.length; i++) {
                                 try {
                                     if (i + this.state.data.length + this.state.photoNumber > 19) {
-                                        continue;
+                                        break;
                                     }
                                     console.log(images[i]);
                                     if (Platform.OS == 'ios') {
@@ -716,55 +718,78 @@ export default class AddList extends Component {
                         await AsyncStorage.setItem('viewcode', this.state.viewcode.toString());
                         await AsyncStorage.setItem('security', this.state.security.toString());
 
-                        this.setState({loading: true})
-                        await firestore()
-                        .collection("Posts")
-                        .add({
-                            category: this.state.category,
-                            date: firestore.Timestamp.fromMillis(this.state.date.getTime()),
-                            modifyDate: firestore.Timestamp.fromMillis((new Date()).getTime()),
-                            link: this.state.link,
-                            title: this.state.title,
-                            subtitle: this.state.subtitle,
-                            likeNumber: this.state.likeChecked,
-                            likeCount: 0,
-                            dislikeCount: 0,
-                            viewCount: 0,
-                            security: this.state.security,
-                            account: this.state.users,
-                            viewcode: this.state.viewcode,
-                            thumbnail: this.state.thumbnail,
-                            uid: auth().currentUser.uid,
-                        })
-                        .then(async (documentSnapshot) => {
+                        this.setState({loading: true});
+                        let documentSnapshot;
+
+                        let postId = '';
+                        if (!this.state.edit) {
+                            documentSnapshot = 
                             await firestore()
+                                .collection("Posts")
+                                .add({
+                                    category: this.state.category,
+                                    date: firestore.Timestamp.fromMillis(this.state.date.getTime()),
+                                    modifyDate: firestore.Timestamp.fromMillis((new Date()).getTime()),
+                                    link: this.state.link,
+                                    title: this.state.title,
+                                    subtitle: this.state.subtitle,
+                                    likeNumber: this.state.likeChecked,
+                                    likeCount: 0,
+                                    dislikeCount: 0,
+                                    viewCount: 0,
+                                    security: this.state.security,
+                                    account: this.state.users,
+                                    viewcode: this.state.viewcode,
+                                    thumbnail: this.state.thumbnail,
+                                    uid: auth().currentUser.uid,
+                                });
+                        } else {
+                            documentSnapshot = 
+                            await firestore()
+                                .collection("Posts")
+                                .doc(this.state.itemId)
+                                .update({
+                                    category: this.state.category,
+                                    date: firestore.Timestamp.fromMillis(this.state.date.getTime()),
+                                    modifyDate: firestore.Timestamp.fromMillis((new Date()).getTime()),
+                                    link: this.state.link,
+                                    title: this.state.title,
+                                    subtitle: this.state.subtitle,
+                                    likeNumber: this.state.likeChecked,
+                                    likeCount: 0,
+                                    dislikeCount: 0,
+                                    viewCount: 0,
+                                    security: this.state.security,
+                                    account: this.state.users,
+                                    viewcode: this.state.viewcode,
+                                    thumbnail: this.state.thumbnail,
+                                    uid: auth().currentUser.uid,
+                                });
+                        }
+
+                        postId = (this.state.edit ? this.state.itemId : documentSnapshot._documentPath._parts[1]);
+                        
+                        await firestore()
                             .collection("Users")
                             .doc(auth().currentUser.uid)
                             .update({
-                                logsLength: firestore.FieldValue.increment(1),
+                                logsLength: firestore.FieldValue.increment(!this.state.edit ? 1 : 0),
                                 modifyDate: firestore.Timestamp.fromMillis((new Date()).getTime()),
                             });
-                            // var filename = this.state.thumbnail.split('/');
-
-                            // var storageRef = storage().ref(`${auth().currentUser.uid}/${documentSnapshot._documentPath._parts[1]}/${filename[filename.length - 1]}`);
-                            // await storageRef.putFile(this.state.thumbnail);
-
-                            // this.setState({thumbnail: filename[filename.length - 1]})
 
                             var updateData = this.state.data;
                             for (var i=0; i < this.state.data.length; i++) {
                                 filename = this.state.data[i].photo.split('/');
-                                storageChildRef = storage().ref(`${auth().currentUser.uid}/${documentSnapshot._documentPath._parts[1]}/${filename[filename.length - 1]}`)
+                                storageChildRef = storage().ref(`${auth().currentUser.uid}/${postId}/${filename[filename.length - 1]}`)
                                 await storageChildRef.putFile(this.state.data[i].photo);
 
                                 updateData[i].photo = filename[filename.length - 1];
                                 this.setState({completed: Math.round((i + 1) * 1000 / this.state.data.length) / 10});
                             }
-                            // this.setState({data: updateData});
 
                             await firestore()
                                 .collection("Posts")
-                                .doc(documentSnapshot._documentPath._parts[1])
+                                .doc(postId)
                                 .update({
                                     data: [...this.state.preData, ...updateData]
                                 })
@@ -772,19 +797,11 @@ export default class AddList extends Component {
                                 .collection("Users")
                                 .doc(auth().currentUser.uid)
                                 .collection("log")
-                                .doc(documentSnapshot._documentPath._parts[1])
+                                .doc(postId)
                                 .set({
                                     date: firestore.Timestamp.fromMillis(this.state.date.getTime()),
                                     security: this.state.security,
                                 });
-                            Alert.alert(
-                                translate("Success"),
-                                translate("AddListComment7"), //성공적으로 업로드됐습니다.
-                                [
-                                {text: translate("OK"), onPress: () => console.log('OK Pressed')},
-                                ],
-                                { cancelable: false }
-                            );
                             
                             if (this.state.ads) {
                                 try {
@@ -795,11 +812,22 @@ export default class AddList extends Component {
                             }
 
                             this.setState({loading: false});
-                            // this.props.route.params.onPop();
+                            
+                            Alert.alert(
+                                translate("Success"),
+                                translate("AddListComment7"), //성공적으로 업로드됐습니다.
+                                [
+                                {text: translate("OK"), onPress: () => console.log('OK Pressed')},
+                                ],
+                                { cancelable: false }
+                            );
+
+                            if (this.state.edit) {
+                                this.props.route.params.onPop();
+                            }
                             this.props.navigation.pop();
-                        });
                     }}>
-                        <Text style={styles.loginText}>{translate("AddList")}</Text>
+                        <Text style={styles.loginText}>{this.state.edit ? translate("EditList") : translate("AddList")}</Text>
                     </TouchableOpacity>
                 </ScrollView>}
             </SafeAreaView>

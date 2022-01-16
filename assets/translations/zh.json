@@ -24,7 +24,7 @@
     "Followings":"Followings",
     "Purchase":"取消购买/购买（删除广告）",
     "Language" : "语言变更",
-    "AddListComment1":"照片越多，上传时间越长。",
+    "AddListComment1":"照片越多，上传时间越长。 如果不是漏洞，在上传期间请不要关闭应用程序...",
     "Category.":"类别",
     "Travel":"旅行",
     "DailyLife":"日常",
@@ -117,7 +117,7 @@
     "Notice" : "公告事项",
     "MeEmpty" : "没有数据。 上端菜单中可以添加。",
     "HomeEmpty" : "没有数据。 请关注其他账号吧!",
-    "beta": "(贝塔)", 
+    "beta": "", 
     "AddListComment8" : "确定要删除这个用户吗？",
     "public": "公众参与",
     "public-link": "链接",
@@ -133,8 +133,10 @@
     "modifyDate": "更改日期",
     "ShowDetailComment1": "转到所有者设置的相关链接。",
     "EditPhotos" : "编辑照片",
+    "EditLog" : "修改日志",
     "ShowScreenComment1" : "这不是有效的日志。",
     "ShowScreenComment2" : "那个在一定时间内可以变更。",
     "like": "喜好",
-    "dislike": "讨厌"
+    "dislike": "讨厌",
+    "mailAddress": "错误， 翻译错误询问邮件"
 }

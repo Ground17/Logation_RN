@@ -13,6 +13,8 @@ import {
   Alert,
 } from 'react-native';
 
+import Share from 'react-native-share';
+
 import FastImage from 'react-native-fast-image';
 
 import { itemSkus, adsFree, translate, adBannerUnitId } from '../Utils';
@@ -380,6 +382,7 @@ export default class Me extends Component {
                 dislikeCount: item.dislikeCount,
                 viewcode: item.viewcode,
                 viewCount: item.viewCount,
+                preUser: item.account,
                 onPop: () => this.refresh(),
             }) }}
         >
@@ -472,12 +475,53 @@ export default class Me extends Component {
                             />
                         </TouchableOpacity>
                     </View>
-                    <Text style={{fontWeight: 'bold', textAlign: 'center', marginTop: 10, color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}>
-                        {this.props.route != null ? this.state.displayName : auth().currentUser.displayName}
-                    </Text>
-                    <Text selectable style={{textAlign: 'center', color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}>
-                        {this.props.route != null ? this.props.route.params.userUid : auth().currentUser.uid}
-                    </Text>
+
+                    <View style={{justifyContent: 'space-between', alignItems: 'center', flexDirection: 'row',}}>
+                        <View style={{justifyContent: 'center', alignItems: 'center', marginLeft:15}}>
+                            <Text style={{fontWeight: 'bold', textAlign: 'center', marginTop: 10, color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}>
+                                {this.props.route != null ? this.state.displayName : auth().currentUser.displayName}
+                            </Text>
+                            <Text selectable style={{textAlign: 'center', color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}>
+                                {this.props.route != null ? this.props.route.params.userUid : auth().currentUser.uid}
+                            </Text>
+                        </View>
+                        <TouchableOpacity style={{justifyContent: 'center', alignItems: 'center', marginRight:15}} onPress={() => { 
+                            const url = 'https://travelog-4e274.web.app/?user=' + (this.props.route != null ? this.props.route.params.userUid : auth().currentUser.uid);
+                            const title = 'URL Content';
+                            const message = 'Please check this out.';
+                            const options = Platform.select({
+                                ios: {
+                                    activityItemSources: [
+                                        { // For sharing url with custom title.
+                                        placeholderItem: { type: 'url', content: url },
+                                        item: {
+                                            default: { type: 'url', content: url },
+                                        },
+                                        subject: {
+                                            default: title,
+                                        },
+                                        linkMetadata: { originalUrl: url, url, title },
+                                        },
+                                    ],
+                                },
+                                default: {
+                                    title,
+                                    subject: title,
+                                    message: `${message} ${url}`,
+                                },
+                            });
+                            Share.open(options)
+                                .then((res) => { console.log(res) })
+                                .catch((err) => { err && console.log(err); });
+                            }}>
+                            <Icon
+                                name='share'
+                                size={24}
+                                color={ Appearance.getColorScheme() === 'dark' ? '#ffffff' : '#002f6c' }
+                            />
+                        </TouchableOpacity>
+                    </View>
+
                     <View style={{
                         flexDirection: 'row',
                         alignItems: 'center',

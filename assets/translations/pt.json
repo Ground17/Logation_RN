@@ -24,7 +24,7 @@
     "Followings" : "Seguintes",
     "Purchase" : "Comprar / Cancelar (sem anúncios)",
     "Language" : "Mudar a Língua",
-    "AddListComment1" : "Quanto mais fotos você tiver, mais tempo levará para fazer o upload.",
+    "AddListComment1" : "Quanto mais fotos você tiver, mais tempo levará para fazer o upload. Por favor, não encerre o aplicativo durante o upload, a menos que seja um bug...",
     "Category" : "Categoria",
     "Travel" : "Viagem",
     "DailyLife" : "Vida cotidiana",
@@ -117,7 +117,7 @@
     "Notice" : "Aviso",
     "MeEmpty" : "Os dados não estão disponíveis. Você pode adicioná-lo no menu superior.",
     "HomeEmpty" : "Os dados não estão disponíveis. Siga mais outras contas!",
-    "beta": "(Beta)", 
+    "beta": "", 
     "AddListComment8" : "Deseja excluir este usuário?",
     "public": "Público",
     "public-link": "Link",
@@ -133,8 +133,10 @@
     "modifyDate": "Data modificada",
     "ShowDetailComment1": "Vá para o link relevante definido pelo proprietário",
     "EditPhotos" : "Editar foto",
+    "EditLog" : "Editar Log",
     "ShowScreenComment1" : "Este não é um log válido.",
     "ShowScreenComment2" : "Pode ser modificado após um certo tempo.",
     "like": "gostos",
-    "dislike": "desgostos"
+    "dislike": "desgostos",
+    "mailAddress": "Bug, e-mail de consulta de erro de tradução"
 }
