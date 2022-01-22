@@ -27,6 +27,7 @@
     "AddListComment1" : "The more pictures you have, the more time it can take to upload. Please don't terminate app while uploading unless it's a bug...",
     "Category" : "Category",
     "Travel" : "Travel",
+    "Date" : "Date",
     "DailyLife" : "Daily Life",
     "Entertainment" : "Entertainment",
     "Sports" : "Sports",
@@ -136,6 +137,7 @@
     "EditLog": "Edit Log",
     "ShowScreenComment1" : "This is not a valid log.",
     "ShowScreenComment2" : "It can be modified after a certain time.",
+    "ShowScreenComment3" : "You don't have permission.",
     "like": "likes",
     "dislike": "dislikes",
     "mailAddress": "Bug, translation error inquiry email"

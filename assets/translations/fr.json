@@ -27,6 +27,7 @@
     "AddListComment1" : "Plus vous avez de photos, plus le téléchargement peut prendre de temps. Veuillez ne pas mettre fin à l'application pendant le téléchargement, sauf s'il s'agit d'un bogue...",
     "Category" : "Catégorie",
     "Travel" : "Voyage",
+    "Date" : "Date",
     "DailyLife" : "La vie quotidienne",
     "Entertainment" : "Divertissement",
     "Sports" : "Des sports",
@@ -136,6 +137,7 @@
     "EditLog" : "Modifier Bûche",
     "ShowScreenComment1" : "Ce journal n'est pas valide.",
     "ShowScreenComment2" : "Il peut être modifié après un certain temps.",
+    "ShowScreenComment3" : "Vous n'avez pas la permission.",
     "like": "aime",
     "dislike": "n'aime pas",
     "mailAddress": "Bogue, e-mail de demande d'erreur de traduction"

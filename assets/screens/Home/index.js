@@ -109,6 +109,7 @@ export default class Home extends Component {
                                 likeNumber: data.likeNumber,
                                 viewcode: data.viewcode,
                                 viewCount: data.viewCount,
+                                thumbnail: data.thumbnail,
                             });
                         }
                     }
@@ -171,15 +172,16 @@ export default class Home extends Component {
                         viewcode: item.viewcode,
                         viewCount: item.viewCount,
                         preUser: item.account,
+                        thumbnail: item.thumbnail,
                         onPop: () => this.refresh(),
                     }) 
                 }}>
                 <FastImage
                     style={{ width: "100%", height: 200 }}
-                    source={{
+                    source={item.url ? {
                         uri: item.url,
-                        priority: FastImage.priority.high,
-                    }}
+                        priority: FastImage.priority.high
+                    } : require('./../../logo/ic_launcher.png')}
                     resizeMode={FastImage.resizeMode.contain}
                 />
             </TouchableOpacity>
@@ -206,6 +208,7 @@ export default class Home extends Component {
                         viewcode: item.viewcode,
                         viewCount: item.viewCount,
                         preUser: item.account,
+                        thumbnail: item.thumbnail,
                         onPop: () => this.refresh(),
                     }) 
                 }}

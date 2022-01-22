@@ -137,6 +137,7 @@ export default class Me extends Component {
                                     dislikeCount: data.dislikeCount,
                                     viewcode: data.viewcode,
                                     viewCount: data.viewCount,
+                                    thumbnail: data.thumbnail,
                                 });
                             }
                         } else {
@@ -383,16 +384,17 @@ export default class Me extends Component {
                 viewcode: item.viewcode,
                 viewCount: item.viewCount,
                 preUser: item.account,
+                thumbnail: item.thumbnail,
                 onPop: () => this.refresh(),
             }) }}
         >
         <View style={{flex:1/5, aspectRatio:1}}>
           <FastImage
             style={{flex: 1}}
-            source={{ 
-              uri: item.url,
-              priority: FastImage.priority.high,
-            }}
+            source={item.url ? {
+                uri: item.url,
+                priority: FastImage.priority.high
+            } : require('./../../logo/ic_launcher.png')}
           />
         </View>
         <ListItem.Content>
@@ -478,10 +480,10 @@ export default class Me extends Component {
 
                     <View style={{justifyContent: 'space-between', alignItems: 'center', flexDirection: 'row',}}>
                         <View style={{justifyContent: 'center', alignItems: 'center', marginLeft:15}}>
-                            <Text style={{fontWeight: 'bold', textAlign: 'center', marginTop: 10, color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}>
+                            <Text style={{fontWeight: 'bold', textAlign: 'left', marginTop: 10, color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}>
                                 {this.props.route != null ? this.state.displayName : auth().currentUser.displayName}
                             </Text>
-                            <Text selectable style={{textAlign: 'center', color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}>
+                            <Text selectable style={{textAlign: 'left', color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}>
                                 {this.props.route != null ? this.props.route.params.userUid : auth().currentUser.uid}
                             </Text>
                         </View>

@@ -27,6 +27,7 @@
     "AddListComment1" : "Je mehr Bilder Sie haben, desto länger kann das Hochladen dauern. Bitte beenden Sie die App nicht während des Hochladens, es sei denn, es handelt sich um einen Fehler ...",
     "Category" : "Kategorie",
     "Travel" : "Reise",
+    "Date" : "Datum",
     "DailyLife" : "Alltag",
     "Entertainment" : "Unterhaltung",
     "Sports" : "Sport",
@@ -136,6 +137,7 @@
     "EditLog" : "Log bearbeiten",
     "ShowScreenComment1" : "Dies ist kein gültiges Log.",
     "ShowScreenComment2" : "Es kann nach einer bestimmten Zeit geändert werden.",
+    "ShowScreenComment3" : "Sie haben keine Berechtigung.",
     "like": "Likes",
     "dislike": "Dislikes",
     "mailAddress": "Bug, Anfrage-E-Mail zu Übersetzungsfehlern"

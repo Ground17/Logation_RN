@@ -362,12 +362,13 @@ export default class AddList extends Component {
                                 this.setState({category: itemIndex})
                             }>
                             <Picker.Item label={translate("Travel")} value={0} color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
-                            <Picker.Item label={translate("DailyLife")} value={1} color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
-                            <Picker.Item label={translate("Entertainment")} value={2} color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
-                            <Picker.Item label={translate("Sports")} value={3} color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
-                            <Picker.Item label={translate("News")} value={4} color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
-                            <Picker.Item label={translate("Education")} value={5} color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
-                            <Picker.Item label={translate("Other")} value={6} color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
+                            <Picker.Item label={translate("Date")} value={1} color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
+                            <Picker.Item label={translate("DailyLife")} value={2} color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
+                            <Picker.Item label={translate("Entertainment")} value={3} color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
+                            <Picker.Item label={translate("Sports")} value={4} color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
+                            <Picker.Item label={translate("News")} value={5} color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
+                            <Picker.Item label={translate("Education")} value={6} color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
+                            <Picker.Item label={translate("Other")} value={7} color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
                         </Picker>
                     </View>
                     <View style={{height: 200, width: "100%", alignItems: 'center', justifyContent: 'center', flexDirection: 'row'}}>

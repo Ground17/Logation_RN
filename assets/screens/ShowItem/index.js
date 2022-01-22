@@ -416,9 +416,10 @@ export default class ShowItem extends Component {
                     resizeMode="contain"
                     imageBackgroundColor="#000000"
                     style={{width: this.state.imgWidth, height: this.state.imgHeight}}
-                    source={{ 
-                      uri: this.state.url,
-                    }}
+                    source={this.state.url ? {
+                        uri: this.state.url,
+                        priority: FastImage.priority.high
+                    } : require('./../../logo/ic_launcher.png')}
                   />
                   { this.state.thumbnail == this.state.index && <Icon
                     style={{position: 'absolute', top: 0, right: 0}}

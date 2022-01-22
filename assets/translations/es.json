@@ -27,6 +27,7 @@
     "AddListComment1" : "Cuantas más imágenes tengas, más tiempo puede tardar en subirse. Por favor, no finalice la aplicación mientras se carga a menos que sea un error...",
     "Category" : "Categoría",
     "Travel" : "Viaje",
+    "Date" : "Fecha",
     "DailyLife" : "Vida diaria",
     "Entertainment" : "Entretenimiento",
     "Sports" : "Deportes",
@@ -136,6 +137,7 @@
     "EditLog" : "Editar Log",
     "ShowScreenComment1" : "Este no es un registro válido.",
     "ShowScreenComment2" : "Se puede modificar después de un tiempo determinado.",
+    "ShowScreenComment3" : "No tienes permiso.",
     "like": "de me gusta",
     "dislike": "no me gusta",
     "mailAddress": "Error, correo electrónico de consulta de error de traducción"

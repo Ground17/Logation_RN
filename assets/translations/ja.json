@@ -27,6 +27,7 @@
     "AddListComment1":"写真が多いほどアップロードに長い時間がかかります。 バグではない場合、アップロード中にアプリを終了しないでください。",
     "Category":"カテゴリ",
     "Travel":"旅行",
+    "Date" : "デート",
     "DailyLife":"日常",
     "Entertainment":"エンターテインメント",
     "Sports":"スポーツ",
@@ -136,6 +137,7 @@
     "EditLog" : "ログ修正",
     "ShowScreenComment1" : "有効なログではありません。",
     "ShowScreenComment2" : "一定時間後に修正できます。",
+    "ShowScreenComment3" : "権限がありません。",
     "like": "好きです",
     "dislike": "嫌いです",
     "mailAddress": "バグ、翻訳ミスのお問い合わせメール"

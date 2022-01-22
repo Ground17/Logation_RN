@@ -264,6 +264,26 @@ export default class ShowScreen extends Component {
           if (documentSnapshot.exists) {
             const data = documentSnapshot.data();
             if (data.hasOwnProperty('data') && data.data.length > 0) {
+
+              if (data.security == 2 && data.uid != auth().currentUser.uid && !data.account.includes(auth().currentUser.uid)) { // 비공개 로그
+                Alert.alert(
+                  translate('Alert'), // 알림
+                  translate('ShowScreenComment3'), // 권한이 없습니다.
+                  [
+                      {
+                        text: translate('OK'),
+                        onPress: async () => {
+                          console.log("OK");
+                        }
+                      },
+                  ],
+                  { cancelable: true }
+                );
+
+                this.props.navigation.pop();
+                return;
+              }
+
               this.setState({
                 data: data.data,
                 viewcode: data.viewcode,
@@ -283,6 +303,7 @@ export default class ShowScreen extends Component {
                 likeNumber: data.likeNumber,
                 userUid: data.uid,
                 preUser: data.account,
+                thumbnail: data.thumbnail,
               });
             } else {
               this.setState({
@@ -446,6 +467,7 @@ export default class ShowScreen extends Component {
         profileURL: this.props.route.params.profileURL || '',
         userUid: this.props.route.params.userUid || '',
         preUser: this.props.route.params.preUser || [],
+        thumbnail: this.props.route.params.thumbnail || 0,
         marginBottom: 1,
       });
 
@@ -648,9 +670,10 @@ export default class ShowScreen extends Component {
                   <View>
                     <FastImage
                       style={{ height: height * 0.2, width: width * 0.3 }}
-                      source={{ 
-                        uri: item.url,
-                      }}
+                      source={item.url ? {
+                          uri: item.url,
+                          priority: FastImage.priority.high
+                      } : require('./../../logo/ic_launcher.png')}
                     />
                     { this.state.thumbnail == index && <Icon
                       style={{position: 'absolute', top: 0, right: 0}}
@@ -719,10 +742,10 @@ export default class ShowScreen extends Component {
                       <View style={{flex:1, aspectRatio: CARD_WIDTH / CARD_HEIGHT}}>
                         <FastImage
                           style={{flex: 1}}
-                          source={{ 
-                            uri: item.url,
-                            priority: FastImage.priority.high,
-                          }}
+                          source={item.url ? {
+                              uri: item.url,
+                              priority: FastImage.priority.high
+                          } : require('./../../logo/ic_launcher.png')}
                         />
                         { this.state.thumbnail == index && <Icon
                           style={{position: 'absolute', top: 0, right: 0}}

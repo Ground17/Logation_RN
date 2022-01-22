@@ -27,6 +27,7 @@
     "AddListComment1" : "Quanto mais fotos você tiver, mais tempo levará para fazer o upload. Por favor, não encerre o aplicativo durante o upload, a menos que seja um bug...",
     "Category" : "Categoria",
     "Travel" : "Viagem",
+    "Date" : "Encontro",
     "DailyLife" : "Vida cotidiana",
     "Entertainment" : "Entretenimento",
     "Sports" : "Esportes",
@@ -136,6 +137,7 @@
     "EditLog" : "Editar Log",
     "ShowScreenComment1" : "Este não é um log válido.",
     "ShowScreenComment2" : "Pode ser modificado após um certo tempo.",
+    "ShowScreenComment3" : "Você não tem permissão.",
     "like": "gostos",
     "dislike": "desgostos",
     "mailAddress": "Bug, e-mail de consulta de erro de tradução"

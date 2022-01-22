@@ -27,6 +27,7 @@
     "AddListComment1" : "사진이 많을수록 업로드에 긴 시간이 소요됩니다. 버그가 아니라면, 업로드하는 동안 앱을 종료하지 말아주세요...",
     "Category" : "카테고리",
     "Travel" : "여행",
+    "Date" : "데이트",
     "DailyLife" : "일상",
     "Entertainment" : "엔터테인먼트",
     "Sports" : "스포츠",
@@ -136,6 +137,7 @@
     "EditLog" : "로그 수정",
     "ShowScreenComment1" : "유효한 로그가 아닙니다.",
     "ShowScreenComment2" : "일정시간 후 수정 가능합니다.",
+    "ShowScreenComment3" : "권한이 없습니다.",
     "like": "좋아요",
     "dislike": "싫어요",
     "mailAddress": "버그, 번역 오류 문의 메일"
