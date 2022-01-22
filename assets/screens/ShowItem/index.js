@@ -418,7 +418,6 @@ export default class ShowItem extends Component {
                     style={{width: this.state.imgWidth, height: this.state.imgHeight}}
                     source={this.state.url ? {
                         uri: this.state.url,
-                        priority: FastImage.priority.high
                     } : require('./../../logo/ic_launcher.png')}
                   />
                   { this.state.thumbnail == this.state.index && <Icon

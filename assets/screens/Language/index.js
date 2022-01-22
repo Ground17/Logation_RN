@@ -9,15 +9,17 @@ import RNRestart from 'react-native-restart';
 import messaging from '@react-native-firebase/messaging';
 import i18n from 'i18n-js';
 
+import AsyncStorage from '@react-native-community/async-storage';
+
 export default Language = ({navigation}) => {
   const {appLanguage, setAppLanguage} = useContext(
     LocalizationContext,
   );
 
-  const handleSetLanguage = async language => {
-    await setAppLanguage(language);
-    RNRestart.Restart();
-  };
+  // const handleSetLanguage = async language => {
+  //   await setAppLanguage(language);
+  //   RNRestart.Restart();
+  // };
 
   useEffect(() => {
     navigation.setOptions({ title: translate("Language") });
@@ -30,11 +32,15 @@ export default Language = ({navigation}) => {
       [
           {text: translate('Cancel'), onPress: () => {}},
           {text: translate('OK'), onPress: async () => { 
-            await messaging().unsubscribeFromTopic(i18n.locale).then(() => console.log('Unsubscribed fom the topic!'));
-            handleSetLanguage(language);
+            await messaging().unsubscribeFromTopic(i18n.locale);
+            console.log('Unsubscribed fom the topic!');
+            // handleSetLanguage(language);
+            // await setAppLanguage(language);
+            await AsyncStorage.setItem('appLanguage', language);
+            RNRestart.Restart();
           }},
       ],
-      { cancelable: false }
+      { cancelable: true }
     );
   };
 
