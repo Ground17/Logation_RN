@@ -68,6 +68,16 @@
           </button>
         </div>
         <hr>
+        <iframe width="480" height="270"
+          src="https://www.youtube.com/embed/6_ipir_SWe0">
+        </iframe>
+        <iframe width="480" height="270"
+          src="https://www.youtube.com/embed/-pwotXZAapg">
+        </iframe>
+        <div style="display: flex; justify-content: space-around" id="da">
+          
+        </div>
+        <hr>
         <div style="display: flex; justify-content: space-around">
           <a href="/policy"> <pre id="policy"></pre> </a>
           <a href="/notice"> <pre id="notice"></pre> </a>
@@ -80,10 +90,12 @@
         ko: {
           "policy": "개인정보처리방침",
           "notice": "공지사항",
+          "da": "모동숲 꿈번지: DA-7447-0430-4632",
         },
         en: {
           "policy": "Privacy Policy",
           "notice": "Notice",
+          "da": "ACNH DA: DA-7447-0430-4632",
         },
         // ja: {
         //   "policy": "個人情報処理方針",
@@ -125,7 +137,11 @@
 
         for(key in languageSet[code]) {
           console.log(key);
-          document.getElementById(key).innerHTML = languageSet[code][key];
+          if (key != "da") {
+            document.getElementById(key).innerHTML = languageSet[code][key];
+          } else {
+            document.getElementById(key).innerHTML = languageSet[code][key];
+          }
         }
       }
     </script>
