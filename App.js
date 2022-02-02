@@ -105,16 +105,20 @@ function Main({ navigation }) {
       console.log(status);
     }
     
-    if (Platform.OS !== 'android') {
+    if (url) {
+      url.remove();
+    }
+    setUrl(Linking.addEventListener('url', this.handleOpenURL));
+    
+    Linking.getInitialURL().then(url => {
+      this.navigate(url);
+    });
+
+    return () => {
       if (url) {
         url.remove();
       }
-      setUrl(Linking.addEventListener('url', this.handleOpenURL));
-    } else {
-      Linking.getInitialURL().then(url => {
-        this.navigate(url);
-      });
-    }
+    };
   }, [screen]);
   
   initializeAppLanguage().then(() => {

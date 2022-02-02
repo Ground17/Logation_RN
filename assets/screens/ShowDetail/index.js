@@ -126,6 +126,7 @@ export default class ShowDetail extends Component {
                     uri:
                     this.state.profileURL,
                 } : require('./../../logo/ic_launcher.png')}
+                onError={() => this.setState({profileURL: ''})}
               />
             </View>
             <ListItem.Content>

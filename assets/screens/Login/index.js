@@ -246,43 +246,6 @@ export default class Login extends Component {
     });
 
     this.props.navigation.setOptions({ title: translate("SignIn") });
-
-    Linking.getInitialURL().then(url => {
-      this.navigate(url);
-    });
-    
-    Linking.addEventListener('url', this.handleOpenURL);
-  }
-
-  componentWillUnmount() {
-      Linking.removeEventListener('url', this.handleOpenURL);
-  }
-
-  handleOpenURL = (event) => {
-    console.log(event.url);
-    this.navigate(event.url);
-  }
-
-  navigate = (url) => {
-    var regex = /[?&]([^=#]+)=([^&#]*)/g,
-        params = {},
-        match;
-    var i = 0;
-    while (match = regex.exec(url)) {
-        params[match[1]] = match[2];
-        i++;
-    }
-    console.log(params)
-    if (!params['user'] && !params['id']) {
-        return;
-    }
-    Alert.alert(
-      translate('LoginOpenURL'), // 로그인 후 URL에 다시 접속해주세요.
-      [
-        {text: translate('OK'), onPress: () => console.log('OK Pressed')},
-      ],
-      { cancelable: false }
-    );
   }
 
   render() {

@@ -267,7 +267,7 @@ export default class Me extends Component {
             const data = user.data();
             var URL = "";
             try {
-                URL = `https://storage.googleapis.com/travelog-4e274.appspot.com/${this.props.route.params.preUser[i]}/profile/profile_144x144.jpeg`;
+                URL = `https://storage.googleapis.com/travelog-4e274.appspot.com/${uid}/profile/profile_144x144.jpeg`;
             } catch (e) {
                 console.log(e);
             } finally {
@@ -475,6 +475,7 @@ export default class Me extends Component {
                                     uri:
                                     this.state.profileURL,
                                 } : require('./../../logo/ic_launcher.png')}
+                                onError={() => this.setState({profileURL: ''})}
                             />
                         </TouchableOpacity>
                     </View>

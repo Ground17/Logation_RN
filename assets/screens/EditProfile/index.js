@@ -88,6 +88,7 @@ export default class EditProfile extends Component {
                                 uri:
                                 this.state.profileURL,
                             } : require('./../../logo/ic_launcher.png')}
+                            onError={() => this.setState({profileURL: ''})}
                         />
                     </TouchableOpacity>
                 </View>

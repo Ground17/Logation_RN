@@ -192,6 +192,7 @@ export default class AddList extends Component {
                 <FastImage
                     style={{flex: 1, borderRadius: 100}}
                     source={this.state.userDetail[index].url ? { uri: this.state.userDetail[index].url } : require('./../../logo/ic_launcher.png')}
+                    
                 />
             </TouchableOpacity>
         </View>
