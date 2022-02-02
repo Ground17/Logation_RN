@@ -53,6 +53,42 @@ function Main({ navigation }) {
   const [feed, setFeed] = useState("");
   const [me, setMe] = useState("");
   const { initializeAppLanguage } = useContext(LocalizationContext);
+  const [url, setUrl] = useState(null);
+
+  handleOpenURL = (event) => {
+    console.log(event.url);
+    this.navigate(event.url);
+  }
+
+  navigate = (url) => {
+    var regex = /[?&]([^=#]+)=([^&#]*)/g,
+        params = {},
+        match;
+    // var i = 0;
+    
+    while (match = regex.exec(url)) {
+        params[match[1]] = match[2];
+        // i++;
+    }
+    console.log("params:", params);
+
+    // 'https://travelog-4e274.web.app/?id=' + this.props.route.params.itemId;
+    // 'https://travelog-4e274.web.app/?user=' + this.props.route.params.userUid;
+    if (!params['user'] && !params['id']) {
+        return;
+    }
+    if (params['id']) {
+      navigation.push('ShowScreen', {
+        itemId: params['id'],
+        // onPop: null,
+      });
+    } else if (params['user'] != auth().currentUser.uid) {
+      navigation.push('Me', { // Other
+        other: true,
+        userUid: params['user'],
+      });
+    }
+  }
    
   firestore().collection("Users").doc(auth().currentUser.uid).get().then((user) => {
     if (!user.exists) { // Login 후에 진행하도록 변경
@@ -66,52 +102,19 @@ function Main({ navigation }) {
 
   useEffect(() => {
     function handleStatusChange(status) {
-      this.navigate(event.url);
+      console.log(status);
     }
-
-    function navigate(url) {
-      var regex = /[?&]([^=#]+)=([^&#]*)/g,
-          params = {},
-          match;
-      // var i = 0;
-      
-      while (match = regex.exec(url)) {
-          params[match[1]] = match[2];
-          // i++;
+    
+    if (Platform.OS !== 'android') {
+      if (url) {
+        url.remove();
       }
-      console.log(params);
-
-      // 'https://travelog-4e274.web.app/?id=' + this.props.route.params.itemId;
-      // 'https://travelog-4e274.web.app/?user=' + this.props.route.params.userUid;
-      if (!params['user'] || !params['id']) {
-          return;
-      }
-      if (params['id']) {
-        navigation.push('ShowScreen', {
-          itemId: params['id'],
-          onPop: () => this.refresh(),
-        });
-      } else if (params['user'] != auth().currentUser.uid) {
-        navigation.push('Me', { // Other
-          other: true,
-          userUid: params['user'],
-        });
-      }
-      
-    }
-    if (Platform.OS === 'android') {
-        Linking.getInitialURL().then(url => {
-            this.navigate(url);
-        });
+      setUrl(Linking.addEventListener('url', this.handleOpenURL));
     } else {
-        Linking.addEventListener('url', this.handleOpenURL);
+      Linking.getInitialURL().then(url => {
+        this.navigate(url);
+      });
     }
-    // effect 이후에 어떻게 정리(clean-up)할 것인지 표시합니다.
-    return function cleanup() {
-      if (Platform.OS !== 'android') {
-        Linking.removeEventListener('url', this.handleOpenURL);
-      }
-    };
   }, [screen]);
   
   initializeAppLanguage().then(() => {

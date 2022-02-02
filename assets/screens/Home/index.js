@@ -86,8 +86,10 @@ export default class Home extends Component {
                             }
                             var photo = (data.thumbnail >= 0 && data.thumbnail < data.data.length) ? data.data[data.thumbnail].photo : data.data[0].photo;
                             photo = photo.substr(0, photo.lastIndexOf('.'));
-                            URL = await storageRef.child(data.uid + "/" + querySnap.docs[j].id + "/" + photo + "_1080x1080.jpeg").getDownloadURL();
-                            profileURL = await storageRef.child(`${data.uid}/profile/profile_144x144.jpeg`).getDownloadURL() || '';
+                            // URL = await storageRef.child(data.uid + "/" + querySnap.docs[j].id + "/" + photo + "_1080x1080.jpeg").getDownloadURL();
+                            // profileURL = await storageRef.child(`${data.uid}/profile/profile_144x144.jpeg`).getDownloadURL() || '';
+                            URL = `https://storage.googleapis.com/travelog-4e274.appspot.com/${data.uid}/${querySnap.docs[j].id}/${photo}_1080x1080.jpeg`;
+                            profileURL = `https://storage.googleapis.com/travelog-4e274.appspot.com/${data.uid}/profile/profile_144x144.jpeg`;
                         } catch (e) {
                             console.log(e);
                         } finally {

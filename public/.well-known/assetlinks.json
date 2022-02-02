@@ -1,11 +1,11 @@
 [{
-    "relation": ["delegate_permission/common.handle_all_urls"],
-    "target": {
-      "namespace": "android_app",
-      "package_name": "com.hyla981020.logory",
-      "sha256_cert_fingerprints": [
-        "B4:FD:04:93:78:01:A4:B4:CB:3D:E7:3D:A7:37:03:C6:16:E0:9B:5A:59:46:93:DE:46:AA:6C:F1:FE:33:B0:D1",
-        "25:04:8E:10:14:80:62:A8:71:92:DD:8F:C1:8D:BA:98:CF:01:5D:E2:2D:DC:B8:64:6D:CA:71:34:83:D7:BE:44",
-        "08:DF:81:F6:FA:39:67:EE:03:80:57:27:C5:57:C4:EA:3B:A0:60:A3:C4:8A:0E:BB:63:B5:66:80:29:BD:F3:8A"]
-    }
-  }]
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.hyla981020.logory",
+    "sha256_cert_fingerprints": [
+      "B4:FD:04:93:78:01:A4:B4:CB:3D:E7:3D:A7:37:03:C6:16:E0:9B:5A:59:46:93:DE:46:AA:6C:F1:FE:33:B0:D1",
+      "25:04:8E:10:14:80:62:A8:71:92:DD:8F:C1:8D:BA:98:CF:01:5D:E2:2D:DC:B8:64:6D:CA:71:34:83:D7:BE:44",
+      "08:DF:81:F6:FA:39:67:EE:03:80:57:27:C5:57:C4:EA:3B:A0:60:A3:C4:8A:0E:BB:63:B5:66:80:29:BD:F3:8A"]
+  }
+}]

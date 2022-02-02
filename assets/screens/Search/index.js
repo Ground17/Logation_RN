@@ -80,10 +80,12 @@ export default class Search extends Component {
           for (var i = 0; i < querySnapshot.docs.length; i++) {
             console.log('data: ', querySnapshot.docs[i].id, querySnapshot.docs[i].data());
             var data = querySnapshot.docs[i].data();
+            var URL = "";
             try {
-              var URL = await storageRef.child(`${data.uid}/profile/profile_144x144.jpeg`).getDownloadURL();
+              // URL = await storageRef.child(`${data.uid}/profile/profile_144x144.jpeg`).getDownloadURL();
+              URL = `https://storage.googleapis.com/travelog-4e274.appspot.com/${data.uid}/profile/profile_144x144.jpeg`;
             } catch (e) {
-              var URL = '';
+              console.log(e);
             } finally {
               this.setState({
                 list: this.state.list.concat({ 
@@ -107,10 +109,12 @@ export default class Search extends Component {
           for (var i = 0; i < querySnapshot.docs.length; i++) {
             console.log('data: ', querySnapshot.docs[i].id, querySnapshot.docs[i].data());
             var data = querySnapshot.docs[i].data();
+            var URL = "";
             try {
-              var URL = await storageRef.child(`${data.uid}/profile/profile_144x144.jpeg`).getDownloadURL();
+              // var URL = await storageRef.child(`${data.uid}/profile/profile_144x144.jpeg`).getDownloadURL();
+              URL = `https://storage.googleapis.com/travelog-4e274.appspot.com/${data.uid}/profile/profile_144x144.jpeg`;
             } catch (e) {
-              var URL = '';
+              console.log(e);
             } finally {
               this.setState({
                 list: this.state.list.concat({ 
@@ -170,10 +174,12 @@ export default class Search extends Component {
           for (var i = 0; i < querySnapshot.docs.length; i++) {
             console.log('data: ', querySnapshot.docs[i].id, querySnapshot.docs[i].data());
             var data = querySnapshot.docs[i].data();
+            var URL = "";
             try {
-              var URL = await storageRef.child(`${data.uid}/profile/profile_144x144.jpeg`).getDownloadURL();
+              // URL = await storageRef.child(`${data.uid}/profile/profile_144x144.jpeg`).getDownloadURL();
+              URL = `https://storage.googleapis.com/travelog-4e274.appspot.com/${data.uid}/profile/profile_144x144.jpeg`;
             } catch (e) {
-              var URL = '';
+              console.log(e);
             } finally {
               this.setState({
                 list: this.state.list.concat({ 
@@ -196,10 +202,12 @@ export default class Search extends Component {
           for (var i = 0; i < querySnapshot.docs.length; i++) {
             console.log('data: ', querySnapshot.docs[i].id, querySnapshot.docs[i].data());
             var data = querySnapshot.docs[i].data();
+            var URL = "";
             try {
-              var URL = await storageRef.child(`${data.uid}/profile/profile_144x144.jpeg`).getDownloadURL();
+              // URL = await storageRef.child(`${data.uid}/profile/profile_144x144.jpeg`).getDownloadURL();
+              URL = `https://storage.googleapis.com/travelog-4e274.appspot.com/${data.uid}/profile/profile_144x144.jpeg`;
             } catch (e) {
-              var URL = '';
+              console.log(e);
             } finally {
               this.setState({
                 list: this.state.list.concat({ 

@@ -273,7 +273,7 @@ export default class Login extends Component {
         i++;
     }
     console.log(params)
-    if (!params['user'] || !params['id']) {
+    if (!params['user'] && !params['id']) {
         return;
     }
     Alert.alert(

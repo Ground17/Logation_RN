@@ -398,7 +398,8 @@ export default class ShowScreen extends Component {
         try {
           let photo = this.state.data[i].photo;
           photo = photo.substr(0, photo.lastIndexOf('.'));
-          URL = await storageRef.child(this.state.userUid + "/" + this.props.route.params.itemId + "/" + photo + "_1080x1080.jpeg").getDownloadURL();
+          // URL = await storageRef.child(this.state.userUid + "/" + this.props.route.params.itemId + "/" + photo + "_1080x1080.jpeg").getDownloadURL();
+          URL = `https://storage.googleapis.com/travelog-4e274.appspot.com/${this.state.userUid}/${this.props.route.params.itemId}/${photo}_1080x1080.jpeg`;
           modifiedList = modifiedList.concat({ 
             date: this.state.data[i].date,
             title: this.state.data[i].title,
@@ -411,7 +412,8 @@ export default class ShowScreen extends Component {
         } catch (error) {
             console.log(error);
             try {
-              URL = await storageRef.child(this.state.userUid + "/" + this.props.route.params.itemId + "/" + this.state.data[i].photo).getDownloadURL();
+              // URL = await storageRef.child(this.state.userUid + "/" + this.props.route.params.itemId + "/" + this.state.data[i].photo).getDownloadURL();
+              URL = `https://storage.googleapis.com/travelog-4e274.appspot.com/${this.state.userUid}/${this.props.route.params.itemId}/${this.state.data[i].photo}`;
               modifiedList = modifiedList.concat({ 
                 date: this.state.data[i].date,
                 title: this.state.data[i].title,

@@ -242,10 +242,12 @@ export default class AddList extends Component {
 
                 if (documentSnapshot.exists) {
                     const data = documentSnapshot.data();
+                    let URL = '';
                     try {
-                        var URL = await storageRef.child(`${this.props.route.params.preUser[i]}/profile/profile_144x144.jpeg`).getDownloadURL();
+                        // var URL = await storageRef.child(`${this.props.route.params.preUser[i]}/profile/profile_144x144.jpeg`).getDownloadURL();
+                        URL = `https://storage.googleapis.com/travelog-4e274.appspot.com/${this.props.route.params.preUser[i]}/profile/profile_144x144.jpeg`;
                     } catch (e) {
-                        var URL = '';
+                        console.log(e);
                     } finally {
                         temp.push({
                             displayName: data.displayName,

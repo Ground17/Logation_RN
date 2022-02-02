@@ -38,7 +38,8 @@ export default class ShowDetail extends Component {
           displayName = user.data().displayName;
       }
       var storageRef = await storage().ref();
-      profileURL = await storageRef.child(`${this.props.route.params.userUid}/profile/profile_144x144.jpeg`).getDownloadURL() || '';
+      // profileURL = await storageRef.child(`${this.props.route.params.userUid}/profile/profile_144x144.jpeg`).getDownloadURL() || '';
+      profileURL = `https://storage.googleapis.com/travelog-4e274.appspot.com/${this.props.route.params.userUid}/profile/profile_144x144.jpeg`;
 
       this.setState({
         displayName: displayName,

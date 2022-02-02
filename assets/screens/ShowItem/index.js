@@ -263,6 +263,7 @@ export default class ShowItem extends Component {
                           console.log(e);
                         } finally {
                           this.props.route.params.onPop();
+                          this.props.navigation.pop();
                         }
                       });
                   } 

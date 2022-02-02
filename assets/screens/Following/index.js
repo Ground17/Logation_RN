@@ -78,13 +78,15 @@ export default class Following extends Component {
     const user = await firestore().collection("Users").doc(auth().currentUser.uid).collection("following");
     if ((await user.get()).exists) {
       data = (await user.get()).data();
-      for (var i = 0; i < data.following.length; i++) {
+      for (let i = 0; i < data.following.length; i++) {
         const other = await firestore().collection("Users").doc(data.following[i]);
         item = (await other.get()).data();
+        let URL = '';
         try {
-          var URL = await storageRef.child(item.uid + "/" + item.profile).getDownloadURL();
+          // URL = await storageRef.child(item.uid + "/" + item.profile).getDownloadURL();
+          URL = `https://storage.googleapis.com/travelog-4e274.appspot.com/${item.uid}/profile/profile_144x144.jpeg`;
         } catch (e) {
-          var URL = '';
+          console.log(URL);
         } finally {
           this.setState({
             following: this.state.following.concat({ 

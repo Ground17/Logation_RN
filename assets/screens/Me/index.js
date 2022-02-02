@@ -115,7 +115,8 @@ export default class Me extends Component {
                             try {
                                 var photo = (data.thumbnail >= 0 && data.thumbnail < data.data.length) ? data.data[data.thumbnail].photo : data.data[0].photo;
                                 photo = photo.substr(0, photo.lastIndexOf('.'));
-                                URL = await storageRef.child(uid + "/" + querySnapshot.docs[i].id + "/" + photo + "_144x144.jpeg").getDownloadURL();
+                                // URL = await storageRef.child(uid + "/" + querySnapshot.docs[i].id + "/" + photo + "_144x144.jpeg").getDownloadURL();
+                                URL = `https://storage.googleapis.com/travelog-4e274.appspot.com/${uid}/${querySnapshot.docs[i].id}/${photo}_144x144.jpeg`;
                             } catch (e) {
                                 console.log(e);
                             } finally {
@@ -266,7 +267,7 @@ export default class Me extends Component {
             const data = user.data();
             var URL = "";
             try {
-                URL = await storageRef.child(`${uid}/profile/profile_144x144.jpeg`).getDownloadURL() || '';
+                URL = `https://storage.googleapis.com/travelog-4e274.appspot.com/${this.props.route.params.preUser[i]}/profile/profile_144x144.jpeg`;
             } catch (e) {
                 console.log(e);
             } finally {
@@ -345,7 +346,7 @@ export default class Me extends Component {
     //         i++;
     //     }
     //     console.log(params)
-    //     if (!params['user'] || !params['id']) {
+    //     if (!params['user'] && !params['id']) {
     //         return;
     //     }
     //     this.props.navigation.push('ShowScreen', {
@@ -576,7 +577,7 @@ export default class Me extends Component {
                         />}
                     </View>
                     {this.state.list.length > 0 ? <FlatList
-                        style={{width: "100%", height: "100%", backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff" }}
+                        style={{width: "100%", height: "93%", backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff" }}
                         keyExtractor={this.keyExtractor}
                         data={this.state.list}
                         renderItem={this.renderItem}
