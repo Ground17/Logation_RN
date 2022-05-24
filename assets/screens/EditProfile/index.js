@@ -75,6 +75,7 @@ export default class EditProfile extends Component {
                     <TouchableOpacity style={{flex:1/3, aspectRatio:1}} onPress={() => { 
                         ImagePicker.openPicker({
                             mediaType: 'photo',
+                            forceJpg: true,
                             cropping: true,
                             width: 400,
                             height: 400,

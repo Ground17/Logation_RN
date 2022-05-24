@@ -22,6 +22,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import DraggableFlatList from "react-native-draggable-flatlist"; // important!!!
 
 import ImagePicker from 'react-native-image-crop-picker';
+
 import { Picker } from '@react-native-community/picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Input, CheckBox, ListItem, Avatar } from 'react-native-elements';
@@ -70,67 +71,6 @@ export default class AddList extends Component {
 
     keyExtractor = (item, index) => index.toString();
     keyExtractor2 = (item, index) => "avatar-" + index.toString();
-
-    // renderItem = ({ item, index, drag, isActive }) => (
-    //   <ListItem
-    //     title={
-    //         <TextInput
-    //             defaultValue={item.title}
-    //             style={{
-    //                 fontWeight: 'bold', 
-    //                 borderBottomColor: Appearance.getColorScheme() === 'dark' ? "#fff" : '#000',
-    //                 flex:1,
-    //                 color: Appearance.getColorScheme() === 'dark' ? "#fff" : "#000",
-    //             }}
-    //             maxLength={40}
-    //             onChangeText={(title) => {
-    //                 if (title.length < 1) {
-    //                     return;
-    //                 }
-    //                 var updateData = this.state.data;
-    //                 updateData[index].title = title;
-    //                 this.setState({data: updateData});
-    //             }}
-    //         />  
-    //     }
-    //     subtitle={
-    //         <TextInput
-    //             defaultValue={item.subtitle}
-    //             style={{
-    //                 borderBottomColor: Appearance.getColorScheme() === 'dark' ? "#fff" : '#000',
-    //                 flex:1,
-    //                 color: Appearance.getColorScheme() === 'dark' ? "#fff" : "#000",
-    //             }}
-    //             maxLength={40}
-    //             onChangeText = {(subtitle) => {
-    //                 if (subtitle.length < 1) {
-    //                     return;
-    //                 }
-    //                 var updateData = this.state.data;
-    //                 updateData[index].subtitle = subtitle;
-    //                 this.setState({data: updateData});
-    //             }}
-    //         />  
-    //     }
-    //     leftAvatar={{ source: { uri: item.photo }, rounded: false}}
-    //     containerStyle={{backgroundColor: Appearance.getColorScheme() === 'dark' ? '#121212' : '#fff'}}
-    //     onLongPress={drag}
-    //     rightElement={
-    //         <TouchableOpacity style={{marginRight:5}} onPress={() => { 
-    //             var updateData = this.state.data;
-    //             updateData.splice(index, 1);
-    //             this.setState({data: updateData}); }}>
-    //             <Icon
-    //                 name='cancel'
-    //                 size={24}
-    //                 color='#ff0000'
-    //             />
-    //         </TouchableOpacity>
-    //     }
-    //     bottomDivider
-    //     onPress={() => {}}
-    //   />
-    // )
 
     renderItem = ({ item, index, drag, isActive }) => ( // 추가할 사진 표현
         <View>
@@ -199,43 +139,43 @@ export default class AddList extends Component {
     )
 
     async componentDidMount() {
-        var locationCheck = await AsyncStorage.getItem('location');
+        let locationCheck = await AsyncStorage.getItem('location');
         if(locationCheck === null) {
             await AsyncStorage.setItem('location', 'true');
             locationCheck = 'true';
         }
-        var dateCheck = await AsyncStorage.getItem('date');
+        let dateCheck = await AsyncStorage.getItem('date');
         if(dateCheck === null) {
             await AsyncStorage.setItem('date', 'true');
             dateCheck = 'true';
         }
-        var likeCheck = await AsyncStorage.getItem('like');
+        let likeCheck = await AsyncStorage.getItem('like');
         if(likeCheck === null) {
             await AsyncStorage.setItem('like', 'true');
             likeCheck = 'true';
         }
-        var localCategory = await AsyncStorage.getItem('category');
+        let localCategory = await AsyncStorage.getItem('category');
         if (localCategory === null) {
             await AsyncStorage.setItem('category', '0');
             localCategory = 0;
         }
-        var localViewcode = await AsyncStorage.getItem('viewcode');
+        let localViewcode = await AsyncStorage.getItem('viewcode');
         if (localViewcode === null) {
             await AsyncStorage.setItem('viewcode', '0');
             localViewcode = 0;
         }
-        var localSecurity = await AsyncStorage.getItem('security');
+        let localSecurity = await AsyncStorage.getItem('security');
         if (localSecurity === null) {
             await AsyncStorage.setItem('security', '0');
             localSecurity = 0;
         }
 
-        var storageRef = await storage().ref();
+        let storageRef = await storage().ref();
 
-        var temp = [];
+        let temp = [];
 
         if (this.props.route.params != null) {
-            for (var i = 0; i < this.props.route.params.preUser.length; i++) {
+            for (let i = 0; i < this.props.route.params.preUser.length; i++) {
                 const documentSnapshot = await firestore()
                     .collection("Users")
                     .doc(this.props.route.params.preUser[i])
@@ -298,6 +238,48 @@ export default class AddList extends Component {
                     contentContainerStyle={styles.viewContainer}
                     style={{flex: 1, width: "100%", backgroundColor: Appearance.getColorScheme() === 'dark' ? '#121212' : '#fff',}}
                 >
+                    <View style={{height: 200, width: "100%", alignItems: 'center', justifyContent: 'center', flexDirection: 'row'}}>
+                        <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}> {translate("Category")} </Text>
+                        <Picker
+                            selectedValue={this.state.category}
+                            style={{width: 200}}
+                            onValueChange={(itemValue, itemIndex) =>
+                                this.setState({category: itemIndex})
+                            }>
+                            <Picker.Item label={translate("Travel")} value={0} color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
+                            <Picker.Item label={translate("Date")} value={1} color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
+                            <Picker.Item label={translate("DailyLife")} value={2} color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
+                            <Picker.Item label={translate("Entertainment")} value={3} color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
+                            <Picker.Item label={translate("Sports")} value={4} color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
+                            <Picker.Item label={translate("News")} value={5} color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
+                            <Picker.Item label={translate("Education")} value={6} color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
+                            <Picker.Item label={translate("Other")} value={7} color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
+                        </Picker>
+                    </View>
+                    <View style={{height: 200, width: "100%", alignItems: 'center', justifyContent: 'center', flexDirection: 'row'}}>
+                        <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}> {translate("ViewMode")} </Text>
+                        <Picker
+                            selectedValue={this.state.viewcode}
+                            style={{width: 100}}
+                            onValueChange={(itemValue, itemIndex) =>
+                                this.setState({viewcode: itemIndex})
+                            }>
+                            <Picker.Item label={translate("Map")} value={0} color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
+                            <Picker.Item label={translate('Grid')} value={1} color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
+                        </Picker>
+                        <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}> {translate("security")} </Text>
+                        <Picker
+                            selectedValue={this.state.security}
+                            style={{width: 100}}
+                            onValueChange={(itemValue, itemIndex) =>
+                                this.setState({security: itemIndex})
+                            }>
+                            <Picker.Item label={translate('public')} value={0} color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
+                            <Picker.Item label={translate('public-link') + translate('beta')} value={1} color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
+                            <Picker.Item label={translate('private') + translate('beta')} value={2} color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
+                        </Picker>
+                    </View>
+
                     <View style={styles.cellView}>
                         <Input
                             onChangeText={(title) => {
@@ -356,48 +338,7 @@ export default class AddList extends Component {
                             }
                         />
                     </View>
-                    <View style={{height: 200, width: "100%", alignItems: 'center', justifyContent: 'center', flexDirection: 'row'}}>
-                        <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}> {translate("Category")} </Text>
-                        <Picker
-                            selectedValue={this.state.category}
-                            style={{width: 200}}
-                            onValueChange={(itemValue, itemIndex) =>
-                                this.setState({category: itemIndex})
-                            }>
-                            <Picker.Item label={translate("Travel")} value={0} color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
-                            <Picker.Item label={translate("Date")} value={1} color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
-                            <Picker.Item label={translate("DailyLife")} value={2} color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
-                            <Picker.Item label={translate("Entertainment")} value={3} color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
-                            <Picker.Item label={translate("Sports")} value={4} color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
-                            <Picker.Item label={translate("News")} value={5} color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
-                            <Picker.Item label={translate("Education")} value={6} color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
-                            <Picker.Item label={translate("Other")} value={7} color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
-                        </Picker>
-                    </View>
-                    <View style={{height: 200, width: "100%", alignItems: 'center', justifyContent: 'center', flexDirection: 'row'}}>
-                        <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}> {translate("ViewMode")} </Text>
-                        <Picker
-                            selectedValue={this.state.viewcode}
-                            style={{width: 100}}
-                            onValueChange={(itemValue, itemIndex) =>
-                                this.setState({viewcode: itemIndex})
-                            }>
-                            <Picker.Item label={translate("Map")} value={0} color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
-                            <Picker.Item label={translate('Grid')} value={1} color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
-                        </Picker>
-                        <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}> {translate("security")} </Text>
-                        <Picker
-                            selectedValue={this.state.security}
-                            style={{width: 100}}
-                            onValueChange={(itemValue, itemIndex) =>
-                                this.setState({security: itemIndex})
-                            }>
-                            <Picker.Item label={translate('public')} value={0} color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
-                            <Picker.Item label={translate('public-link') + translate('beta')} value={1} color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
-                            <Picker.Item label={translate('private') + translate('beta')} value={2} color={Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'} />
-                        </Picker>
-                    </View>
-                    <Text  
+                    <Text
                         onPress={() => this.setState({show: !this.state.show})}
                         style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}
                     > 
@@ -412,7 +353,7 @@ export default class AddList extends Component {
                             is24Hour={true}
                             display={Platform.OS === 'android' ? "default" : "inline"}
                             onChange={ (event, selectedDate) => {
-                                var currentDate = selectedDate || new Date();
+                                let currentDate = selectedDate || new Date();
                                 if (Platform.OS === 'android') {
                                     currentDate.setHours(this.state.date.getHours(), this.state.date.getMinutes(), this.state.date.getSeconds());
                                     this.setState({
@@ -443,6 +384,9 @@ export default class AddList extends Component {
                             }}
                         />
                     </View>}
+                    <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000', marginTop: 10}}> 
+                        {translate("AddListComment9")} 
+                    </Text> 
                     {this.state.data.length > 0 && 
                     <View style={{width: "100%", backgroundColor: 'gray'}}>
                         <Text style={{textAlign: 'center', color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}> {translate("AddListComment2")} </Text>
@@ -453,7 +397,7 @@ export default class AddList extends Component {
                                         path: this.state.data[this.state.activeItem].photo,
                                     }).then(image => {
                                         console.log(image);
-                                        var updateData = this.state.data;
+                                        let updateData = this.state.data;
                                         updateData[this.state.activeItem].photo = image.path;
                                         this.setState({
                                             data: updateData,
@@ -462,9 +406,9 @@ export default class AddList extends Component {
                                 }
                              }}>
                                 <Icon
-                                    name='edit'
+                                    name='crop'
                                     size={24}
-                                    color={ Appearance.getColorScheme() === 'dark' ? '#ffffff' : '#002f6c' }
+                                    color={this.state.activeItem != -1 ? (Appearance.getColorScheme() === 'dark' ? '#ffffff' : '#002f6c') : 'grey'}
                                 />
                             </TouchableOpacity>
                             <TouchableOpacity style={{marginRight:5}} onPress={() => {
@@ -475,7 +419,7 @@ export default class AddList extends Component {
                                 <Icon
                                     name='star'
                                     size={24}
-                                    color='yellow'
+                                    color={this.state.activeItem != -1 ? 'yellow' : 'grey'}
                                 />
                             </TouchableOpacity>
                             <TouchableOpacity style={{marginRight:10}} onPress={() => { 
@@ -494,13 +438,13 @@ export default class AddList extends Component {
                                 <Icon
                                     name='delete'
                                     size={24}
-                                    color='red'
+                                    color={this.state.activeItem != -1 ? 'red' : 'grey'}
                                 />
                             </TouchableOpacity>
                         </View>
                         <Input
                             onChangeText={(title) => {
-                                var updateData = this.state.data;
+                                let updateData = this.state.data;
                                 updateData[this.state.activeItem].title = title;
                                 this.setState({
                                     data: updateData
@@ -539,79 +483,174 @@ export default class AddList extends Component {
                             }}
                         />
                     </View>}
-                    <TouchableOpacity style={[styles.buttonContainer, styles.loginButton, {marginTop: 10, height:45, width: "80%", borderRadius:5,}]} onPress={() => { 
-                        ImagePicker.openPicker({
-                            multiple: true,
-                            mediaType: 'photo', //사진
-                            includeExif: true,
-                            maxFiles: 20,
-                        }).then(images => {
-                            var factor = Platform.OS == 'ios' ? 1000 : 1;
-                            const temp = [];
-                            for (var i = 0; i<images.length; i++) {
+                    <View style={{flexDirection: 'row', flex: 1, justifyContent: 'center', alignItems: 'center',}}>
+                        <TouchableOpacity style={[styles.buttonContainer, styles.loginButton, {marginTop: 10, marginRight: 5, height:45, width: "40%", borderRadius:5,}]} onPress={async () => { 
+                            if (this.state.data.length >= 8 || this.state.data.length + this.state.photoNumber >= 31) {
+                                Alert.alert(
+                                    translate("Error"),
+                                    translate("AddListComment9"),
+                                    [
+                                    {text: translate("OK"), onPress: () => { }},
+                                    ],
+                                    { cancelable: true }
+                                );
+                                return;
+                            }
+
+                            ImagePicker.openCamera({
+                                width: 1080,
+                                height: 1080,
+                                cropping: true,
+                            }).then(image => {
+                                let factor = Platform.OS == 'ios' ? 1000 : 1;
+                                const temp = [];
                                 try {
-                                    if (i + this.state.data.length + this.state.photoNumber > 19) {
-                                        break;
-                                    }
-                                    console.log(images[i]);
-                                    if (Platform.OS == 'ios') {
+                                    console.log(image);
+                                    if (Platform.OS === 'ios') {
                                         temp.push({
-                                            date: firestore.Timestamp.fromMillis(parseInt(images[i].modificationDate) * factor),
-                                            lat: images[i].exif["{GPS}"].LatitudeRef != "S" ? images[i].exif["{GPS}"].Latitude : -images[i].exif["{GPS}"].Latitude,
-                                            long: images[i].exif["{GPS}"].LongitudeRef != "W" ? images[i].exif["{GPS}"].Longitude : -images[i].exif["{GPS}"].Longitude,
-                                            photo: images[i].path,
+                                            date: firestore.Timestamp.fromMillis(parseInt(image.modificationDate) * factor),
+                                            lat: image.exif["{GPS}"].LatitudeRef != "S" ? image.exif["{GPS}"].Latitude : -image.exif["{GPS}"].Latitude,
+                                            long: image.exif["{GPS}"].LongitudeRef != "W" ? image.exif["{GPS}"].Longitude : -image.exif["{GPS}"].Longitude,
+                                            photo: image.path,
                                             title: i.toString(),
                                             changed: false,
                                         });
                                     } else {
-                                        var latitudeStrings = images[i].exif["GPSLatitude"].split(',');
-                                        var longitudeStrings = images[i].exif["GPSLongitude"].split(',');
+                                        let latitudeStrings = image.exif["GPSLatitude"].split(',');
+                                        let longitudeStrings = image.exif["GPSLongitude"].split(',');
 
-                                        var latitudeD = latitudeStrings[0].split('/');
-                                        var latitudeM = latitudeStrings[1].split('/');
-                                        var latitudeS = latitudeStrings[2].split('/');
+                                        let latitudeD = latitudeStrings[0].split('/');
+                                        let latitudeM = latitudeStrings[1].split('/');
+                                        let latitudeS = latitudeStrings[2].split('/');
 
-                                        var longitudeD = longitudeStrings[0].split('/');
-                                        var longitudeM = longitudeStrings[1].split('/');
-                                        var longitudeS = longitudeStrings[2].split('/');
+                                        let longitudeD = longitudeStrings[0].split('/');
+                                        let longitudeM = longitudeStrings[1].split('/');
+                                        let longitudeS = longitudeStrings[2].split('/');
 
-                                        var latitude = parseInt(latitudeD[0]) / parseInt(latitudeD[1]) + (parseInt(latitudeM[0]) / parseInt(latitudeM[1]) / 60) + (parseInt(latitudeS[0]) / parseInt(latitudeS[1]) / 3600);
-                                        var longitude = parseInt(longitudeD[0]) / parseInt(longitudeD[1]) + (parseInt(longitudeM[0]) / parseInt(longitudeM[1]) / 60) + (parseInt(longitudeS[0]) / parseInt(longitudeS[1]) / 3600);
+                                        let latitude = parseInt(latitudeD[0]) / parseInt(latitudeD[1]) + (parseInt(latitudeM[0]) / parseInt(latitudeM[1]) / 60) + (parseInt(latitudeS[0]) / parseInt(latitudeS[1]) / 3600);
+                                        let longitude = parseInt(longitudeD[0]) / parseInt(longitudeD[1]) + (parseInt(longitudeM[0]) / parseInt(longitudeM[1]) / 60) + (parseInt(longitudeS[0]) / parseInt(longitudeS[1]) / 3600);
 
-                                        if (images[i].exif["GPSLatitudeRef"] == "S") { latitude = -latitude; }
-                                        if (images[i].exif["GPSLongitudeRef"] == "W") { longitude = -longitude; }
+                                        if (image.exif["GPSLatitudeRef"] == "S") { latitude = -latitude; }
+                                        if (image.exif["GPSLongitudeRef"] == "W") { longitude = -longitude; }
 
                                         temp.push({
-                                            date: firestore.Timestamp.fromMillis(parseInt(images[i].modificationDate) * factor),
+                                            date: firestore.Timestamp.fromMillis(parseInt(image.modificationDate) * factor),
                                             lat: latitude,
                                             long: longitude,
-                                            photo: images[i].path,
+                                            photo: image.path,
                                             title: i.toString(),
                                             changed: false,
                                         });
                                     }
                                 } catch (e) { // location data가 없는 것으로 추정
                                     console.log(e);
-                                    var random = Math.floor(Math.random() * locations.length);
+                                    let random = Math.floor(Math.random() * locations.length);
 
                                     temp.push({
-                                        date: firestore.Timestamp.fromMillis(parseInt(images[i].modificationDate) * factor),
+                                        date: firestore.Timestamp.fromMillis(parseInt(image.modificationDate) * factor),
                                         lat: locations[random][0],
                                         long: locations[random][1],
-                                        photo: images[i].path,
+                                        photo: image.path,
                                         title: i.toString(),
                                         changed: false,
                                     });
                                 } 
-                            } 
-                            this.setState({
-                                thumbnail: 0,
-                                data: this.state.data.concat(temp),
+                                this.setState({
+                                    thumbnail: 0,
+                                    data: this.state.data.concat(temp),
+                                });
                             });
-                        });
-                    }}>
-                        <Text style={styles.loginText}>{translate("AddPhotos")}</Text>
-                    </TouchableOpacity>
+                        }}>
+                            <Text style={styles.loginText}>{translate("OpenCamera")}</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={[styles.buttonContainer, styles.loginButton, {marginTop: 10, marginLeft: 5, height:45, width: "40%", borderRadius:5,}]} onPress={async () => { 
+                            ImagePicker.openPicker({
+                                multiple: true,
+                                mediaType: 'photo', //사진
+                                includeExif: true,
+                                maxFiles: 8,
+                                forceJpg: true,
+                                // cropping: true,
+                                // width: 1080,
+                                // height: 1080,
+                                compressImageMaxWidth: 1080,
+                                // compressImageMaxHeight: 1080,
+                            }).then(images => {
+                                let factor = Platform.OS == 'ios' ? 1000 : 1;
+                                const temp = [];
+                                for (let i = 0; i < images.length; i++) {
+                                    try {
+                                        if (this.state.data.length + temp.length >= 8 || this.state.data.length + temp.length + this.state.photoNumber >= 31) {
+                                            Alert.alert(
+                                                translate("Error"),
+                                                translate("AddListComment9"),
+                                                [
+                                                {text: translate("OK"), onPress: () => { }},
+                                                ],
+                                                { cancelable: true }
+                                            );
+                                            break;
+                                        }
+                                        console.log(images[i]);
+                                        if (Platform.OS === 'ios') {
+                                            temp.push({
+                                                date: firestore.Timestamp.fromMillis(parseInt(images[i].modificationDate) * factor),
+                                                lat: images[i].exif["{GPS}"].LatitudeRef != "S" ? images[i].exif["{GPS}"].Latitude : -images[i].exif["{GPS}"].Latitude,
+                                                long: images[i].exif["{GPS}"].LongitudeRef != "W" ? images[i].exif["{GPS}"].Longitude : -images[i].exif["{GPS}"].Longitude,
+                                                photo: images[i].path,
+                                                title: i.toString(),
+                                                changed: false,
+                                            });
+                                        } else {
+                                            let latitudeStrings = images[i].exif["GPSLatitude"].split(',');
+                                            let longitudeStrings = images[i].exif["GPSLongitude"].split(',');
+
+                                            let latitudeD = latitudeStrings[0].split('/');
+                                            let latitudeM = latitudeStrings[1].split('/');
+                                            let latitudeS = latitudeStrings[2].split('/');
+
+                                            let longitudeD = longitudeStrings[0].split('/');
+                                            let longitudeM = longitudeStrings[1].split('/');
+                                            let longitudeS = longitudeStrings[2].split('/');
+
+                                            let latitude = parseInt(latitudeD[0]) / parseInt(latitudeD[1]) + (parseInt(latitudeM[0]) / parseInt(latitudeM[1]) / 60) + (parseInt(latitudeS[0]) / parseInt(latitudeS[1]) / 3600);
+                                            let longitude = parseInt(longitudeD[0]) / parseInt(longitudeD[1]) + (parseInt(longitudeM[0]) / parseInt(longitudeM[1]) / 60) + (parseInt(longitudeS[0]) / parseInt(longitudeS[1]) / 3600);
+
+                                            if (images[i].exif["GPSLatitudeRef"] == "S") { latitude = -latitude; }
+                                            if (images[i].exif["GPSLongitudeRef"] == "W") { longitude = -longitude; }
+
+                                            temp.push({
+                                                date: firestore.Timestamp.fromMillis(parseInt(images[i].modificationDate) * factor),
+                                                lat: latitude,
+                                                long: longitude,
+                                                photo: images[i].path,
+                                                title: i.toString(),
+                                                changed: false,
+                                            });
+                                        }
+                                    } catch (e) { // location data가 없는 것으로 추정
+                                        console.log(e);
+                                        let random = Math.floor(Math.random() * locations.length);
+
+                                        temp.push({
+                                            date: firestore.Timestamp.fromMillis(parseInt(images[i].modificationDate) * factor),
+                                            lat: locations[random][0],
+                                            long: locations[random][1],
+                                            photo: images[i].path,
+                                            title: i.toString(),
+                                            changed: false,
+                                        });
+                                    } 
+                                } 
+                                this.setState({
+                                    thumbnail: 0,
+                                    data: this.state.data.concat(temp),
+                                });
+                            });
+                        }}>
+                            <Text style={styles.loginText}>{translate("AddPhotos")}</Text>
+                        </TouchableOpacity>
+                    </View>
                     <CheckBox
                         containerStyle={styles.cell}
                         title={translate("AddListComment3")}
@@ -688,9 +727,9 @@ export default class AddList extends Component {
                             return;
                         }
                         if (!this.state.locationChecked) {
-                            var updateData = this.state.data;
-                            var random = 0;
-                            for (var i = 0; i < updateData.length; i++) {
+                            let updateData = this.state.data;
+                            let random = 0;
+                            for (let i = 0; i < updateData.length; i++) {
                                 random = Math.floor(Math.random() * locations.length);
                                 updateData[i].lat = locations[random][0];
                                 updateData[i].long = locations[random][1];
@@ -700,8 +739,8 @@ export default class AddList extends Component {
                             });
                         }
                         if (!this.state.dateChecked) {
-                            var updateData = this.state.data;
-                            for (var i = 0; i < updateData.length; i++) {
+                            let updateData = this.state.data;
+                            for (let i = 0; i < updateData.length; i++) {
                                 updateData[i].date = firestore.Timestamp.fromMillis((new Date()).getTime());
                             }
                             this.setState({
@@ -772,41 +811,44 @@ export default class AddList extends Component {
                         }
 
                         postId = (this.state.edit ? this.state.itemId : documentSnapshot._documentPath._parts[1]);
-                        
-                        await firestore()
-                            .collection("Users")
-                            .doc(auth().currentUser.uid)
-                            .update({
+
+                        let updateData = this.state.data;
+                        for (let i = 0; i < this.state.data.length; i++) {
+                            filename = this.state.data[i].photo.split('/');
+                            console.log(this.state.data[i].photo);
+                            let storageChildRef = storage().ref(`${auth().currentUser.uid}/${postId}/${filename[filename.length - 1]}`)
+                            await storageChildRef.putFile(this.state.data[i].photo);
+
+                            updateData[i].photo = filename[filename.length - 1];
+                            this.setState({completed: Math.round((i + 1) * 1000 / this.state.data.length) / 10});
+                        }
+
+                        let meRef = firestore().collection("Users").doc(auth().currentUser.uid);
+                        let postRef = firestore().collection("Posts").doc(postId);
+                        let logRef = meRef.collection("log").doc(postId);
+                        await firestore().runTransaction(async t => {
+                            const me = await t.get(meRef);
+                            const post = await t.get(postRef);
+                            const log = await t.get(logRef);
+                            const now = firestore.Timestamp.fromMillis((new Date()).getTime());
+
+                            t.update(meRef, {
                                 logsLength: firestore.FieldValue.increment(!this.state.edit ? 1 : 0),
-                                modifyDate: firestore.Timestamp.fromMillis((new Date()).getTime()),
+                                modifyDate: now,
                             });
 
-                            var updateData = this.state.data;
-                            for (var i=0; i < this.state.data.length; i++) {
-                                filename = this.state.data[i].photo.split('/');
-                                storageChildRef = storage().ref(`${auth().currentUser.uid}/${postId}/${filename[filename.length - 1]}`)
-                                await storageChildRef.putFile(this.state.data[i].photo);
+                            t.update(postRef, {
+                                data: [...this.state.preData, ...updateData]
+                            });
 
-                                updateData[i].photo = filename[filename.length - 1];
-                                this.setState({completed: Math.round((i + 1) * 1000 / this.state.data.length) / 10});
-                            }
-
-                            await firestore()
-                                .collection("Posts")
-                                .doc(postId)
-                                .update({
-                                    data: [...this.state.preData, ...updateData]
-                                })
-                            await firestore()
-                                .collection("Users")
-                                .doc(auth().currentUser.uid)
-                                .collection("log")
-                                .doc(postId)
-                                .set({
-                                    date: firestore.Timestamp.fromMillis(this.state.date.getTime()),
-                                    security: this.state.security,
-                                });
-                            
+                            t.set(logRef, {
+                                date: now,
+                                security: this.state.security,
+                            });
+                        })
+                        .then(() => {
+                            console.log('Transaction success!');
+                        
                             if (this.state.ads) {
                                 try {
                                     interstitial?.show();
@@ -814,22 +856,34 @@ export default class AddList extends Component {
                                     console.log(e);
                                 }
                             }
-
+    
                             this.setState({loading: false});
                             
                             Alert.alert(
                                 translate("Success"),
                                 translate("AddListComment7"), //성공적으로 업로드됐습니다.
                                 [
-                                {text: translate("OK"), onPress: () => console.log('OK Pressed')},
+                                    {text: translate("OK"), onPress: () => console.log('OK Pressed')},
                                 ],
                                 { cancelable: false }
                             );
-
+    
                             if (this.state.edit) {
                                 this.props.route.params.onPop();
                             }
                             this.props.navigation.pop();
+                        })
+                        .catch((e) => {
+                            console.log('Transaction failure:', e);
+                            Alert.alert(
+                                translate("Error"),
+                                e.toString(), // 업로드 에러
+                                [
+                                    {text: translate("OK"), onPress: () => console.log('OK Pressed')},
+                                ],
+                                { cancelable: false }
+                            );
+                        });
                     }}>
                         <Text style={styles.loginText}>{this.state.edit ? translate("EditList") : translate("AddList")}</Text>
                     </TouchableOpacity>

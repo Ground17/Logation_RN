@@ -56,12 +56,50 @@ export default class ShowDetail extends Component {
   render() {
     return(
       <SafeAreaView style={styles.container}>
-        <View style={{width: "100%", height: "100%", backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff"}}>
+        <View style={{width: "100%", height: "100%", padding: 20, backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff"}}>
+          <ListItem containerStyle={{backgroundColor: Appearance.getColorScheme() === 'dark' ? '#121212' : '#fff'}}>
+            <ListItem.Content>
+              <ListItem.Title style={{fontWeight: 'bold', color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000', fontSize: 24}}>
+                {this.props.route.params.title}
+              </ListItem.Title>
+              <ListItem.Subtitle style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000', fontSize: 20}}>
+                {this.props.route.params.subtitle}
+              </ListItem.Subtitle>
+            </ListItem.Content>
+          </ListItem>
+          <ListItem
+            containerStyle={{backgroundColor: Appearance.getColorScheme() === 'dark' ? '#121212' : '#fff'}}
+            onPress={() => { 
+              if (this.props.route != null && auth().currentUser.uid != this.props.route.params.userUid) {
+                this.props.navigation.push('Me', {
+                  other: true,
+                  userUid: this.props.route.params.userUid,
+                });
+              }
+            }}
+          >
+            <View style={{flex:1/5, aspectRatio:1}}>
+              <FastImage
+                style={{flex: 1, borderRadius: 100}}
+                source={this.state.profileURL ? {
+                    uri:
+                    this.state.profileURL,
+                } : require('./../../logo/ic_launcher.png')}
+                onError={() => this.setState({profileURL: ''})}
+              />
+            </View>
+            <ListItem.Content>
+              <ListItem.Title style={{fontWeight: 'bold', color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}>
+                {this.state.displayName}
+              </ListItem.Title>
+              <ListItem.Subtitle style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}>
+                {this.props.route.params.userUid}
+              </ListItem.Subtitle>
+            </ListItem.Content>
+          </ListItem>
+          
           <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}>
-            {`${translate("Title")}: ${this.props.route.params.title}`}
-          </Text>
-          <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}>
-            {`${translate("Subtitle")}: ${this.props.route.params.subtitle}`}
+            {`${translate("Views")}: ${this.props.route.params.viewCount}`}
           </Text>
           <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}>
             {`${translate('date')}: ${this.props.route.params.date}`}
@@ -69,6 +107,7 @@ export default class ShowDetail extends Component {
           <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}>
             {`${translate('modifyDate')}: ${this.props.route.params.modifyDate}`}
           </Text>
+
           <TouchableOpacity onPress={async () => { 
             try {
               const supported = await Linking.canOpenURL(this.props.route.params.link);
@@ -105,39 +144,6 @@ export default class ShowDetail extends Component {
               />
             </View>
           </TouchableOpacity>
-          <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}>
-            {`${translate("Views")}: ${this.props.route.params.viewCount}`}
-          </Text>
-          <ListItem
-            containerStyle={{backgroundColor: Appearance.getColorScheme() === 'dark' ? '#121212' : '#fff'}}
-            onPress={() => { 
-              if (this.props.route != null && auth().currentUser.uid != this.props.route.params.userUid) {
-                this.props.navigation.push('Me', {
-                  other: true,
-                  userUid: this.props.route.params.userUid,
-                });
-              }
-            }}
-          >
-            <View style={{flex:1/5, aspectRatio:1}}>
-              <FastImage
-                style={{flex: 1, borderRadius: 100}}
-                source={this.state.profileURL ? {
-                    uri:
-                    this.state.profileURL,
-                } : require('./../../logo/ic_launcher.png')}
-                onError={() => this.setState({profileURL: ''})}
-              />
-            </View>
-            <ListItem.Content>
-              <ListItem.Title style={{fontWeight: 'bold', color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}>
-                {this.state.displayName}
-              </ListItem.Title>
-              <ListItem.Subtitle style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}>
-                {this.props.route.params.userUid}
-              </ListItem.Subtitle>
-            </ListItem.Content>
-          </ListItem>
         </View>
       </SafeAreaView>
     );

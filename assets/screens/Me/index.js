@@ -82,12 +82,19 @@ export default class Me extends Component {
         endDate: firestore.Timestamp.fromMillis((new Date()).getTime()),
     }
 
-    lazy = async (initial = false) => {
+    lazy = async (initial = false, start = false) => {
         if (initial) {
             this.setState({
                 initialLoading: true,
+                loading: true,
                 list: [],
                 lazyend: false,
+                endDate: firestore.Timestamp.fromMillis((new Date()).getTime()),
+            });
+        } else if (start) {
+            this.setState({
+                lazyend: false,
+                loading: true,
                 endDate: firestore.Timestamp.fromMillis((new Date()).getTime()),
             });
         }
@@ -96,8 +103,8 @@ export default class Me extends Component {
         if (!this.state.lazyend) {
             const temp = [];
             await firestore()
-                .collection("Users/" + uid + "/log")
-                .where("security", "in", this.state.other ? [0, 1] : [0, 1, 2])
+                .collection(`Users/${uid}/log`)
+                .where("security", "in", this.state.other ? [0] : [0, 1, 2])
                 .orderBy("date", "desc")
                 .startAfter(this.state.endDate)
                 .limit(10)
@@ -149,7 +156,7 @@ export default class Me extends Component {
             if (temp.length > 0) {
                 this.setState({
                     endDate: temp[temp.length - 1].date,
-                    list: this.state.list.concat(temp),
+                    list: (initial || start) ? temp : this.state.list.concat(temp),
                 });
             } else {
                 this.setState({
@@ -161,6 +168,11 @@ export default class Me extends Component {
         if (initial) {
             this.setState({
                 initialLoading: false,
+                loading: false,
+            });
+        } else {
+            this.setState({
+                loading: false,
             });
         }
     }
@@ -577,26 +589,27 @@ export default class Me extends Component {
                             unitId={adBannerUnitId}
                         />}
                     </View>
-                    {this.state.list.length > 0 ? <FlatList
-                        style={{width: "100%", height: "93%", backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff" }}
-                        keyExtractor={this.keyExtractor}
-                        data={this.state.list}
-                        renderItem={this.renderItem}
-                        onRefresh={() => this.lazy(true)}
-                        onEndReached={() => this.lazy()}
-                        onEndReachedThreshold={.7}
-                        refreshing={this.state.loading}
-                    />
-                    : <View style={{width: "100%", height: "100%", backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff"}}>
-                        <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000', textAlign: 'center'}}>{translate("MeEmpty")}</Text>
-                    </View>
-                    }
                 </View> }
+
+                {this.state.list.length > 0 ? <FlatList
+                    style={{width: "100%", height: "93%", backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff" }}
+                    keyExtractor={this.keyExtractor}
+                    data={this.state.list}
+                    renderItem={this.renderItem}
+                    onRefresh={() => this.lazy(false, true)}
+                    onEndReached={() => this.lazy()}
+                    onEndReachedThreshold={.7}
+                    refreshing={this.state.loading}
+                />
+                : <View style={{width: "100%", height: "100%", backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff"}}>
+                    <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000', textAlign: 'center'}}>{translate("MeEmpty")}</Text>
+                </View>
+                }
                 {this.state.other && <TouchableOpacity style={[styles.buttonContainer, styles.loginButton, {position: 'absolute', alignSelf: 'flex-end', top: 10, right: 10, borderRadius:5,}]} onPress={async () => { 
                     if (!this.state.loading) {
                         await this.follow()
-                        .then(() => console.log('Post likes incremented via a transaction'))
-                        .catch(error => console.error(error));
+                            .then(() => console.log('Post likes incremented via a transaction'))
+                            .catch(error => console.error(error));
                     }
                 }}>
                     <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000', padding: 5}}>{this.state.follow ? translate('Unfollow') : translate('Follow') }</Text>

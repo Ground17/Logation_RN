@@ -48,6 +48,8 @@
     "AddListComment6" : "Please add at least one photo.",
     "AddListComment7" : "Successfully uploaded.",
     "AddPhotos" : "Add Photos",
+    "OpenCamera" : "Open Camera",
+    "AddListComment9" : "You can upload up to 8 photos at a time and up to 31 photos per log.",
     "Cancel" : "Cancel",
     "OK" : "OK",
     "Thumbnail": "Do you want to change the thumbnail to this picture?",

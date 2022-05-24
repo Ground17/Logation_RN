@@ -22,7 +22,7 @@ import ImageModal from 'react-native-image-modal';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import ImagePicker from 'react-native-image-crop-picker';
+// import ImagePicker from 'react-native-image-crop-picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 import { ListItem, Avatar, Button, Input, } from 'react-native-elements'
@@ -73,47 +73,55 @@ export default class ShowItem extends Component {
                         translate("Alert"), // 알림
                         translate("EditItemComment1"), // 이 로그를 지우시겠습니까? 이 행동은 돌이킬 수 없습니다.
                         [
-                        {text: translate('Cancel'), onPress: () => {  }}, // 아니요
-                        {text: translate('OK'), onPress: async () => {  // 예
-                          this.setState({loading: true});
-                          try {
-                            var array = await storage()
-                            .ref(`${auth().currentUser.uid}/${this.props.route.params.itemId}`)
-                            .listAll();
-                            
-                            for (var i = 0; i < array._items.length; i++) {
-                              await array._items[i].delete();
-                            }
+                          {text: translate('Cancel'), onPress: () => {  }}, // 아니요
+                          {text: translate('OK'), onPress: async () => {  // 예
+                            try {
+                              console.log("delete");
+                              this.setState({loading: true});
+                              let meRef = firestore().collection("Users").doc(auth().currentUser.uid);
+                              let postRef = firestore().collection("Posts").doc(this.props.route.params.itemId);
+                              let logRef = meRef.collection("log").doc(this.props.route.params.itemId);
 
-                            await firestore()
-                              .collection("Posts")
-                              .doc(this.props.route.params.itemId)
-                              .delete();
+                              await meRef.update({data: firestore.FieldValue.delete()});
 
-                            await firestore()
-                              .collection("Users")
-                              .doc(auth().currentUser.uid)
-                              .collection("log")
-                              .doc(this.props.route.params.itemId)
-                              .delete();
+                              let array = await storage()
+                                .ref(`${auth().currentUser.uid}/${this.props.route.params.itemId}`)
+                                .listAll();
 
-                            await firestore()
-                              .collection("Users")
-                              .doc(auth().currentUser.uid).update({
-                                logsLength: firestore.FieldValue.increment(-1),
-                                modifyDate: firestore.Timestamp.fromMillis((new Date()).getTime()),
+                              for (let i = 0; i < array._items.length; i++) {
+                                await array._items[i].delete();
+                              }
+
+                              await firestore().runTransaction(async t => {
+                                  const me = await t.get(meRef);
+                                  const post = await t.get(postRef);
+                                  const log = await t.get(logRef);
+                                  const now = firestore.Timestamp.fromMillis((new Date()).getTime());
+
+                                  t.update(meRef, {
+                                    logsLength: firestore.FieldValue.increment(-1),
+                                    modifyDate: now,
+                                  });
+
+                                  t.delete(postRef);
+                                  t.delete(logRef);
+                              })
+                              .then(() => {
+                                  console.log('Transaction success!');
+                              })
+                              .catch((e) => {
+                                console.log('Transaction failure:', e);
                               });
-
-                          } catch (e) {
-                            console.log(e);
-                          } finally {
-                            this.setState({loading: false});
-                            this.props.navigation.reset({
-                              index: 0,
-                              routes: [{name: 'Main'}]
-                            });
-                          }
-                        }},
+                            } catch (e) {
+                              console.log(e);
+                            } finally {
+                              this.setState({loading: false});
+                              this.props.navigation.reset({
+                                index: 0,
+                                routes: [{name: 'Main'}]
+                              });
+                            }
+                          }},
                         ]
                       );
                     } else {
@@ -126,30 +134,25 @@ export default class ShowItem extends Component {
                           console.log('OK Pressed');
                           this.setState({loading: true});
                           try {
-                            await storage()
-                            .ref(`${auth().currentUser.uid}/${this.props.route.params.itemId}/${this.props.route.params.photo}`)
-                            .delete();
-                            this.setState({
-                              list: this.state.list.filter(data => this.state.list[this.state.index] !== data)
-                            });
-                            console.log("list", this.state.list);
                             await firestore()
                               .collection(auth().currentUser.uid)
                               .doc(this.props.route.params.itemId)
                               .update({
                                 data: this.state.list,
+                                thumbnail: this.state.thumbnail == this.state.index ? 0 : this.state.thumbnail,
                               });
+
+                            this.setState({
+                              list: this.state.list.filter(data => this.state.list[this.state.index] !== data)
+                            });
+
+                            await storage()
+                              .ref(`${auth().currentUser.uid}/${this.props.route.params.itemId}/${this.props.route.params.photo}`)
+                              .delete();
+                            console.log("list", this.state.list);
                           } catch (e) {
                             console.log(e);
                           } finally {
-                            if (this.state.thumbnail == this.state.index) {
-                              await firestore()
-                              .collection(auth().currentUser.uid)
-                              .doc(this.props.route.params.itemId)
-                              .update({
-                                thumbnail: 0,
-                              });
-                            }
                             this.setState({loading: false});
                             this.props.route.params.onPop();
                             this.props.navigation.pop();
@@ -438,19 +441,19 @@ export default class ShowItem extends Component {
               <TouchableOpacity 
                 style={[styles.buttonContainer, styles.loginButton, {marginTop: 5, height:45, width: "100%", borderRadius:5,}]} onPress={() => { 
                   if (auth().currentUser.uid == this.props.route.params.userUid) {
-                    ImagePicker.openPicker({
-                      width: 1024,
-                      height: 1024,
-                      cropping: true,
-                      mediaType: 'photo',
-                      includeExif: true,
-                    }).then(image => {
-                      console.log(image);
-                      this.setState({
-                        changed: true,
-                        url: image.path,
-                      });
-                    });
+                    // ImagePicker.openPicker({
+                    //   width: 1024,
+                    //   height: 1024,
+                    //   cropping: true,
+                    //   mediaType: 'photo',
+                    //   includeExif: true,
+                    // }).then(image => {
+                    //   console.log(image);
+                    //   this.setState({
+                    //     changed: true,
+                    //     url: image.path,
+                    //   });
+                    // });
                   }
               }}>
                 <Text style={styles.loginText}>{translate("EditPhotos")}</Text>
@@ -480,18 +483,12 @@ export default class ShowItem extends Component {
                     changed: true,
                     changedLocation: true,
                   })}
-                  anchor={{x: 0.5, y: 0}}
+                  anchor={{x: 0.5, y: 0.5}}
                   coordinate={ {latitude: this.props.route.params.lat, longitude: this.props.route.params.long} }
                   title={this.props.route.params.title}
                   onPress={e => console.log(e.nativeEvent)}
                 >
-                  <View>
-                    <Icon
-                      name='push-pin'
-                      size={48}
-                      color='#002f6c'
-                    />
-                  </View>
+                  <View style={{width: 10, height: 10, backgroundColor: '#002f6c', borderRadius: 5}} />
                 </Marker>
               </MapView>
           </ScrollView>}

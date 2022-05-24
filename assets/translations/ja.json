@@ -48,6 +48,8 @@
     "AddListComment6":"一つ以上の写真を追加してください。",
     "AddListComment7":"アップロードに成功しました。",
     "AddPhotos":"写真追加",
+    "OpenCamera" : "Open Camera",
+    "AddListComment9" : "You can upload up to 8 photos at a time and up to 31 photos per log.",
     "Cancel":"キャンセル",
     "OK":"確認",
     "Thumbnail": "サムネイルをこの写真に変更しますか？",

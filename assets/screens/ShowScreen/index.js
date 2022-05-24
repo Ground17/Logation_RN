@@ -91,12 +91,7 @@ export default class ShowScreen extends Component {
         this.setState({
           loading: true,
         });
-        await firestore()
-        .collection("Users")
-        .doc(auth().currentUser.uid)
-        .update({
-          modifyDate: firestore.Timestamp.fromMillis((new Date()).getTime()),
-        });
+
         let updateData = [];
 
         for (var i = 0; i < this.state.list.length; i++) {
@@ -110,15 +105,33 @@ export default class ShowScreen extends Component {
           });
         }
 
-        await firestore()
-          .collection("Posts")
-          .doc(this.props.route.params.itemId)
-          .update({
+        let meRef = firestore().collection("Users").doc(auth().currentUser.uid);
+        let postRef = firestore().collection("Posts").doc(this.props.route.params.itemId);
+
+        await firestore().runTransaction(async t => {
+            const me = await t.get(meRef);
+            const post = await t.get(postRef);
+            const log = await t.get(logRef);
+            const now = firestore.Timestamp.fromMillis((new Date()).getTime());
+
+            t.update(meRef, {
+              modifyDate: now,
+            });
+
+            t.update(postRef, {
               thumbnail: 0,
               viewcode: this.state.viewcode,
               data: updateData,
               modifyDate: firestore.Timestamp.fromMillis((new Date()).getTime()),
-          });
+            });
+        })
+        .then(() => {
+          console.log('Transaction success!');
+        })
+        .catch((e) => {
+          console.log('Transaction failure:', e);
+        });
+
         this.setState({
           loading: false,
           changed: false,
@@ -175,44 +188,53 @@ export default class ShowScreen extends Component {
           [
               {text: translate('Cancel'), onPress: () => {  }},
               {text: translate('OK'), onPress: async () => {
-                this.setState({loading: true});
-                try {
-                  console.log("delete");
-                  var array = await storage()
-                  .ref(`${auth().currentUser.uid}/${this.props.route.params.itemId}`)
-                  .listAll();
+                  this.setState({loading: true});
+                  try {
+                    console.log("delete");
 
-                  for (var i = 0; i < array._items.length; i++) {
-                    await array._items[i].delete();
-                  }
+                    let meRef = firestore().collection("Users").doc(auth().currentUser.uid);
+                    let postRef = firestore().collection("Posts").doc(this.props.route.params.itemId);
+                    let logRef = meRef.collection("log").doc(this.props.route.params.itemId);
 
-                  await firestore()
-                    .collection("Posts")
-                    .doc(this.props.route.params.itemId)
-                    .delete();
+                    await meRef.update({data: firestore.FieldValue.delete()});
 
-                  await firestore()
-                    .collection("Users")
-                    .doc(auth().currentUser.uid)
-                    .collection("log")
-                    .doc(this.props.route.params.itemId)
-                    .delete();
+                    let array = await storage()
+                    .ref(`${auth().currentUser.uid}/${this.props.route.params.itemId}`)
+                    .listAll();
 
-                  await firestore()
-                    .collection("Users")
-                    .doc(auth().currentUser.uid).update({
-                      logsLength: firestore.FieldValue.increment(-1),
-                      modifyDate: firestore.Timestamp.fromMillis((new Date()).getTime()),
+                    for (let i = 0; i < array._items.length; i++) {
+                      await array._items[i].delete();
+                    }
+
+                    await firestore().runTransaction(async t => {
+                        const me = await t.get(meRef);
+                        const post = await t.get(postRef);
+                        const log = await t.get(logRef);
+                        const now = firestore.Timestamp.fromMillis((new Date()).getTime());
+
+                        t.update(meRef, {
+                            logsLength: firestore.FieldValue.increment(-1),
+                            modifyDate: now,
+                        });
+
+                        t.delete(postRef);
+                        t.delete(logRef);
+                    })
+                    .then(() => {
+                        console.log('Transaction success!');
+                    })
+                    .catch((e) => {
+                      console.log('Transaction failure:', e);
                     });
-                } catch (e) {
-                  console.log(e);
-                } finally {
-                  this.setState({loading: false});
-                  this.props.navigation.reset({
-                    index: 0,
-                    routes: [{name: 'Main'}]
-                  });
-                }
+                  } catch (e) {
+                    console.log(e);
+                  } finally {
+                    this.setState({loading: false});
+                    this.props.navigation.reset({
+                      index: 0,
+                      routes: [{name: 'Main'}]
+                    });
+                  }
                 }
               },
           ],
@@ -631,7 +653,7 @@ export default class ShowScreen extends Component {
                 <Marker
                   draggable={this.state.edit}
                   coordinate={ {latitude: item.lat, longitude: item.long} }
-                  anchor={{x: 0.5, y: 0.5}}
+                  anchor={{x: 0.5, y: 0}}
                   onPress={e => {
                     if (!this.state.edit) {
                       this.goShowItem(item, index);
@@ -669,16 +691,17 @@ export default class ShowScreen extends Component {
                     return;
                   }}
                 >
-                  <View>
+                  <View style={{alignItems: 'center'}}>
+                    <View style={{width: 10, height: 10, backgroundColor: 'red', borderRadius: 5, marginTop: -5, marginBottom: 10}} />
                     <FastImage
-                      style={{ height: height * 0.2, width: width * 0.3 }}
+                      style={{ height: height * 0.2, width: width * 0.3, borderRadius: 10 }}
                       source={item.url ? {
                           uri: item.url,
                           priority: FastImage.priority.high
                       } : require('./../../logo/ic_launcher.png')}
                     />
                     { this.state.thumbnail == index && <Icon
-                      style={{position: 'absolute', top: 0, right: 0}}
+                      style={{position: 'absolute', bottom: 0, left: 0}}
                       name='stars'
                       size={24}
                       color='yellow'

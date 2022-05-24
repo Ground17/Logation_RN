@@ -297,7 +297,7 @@ export default class Home extends Component {
                     keyExtractor={this.keyExtractor}
                     data={this.state.list}
                     renderItem={this.renderItem}
-                    onRefresh={() => this.refresh(true)}
+                    onRefresh={() => this.refresh()}
                     onEndReached={() => this.refresh()}
                     onEndReachedThreshold={.7}
                     refreshing={this.state.loading}

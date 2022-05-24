@@ -48,6 +48,8 @@
     "AddListComment6":"请追加一个以上的照片。",
     "AddListComment7":"成功上传。",
     "AddPhotos":"增加照片",
+    "OpenCamera" : "Open Camera",
+    "AddListComment9" : "You can upload up to 8 photos at a time and up to 31 photos per log.",
     "Cancel":"取消",
     "OK":"确认",
     "Thumbnail": "要将缩略图更改为此图片吗？",

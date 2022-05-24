@@ -180,6 +180,7 @@ const ProgressBar = (props) => {
     width: '100%',
     backgroundColor: "#e0e0de",
     borderRadius: 50,
+    justifyContent: 'center',
     margin: 50
   }
 
@@ -187,6 +188,7 @@ const ProgressBar = (props) => {
     height: '100%',
     width: `${completed}%`,
     backgroundColor: bgcolor,
+    justifyContent: 'center',
     borderRadius: 50,
   }
 
@@ -194,7 +196,7 @@ const ProgressBar = (props) => {
     padding: 5,
     color: 'white',
     fontWeight: 'bold',
-    textAlign: 'right'
+    textAlign: 'right',
   }
 
   return (
@@ -213,22 +215,6 @@ const SPACING_FOR_CARD_INSET = width * 0.1 - 10;
 
 const TAB_ITEM_WIDTH = width / 5;
 
-const Style = StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: Appearance.getColorScheme() === 'dark' ? "#002f6c" : "#fff",
-      justifyContent: 'space-between',
-    },
-    floatingViewStyle: {
-      width: "100%",
-      height: "7%",
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-around',
-      backgroundColor: 'rgba(52, 52, 52, 0.8)',
-    },
-});
-
 export {
   translationGetters,
   translate,
@@ -241,5 +227,4 @@ export {
   adBannerUnitId,
   adInterstitialUnitId,
   TAB_ITEM_WIDTH,
-  Style,
 }

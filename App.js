@@ -30,7 +30,7 @@ import EditProfile from './assets/screens/EditProfile';
 import Following from './assets/screens/Following';
 import Purchase from './assets/screens/Purchase';
 import Language from './assets/screens/Language';
-import { translate, LocalizationProvider, LocalizationContext, Style, TAB_ITEM_WIDTH, } from './assets/screens/Utils';
+import { translate, LocalizationProvider, LocalizationContext, TAB_ITEM_WIDTH, } from './assets/screens/Utils';
 
 
 // import admob, { MaxAdContentRating } from '@react-native-firebase/admob';
@@ -135,11 +135,11 @@ function Main({ navigation }) {
   };
         
   return (
-    <SafeAreaView style={Style.container}>
+    <SafeAreaView style={styles.container}>
       <View style={{width: "100%", height: "93%"}}> 
         {tabList[screen]}
       </View>
-      <View style={Style.floatingViewStyle}>
+      <View style={styles.floatingViewStyle}>
         <TouchableOpacity onPress={async () => { 
           setScreen(0);
         }}>
@@ -382,3 +382,19 @@ export default class App extends Component {
     );
   }
 };
+
+const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: Appearance.getColorScheme() === 'dark' ? "#002f6c" : "#fff",
+      justifyContent: 'space-between',
+    },
+    floatingViewStyle: {
+      width: "100%",
+      height: "7%",
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-around',
+      backgroundColor: 'rgba(52, 52, 52, 0.8)',
+    },
+});
