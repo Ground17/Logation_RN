@@ -48,7 +48,7 @@ export default class Login extends Component {
             followersLength: 0,
             followingsLength: 0,
             viewsLength: 0,
-            logsLength: 0, 
+            logsLength: 0,
             modifyDate: now,
             displayName: auth().currentUser.uid,
             uid: auth().currentUser.uid,

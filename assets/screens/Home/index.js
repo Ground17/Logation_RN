@@ -10,9 +10,12 @@ import {
   Linking,
   Appearance,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 
 import FastImage from 'react-native-fast-image';
+
+import Share from 'react-native-share';
 
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
@@ -49,79 +52,80 @@ export default class Home extends Component {
             });
         }
 
-        var storageRef = await storage().ref();
+        let storageRef = await storage().ref();
         const userList = [];
+        let query = firestore()
+            .collection("Posts")
+            .where("security", "==", 0)
+            .orderBy("modifyDate", "desc")
+            .startAfter(this.state.endDate)
+            .limit(15);
 
-        await firestore()
-            .collection(`Users/${auth().currentUser.uid}/following`)
-            .get()
-            .then(async (querySnapshot) => {
-                for (var i = 0; i < querySnapshot.docs.length; i++) {
-                    userList.push(querySnapshot.docs[i].id);
-                }
-            }).catch((e) => {
-                console.log(e);
-            });
-
-        if (userList.length > 0) {
-            const temp = [];
+        if (this.props.follow) { // follow (1번째 화면)
             await firestore()
-                .collection("Posts")
-                .where("uid", "in", userList)
-                .where("security", "==", 0)
-                .orderBy("modifyDate", "desc")
-                .startAfter(this.state.endDate)
-                .limit(15)
+                .collection(`Users/${auth().currentUser.uid}/following`)
                 .get()
-                .then(async (querySnap) => {
-                    for (var j = 0; j < querySnap.docs.length; j++) {
-                        var data = querySnap.docs[j].data();
-                        var displayName = data.uid;
-                        var URL = "";
-                        var profileURL = "";
-                        try {
-                            const user = await firestore().collection("Users").doc(data.uid).get();
-                            if (user.exists) {
-                                displayName = user.data().displayName;
-                            }
-                            var photo = (data.thumbnail >= 0 && data.thumbnail < data.data.length) ? data.data[data.thumbnail].photo : data.data[0].photo;
-                            photo = photo.substr(0, photo.lastIndexOf('.'));
-                            // URL = await storageRef.child(data.uid + "/" + querySnap.docs[j].id + "/" + photo + "_1080x1080.jpeg").getDownloadURL();
-                            // profileURL = await storageRef.child(`${data.uid}/profile/profile_144x144.jpeg`).getDownloadURL() || '';
-                            URL = `https://storage.googleapis.com/travelog-4e274.appspot.com/${data.uid}/${querySnap.docs[j].id}/${photo}_1080x1080.jpeg`;
-                            profileURL = `https://storage.googleapis.com/travelog-4e274.appspot.com/${data.uid}/profile/profile_144x144.jpeg`;
-                        } catch (e) {
-                            console.log(e);
-                        } finally {
-                            temp.push({
-                                title: data.title,
-                                subtitle: data.subtitle,
-                                link: data.link,
-                                url: URL, // 썸네일 URL
-                                id: querySnap.docs[j].id, // log의 id
-                                uid: data.uid, // log의 소유자
-                                displayName: displayName,
-                                profileURL: profileURL,
-                                date: data.date,
-                                modifyDate: data.modifyDate,
-                                category: data.category,
-                                data: data.data,
-                                likeCount: data.likeCount,
-                                dislikeCount: data.dislikeCount,
-                                likeNumber: data.likeNumber,
-                                viewcode: data.viewcode,
-                                viewCount: data.viewCount,
-                                thumbnail: data.thumbnail,
-                            });
-                        }
+                .then(async (querySnapshot) => {
+                    for (let i = 0; i < querySnapshot.docs.length; i++) {
+                        userList.push(querySnapshot.docs[i].id);
                     }
+                }).catch((e) => {
+                    console.log(e);
                 });
-            if (temp.length > 0) {
-                this.setState({
-                    endDate: temp[temp.length - 1].modifyDate,
-                    list: this.state.list.concat(temp),
-                });
-            }
+
+            query = query.where("uid", "in", userList);
+        }
+
+        const temp = [];
+        await query.get()
+            .then(async (querySnap) => {
+                for (let j = 0; j < querySnap.docs.length; j++) {
+                    let data = querySnap.docs[j].data();
+                    let displayName = data.uid;
+                    let URL = "";
+                    let profileURL = "";
+                    try {
+                        const user = await firestore().collection("Users").doc(data.uid).get();
+                        if (user.exists) {
+                            displayName = user.data().displayName;
+                        }
+                        let photo = (data.thumbnail >= 0 && data.thumbnail < data.data.length) ? data.data[data.thumbnail].photo : data.data[0].photo;
+                        photo = photo.substr(0, photo.lastIndexOf('.'));
+                        // URL = await storageRef.child(data.uid + "/" + querySnap.docs[j].id + "/" + photo + "_1080x1080.jpeg").getDownloadURL();
+                        // profileURL = await storageRef.child(`${data.uid}/profile/profile_144x144.jpeg`).getDownloadURL() || '';
+                        URL = `https://storage.googleapis.com/travelog-4e274.appspot.com/${data.uid}/${querySnap.docs[j].id}/${photo}_1080x1080.jpeg`;
+                        profileURL = `https://storage.googleapis.com/travelog-4e274.appspot.com/${data.uid}/profile/profile_144x144.jpeg`;
+                    } catch (e) {
+                        console.log(e);
+                    } finally {
+                        temp.push({
+                            title: data.title,
+                            subtitle: data.subtitle,
+                            link: data.link,
+                            url: URL, // 썸네일 URL
+                            id: querySnap.docs[j].id, // log의 id
+                            uid: data.uid, // log의 소유자
+                            displayName: displayName,
+                            profileURL: profileURL,
+                            date: data.date,
+                            modifyDate: data.modifyDate,
+                            category: data.category,
+                            data: data.data,
+                            likeCount: data.likeCount,
+                            dislikeCount: data.dislikeCount,
+                            likeNumber: data.likeNumber,
+                            viewcode: data.viewcode,
+                            viewCount: data.viewCount,
+                            thumbnail: data.thumbnail,
+                        });
+                    }
+                }
+            });
+        if (temp.length > 0) {
+            this.setState({
+                endDate: temp[temp.length - 1].modifyDate,
+                list: this.state.list.concat(temp),
+            });
         }
 
         if (initial) {
@@ -247,6 +251,65 @@ export default class Home extends Component {
                     {`${item.displayName}`}
                 </ListItem.Subtitle>
                 </ListItem.Content>
+                <TouchableOpacity style={{marginRight:5}} onPress={() => { 
+                    Alert.alert(
+                        item.title,
+                        item.displayName,
+                        [
+                            {text: translate("Report"), onPress: async () => {
+                                await firestore()
+                                    .doc(`Reports/${item.uid}`)
+                                    .get()
+                                    .then(async (documentSnapshot) => {
+                                        if (documentSnapshot.exists) {
+                                            await documentSnapshot.ref.update({count: documentSnapshot.data().count + 1});
+                                        } else {
+                                            await documentSnapshot.ref.set({count: 1});
+                                        }
+                                    }).catch((e) => {
+                                        console.log(e);
+                                    });
+                            }},
+                            {text: translate("Share"), onPress: () => {
+                                const url = `https://travelog-4e274.web.app/?id=${item.id}`;
+                                const title = 'URL Content';
+                                const message = 'Please check this out.';
+                                const options = Platform.select({
+                                    ios: {
+                                        activityItemSources: [
+                                            { // For sharing url with custom title.
+                                                placeholderItem: { type: 'url', content: url },
+                                                item: {
+                                                    default: { type: 'url', content: url },
+                                                },
+                                                subject: {
+                                                    default: title,
+                                                },
+                                                linkMetadata: { originalUrl: url, url, title },
+                                            },
+                                        ],
+                                    },
+                                    default: {
+                                        title,
+                                        subject: title,
+                                        message: `${message} ${url}`,
+                                    },
+                                });
+                                Share.open(options)
+                                    .then((res) => { console.log(res) })
+                                    .catch((err) => { err && console.log(err); });
+                            }},
+                            {text: translate("Cancel"), onPress: () => console.log('Cancel Pressed')},
+                        ],
+                        { cancelable: true }
+                    );
+                }}>
+                    <Icon
+                        name='more_vert'
+                        size={24}
+                        color={ Appearance.getColorScheme() === 'dark' ? '#ffffff' : '#002f6c' }
+                    />
+                </TouchableOpacity>
             </ListItem>
         </View>
     )

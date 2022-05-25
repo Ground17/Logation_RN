@@ -10,7 +10,6 @@ import {
   Appearance,
   Linking,
 } from 'react-native';
-// import { useNavigation } from '@react-navigation/native';
 
 import messaging, { AuthorizationStatus } from '@react-native-firebase/messaging';
 
@@ -21,6 +20,7 @@ import ResetPassword from './assets/screens/ResetPassword';
 import Home from './assets/screens/Home';
 import Me from './assets/screens/Me';
 import Search from './assets/screens/Search';
+import Badge from './assets/screens/Badge';
 import Notification from './assets/screens/Notification';
 import ShowScreen from './assets/screens/ShowScreen';
 import ShowItem from './assets/screens/ShowItem';
@@ -31,7 +31,6 @@ import Following from './assets/screens/Following';
 import Purchase from './assets/screens/Purchase';
 import Language from './assets/screens/Language';
 import { translate, LocalizationProvider, LocalizationContext, TAB_ITEM_WIDTH, } from './assets/screens/Utils';
-
 
 // import admob, { MaxAdContentRating } from '@react-native-firebase/admob';
 
@@ -50,7 +49,9 @@ const Stack = createStackNavigator();
 
 function Main({ navigation }) {
   const [screen, setScreen] = useState(0);
+  const [follow, setFollow] = useState("");
   const [feed, setFeed] = useState("");
+  const [badge, setBadge] = useState("");
   const [me, setMe] = useState("");
   const { initializeAppLanguage } = useContext(LocalizationContext);
   const [url, setUrl] = useState(null);
@@ -61,6 +62,23 @@ function Main({ navigation }) {
   }
 
   navigate = (url) => {
+    if (auth().currentUser.uid == null) {
+      Alert.alert(
+        translate("Alert"),
+        translate("LoginOpenURL"),
+        [
+          {text: translate("OK"), onPress: () => { 
+            navigation.reset({
+              index: 0,
+              routes: [{name: 'Login'}]
+            }); 
+          }},
+        ],
+        { cancelable: true }
+      );
+      return;
+    }
+
     var regex = /[?&]([^=#]+)=([^&#]*)/g,
         params = {},
         match;
@@ -89,16 +107,6 @@ function Main({ navigation }) {
       });
     }
   }
-   
-  firestore().collection("Users").doc(auth().currentUser.uid).get().then((user) => {
-    if (!user.exists) { // Login 후에 진행하도록 변경
-      console.log('User signed out!');
-      navigation.reset({
-        index: 0,
-        routes: [{name: 'Login'}]
-      });
-    }
-  })
 
   useEffect(() => {
     function handleStatusChange(status) {
@@ -125,13 +133,17 @@ function Main({ navigation }) {
     navigation.setOptions({
       title: translate("Main"),
     });
+    setFollow(translate("Follow"));
     setFeed(translate("Feed"));
+    setBadge(translate("Badge"));
     setMe(translate("MyAccount"));
   });
 
   const tabList = {
     0: <Home navigation={navigation}/>,
-    1: <Me navigation={navigation}/>,
+    1: <Home navigation={navigation} follow={true}/>,
+    2: <Badge navigation={navigation}/>,
+    3: <Me navigation={navigation}/>,
   };
         
   return (
@@ -140,8 +152,21 @@ function Main({ navigation }) {
         {tabList[screen]}
       </View>
       <View style={styles.floatingViewStyle}>
-        <TouchableOpacity onPress={async () => { 
+      <TouchableOpacity onPress={async () => { 
           setScreen(0);
+        }}>
+          <View style={{alignItems: 'center', justifyContent: 'space-around', height: "100%", width: TAB_ITEM_WIDTH}}>
+            <Icon
+              reverse
+              name='home'
+              color='#bdbdbd'
+              size={25}
+            />
+            <Text style={{textAlign: 'center', color: "#fff", fontSize: 10}}> {feed} </Text>
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={async () => { 
+          setScreen(1);
         }}>
           <View style={{alignItems: 'center', justifyContent: 'space-around', height: "100%", width: TAB_ITEM_WIDTH}}>
             <Icon
@@ -150,11 +175,13 @@ function Main({ navigation }) {
               color='#bdbdbd'
               size={25}
             />
-            <Text style={{textAlign: 'center', color: "#fff", fontSize: 10}}> {feed} </Text>
+            <Text style={{textAlign: 'center', color: "#fff", fontSize: 10}}> {follow} </Text>
           </View>
         </TouchableOpacity>
         <TouchableOpacity onPress={async () => { 
-          navigation.push('AddList');
+          navigation.push('AddList', {
+            onPop: () => setScreen(3),
+          });
         }}>
           <View style={{alignItems: 'center', justifyContent: 'space-around', height: "100%", width: TAB_ITEM_WIDTH}}>
             <Icon
@@ -167,7 +194,20 @@ function Main({ navigation }) {
           </View>
         </TouchableOpacity>
         <TouchableOpacity onPress={async () => { 
-          setScreen(1);
+          setScreen(2);
+        }}>
+          <View style={{alignItems: 'center', justifyContent: 'space-around', height: "100%", width: TAB_ITEM_WIDTH}}>
+            <Icon
+              reverse
+              name='account-circle'
+              color='#bdbdbd'
+              size={25}
+            />
+            <Text style={{textAlign: 'center', color: "#fff", fontSize: 10}}> {badge} </Text>
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={async () => { 
+          setScreen(3);
         }}>
           <View style={{alignItems: 'center', justifyContent: 'space-around', height: "100%", width: TAB_ITEM_WIDTH}}>
             <Icon
@@ -269,6 +309,15 @@ export default class App extends Component {
               },
             }}/>
             <Stack.Screen name="Me" component={Me} options={{
+              headerStyle: {
+                backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#01579b',
+              },
+              headerTintColor: '#fff',
+              headerTitleStyle: {
+                fontWeight: 'bold',
+              },
+            }}/>
+            <Stack.Screen name="Badge" component={Badge} options={{
               headerStyle: {
                 backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#01579b',
               },

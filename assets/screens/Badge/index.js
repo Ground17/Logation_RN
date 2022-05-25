@@ -17,9 +17,11 @@ import firestore from '@react-native-firebase/firestore';
 
 import { translate } from '../Utils';
 
-export default class Notification extends Component {
+export default class Badge extends Component {
   async componentDidMount() {
-    this.props.navigation.setOptions({ title: translate("Notifications") + translate("beta") });
+    this.props.navigation.setOptions({ title: translate("Badge") });
+
+    // badge와 관련된 사항들을 처리하자...
   }
 
   render() {

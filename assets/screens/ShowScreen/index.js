@@ -68,6 +68,7 @@ export default class ShowScreen extends Component {
       liked: false,
       disliked: false,
       loading: false,
+      smallLoading: false, // 좋아요 트랜잭션을 위한 것
       likeNumber: false,
       likeCount: 0,
       dislikeCount: 0,
@@ -859,181 +860,186 @@ export default class ShowScreen extends Component {
           { !this.state.loading && <View style={styles.floatingViewStyle}>
             <TouchableOpacity onPress={async () => {
               console.log('up');
-              await firestore()
-                .collection("Users")
-                .doc(auth().currentUser.uid)
-                .collection("like")
-                .doc(this.props.route.params.itemId)
-                .get()
-                .then(async (documentSnapshot) => {
-                  let now = firestore.Timestamp.fromMillis((new Date()).getTime());
-                  let liked = this.state.liked;
-                  let disliked = this.state.disliked;
-                  let localLikeCount = this.state.likeCount;
-                  let localDislikeCount = this.state.dislikeCount;
 
-                  if (!documentSnapshot.exists) {
-                    await documentSnapshot.ref.set({ like: true, datetime: now });
+              if (this.state.smallLoading) {
+                return;
+              }
+
+              this.setState({
+                smallLoading: true,
+              });
+              let likeRef = firestore().collection("Users").doc(auth().currentUser.uid).collection("like").doc(this.props.route.params.itemId);
+              let postRef = firestore().collection("Posts").doc(this.props.route.params.itemId);
+              let liked = this.state.liked;
+              let disliked = this.state.disliked;
+              let localLikeCount = this.state.likeCount;
+              let localDislikeCount = this.state.dislikeCount;
+
+              return await firestore().runTransaction(async t => {
+                  const like = await t.get(likeRef);
+                  const post = await t.get(postRef);
+                  const now = firestore.Timestamp.fromMillis((new Date()).getTime());
+
+                  if (!like.exists) {
                     liked = true;
                     localLikeCount++;
-                    await firestore()
-                      .collection("Posts")
-                      .doc(this.props.route.params.itemId)
-                      .update({
-                        likeCount: firestore.FieldValue.increment(1),
-                      });
+                    t.set(likeRef, { like: true, datetime: now });
+                    t.update(postRef, { likeCount: firestore.FieldValue.increment(1) });
                   } else {
-                    const data = documentSnapshot.data();
+                    const data = like.data();
                     if (data.datetime.seconds + 60 < now.seconds) { // 1분이 지날 때만 갱신
                       if (data.like) {
-                        await documentSnapshot.ref.delete();
                         liked = false;
                         localLikeCount--;
-                        await firestore()
-                          .collection("Posts")
-                          .doc(this.props.route.params.itemId)
-                          .update({
-                            likeCount: firestore.FieldValue.increment(-1),
-                          });
+                        t.delete(likeRef);
+                        t.update(postRef, { likeCount: firestore.FieldValue.increment(-1) });
                       } else {
-                        await documentSnapshot.ref.set({ like: true, datetime: now });
                         liked = true;
                         disliked = false;
                         localLikeCount++;
                         localDislikeCount--;
-                        await firestore()
-                          .collection("Posts")
-                          .doc(this.props.route.params.itemId)
-                          .update({
-                            likeCount: firestore.FieldValue.increment(1),
-                            dislikeCount: firestore.FieldValue.increment(-1),
-                          });
+                        t.set(likeRef, { like: true, datetime: now });
+                        t.update(postRef, { 
+                          likeCount: firestore.FieldValue.increment(1),
+                          dislikeCount: firestore.FieldValue.increment(-1),
+                        });
                       }
                     } else {
-                      Alert.alert(
-                        translate('Alert'), //확인
-                        translate('ShowScreenComment2'), // 일정시간 후 수정 가능합니다.
-                        [
-                            {text: translate('OK'), onPress: async () => {} },
-                        ],
-                        { cancelable: true }
-                      );
+                      throw translate('ShowScreenComment2');
                     }
                   }
-
+              }).then(() => {
                   this.setState({
                     liked: liked, // 사용자의 좋아요 여부 확인
                     disliked: disliked, // 사용자의 싫어요 여부 확인
                     likeCount: localLikeCount,
                     dislikeCount: localDislikeCount,
+                    smallLoading: false,
                   });
-                }).then(async () => {
-                    console.log("success");
-                }).catch(async (err) => {
-                    console.error(err);
-                });
+              }).catch((e) => {
+                  this.setState({
+                    liked: liked, // 사용자의 좋아요 여부 확인
+                    disliked: disliked, // 사용자의 싫어요 여부 확인
+                    likeCount: localLikeCount,
+                    dislikeCount: localDislikeCount,
+                    smallLoading: false,
+                  });
+                  Alert.alert(
+                    translate('Alert'), //확인
+                    e.toString(), // 일정시간 후 수정 가능합니다.
+                    [
+                        {text: translate('OK'), onPress: async () => {} },
+                    ],
+                    { cancelable: true }
+                  );
+              });
             }}>
               <View style={{alignItems: 'center', justifyContent: 'space-around', height: "100%", width: TAB_ITEM_WIDTH}}>
-                <Icon
+                {this.state.smallLoading ? 
+                  <ActivityIndicator size="small" color='#01579b' />
+                  : <Icon
                   reverse
                   name='thumb-up'
                   color={this.state.liked ? '#4f83cc' : '#bdbdbd'}
                   size={25}
-                />
+                />}
                 <Text style={{textAlign: 'center', color: "#fff", fontSize: 10}}> {this.state.likeNumber ? this.state.likeCount : translate('like')} </Text>
               </View>
             </TouchableOpacity>
             <TouchableOpacity onPress={async () => {
               console.log('down');
-              await firestore()
-                .collection("Users")
-                .doc(auth().currentUser.uid)
-                .collection("like")
-                .doc(this.props.route.params.itemId)
-                .get()
-                .then(async (documentSnapshot) => {
-                  let now = firestore.Timestamp.fromMillis((new Date()).getTime());
-                  let liked = this.state.liked;
-                  let disliked = this.state.disliked;
-                  let localLikeCount = this.state.likeCount;
-                  let localDislikeCount = this.state.dislikeCount;
 
-                  if (!documentSnapshot.exists) {
-                    await documentSnapshot.ref.set({ like: false, datetime: now });
+              if (this.state.smallLoading) {
+                return;
+              }
+
+              this.setState({
+                smallLoading: true,
+              });
+              let likeRef = firestore().collection("Users").doc(auth().currentUser.uid).collection("like").doc(this.props.route.params.itemId);
+              let postRef = firestore().collection("Posts").doc(this.props.route.params.itemId);
+              let liked = this.state.liked;
+              let disliked = this.state.disliked;
+              let localLikeCount = this.state.likeCount;
+              let localDislikeCount = this.state.dislikeCount;
+
+              return await firestore().runTransaction(async t => {
+                  const like = await t.get(likeRef);
+                  const post = await t.get(postRef);
+                  const now = firestore.Timestamp.fromMillis((new Date()).getTime());
+
+                  if (!like.exists) {
                     disliked = true;
                     localDislikeCount++;
-                    await firestore()
-                      .collection("Posts")
-                      .doc(this.props.route.params.itemId)
-                      .update({
-                        dislikeCount: firestore.FieldValue.increment(1),
-                      });
+                    t.set(likeRef, { like: false, datetime: now });
+                    t.update(postRef, { dislikeCount: firestore.FieldValue.increment(1) });
                   } else {
-                    const data = documentSnapshot.data();
+                    const data = like.data();
                     if (data.datetime.seconds + 60 < now.seconds) { // 1분이 지날 때만 갱신
                       if (!data.like) {
-                        await documentSnapshot.ref.delete();
                         disliked = false;
                         localDislikeCount--;
-                        await firestore()
-                          .collection("Posts")
-                          .doc(this.props.route.params.itemId)
-                          .update({
-                            dislikeCount: firestore.FieldValue.increment(-1),
-                          });
+                        t.delete(likeRef);
+                        t.update(postRef, { dislikeCount: firestore.FieldValue.increment(-1) });
                       } else {
-                        await documentSnapshot.ref.set({ like: false, datetime: now });
                         liked = false;
                         disliked = true;
                         localLikeCount--;
                         localDislikeCount++;
-                        await firestore()
-                          .collection("Posts")
-                          .doc(this.props.route.params.itemId)
-                          .update({
-                            likeCount: firestore.FieldValue.increment(-1),
-                            dislikeCount: firestore.FieldValue.increment(1),
-                          });
+                        t.set(likeRef, { like: false, datetime: now });
+                        t.update(postRef, { 
+                          likeCount: firestore.FieldValue.increment(-1),
+                          dislikeCount: firestore.FieldValue.increment(1),
+                        });
                       }
                     } else {
-                      Alert.alert(
-                        translate('Alert'), //확인
-                        translate('ShowScreenComment2'), // 일정시간 후 수정 가능합니다.
-                        [
-                            {text: translate('OK'), onPress: async () => {} },
-                        ],
-                        { cancelable: true }
-                      );
+                      throw translate('ShowScreenComment2');
                     }
                   }
-
+              }).then(() => {
                   this.setState({
                     liked: liked, // 사용자의 좋아요 여부 확인
                     disliked: disliked, // 사용자의 싫어요 여부 확인
                     likeCount: localLikeCount,
                     dislikeCount: localDislikeCount,
+                    smallLoading: false,
                   });
-                }).then(async () => {
-                    console.log("success");
-                }).catch(async (err) => {
-                    console.error(err);
-                });
+              }).catch((e) => {
+                  this.setState({
+                    liked: liked, // 사용자의 좋아요 여부 확인
+                    disliked: disliked, // 사용자의 싫어요 여부 확인
+                    likeCount: localLikeCount,
+                    dislikeCount: localDislikeCount,
+                    smallLoading: false,
+                  });
+                  Alert.alert(
+                    translate('Alert'), //확인
+                    e.toString(), // 일정시간 후 수정 가능합니다.
+                    [
+                        {text: translate('OK'), onPress: async () => {} },
+                    ],
+                    { cancelable: true }
+                  );
+              });
             }}>
+
               <View style={{alignItems: 'center', justifyContent: 'space-around', height: "100%", width: TAB_ITEM_WIDTH}}>
-                <Icon
-                  reverse
-                  name='thumb-down'
-                  color={this.state.disliked ? '#bc477b' : '#bdbdbd'}
-                  size={25}
-                />
+                {this.state.smallLoading ? 
+                  <ActivityIndicator size="small" color='#01579b' />
+                  : <Icon
+                    reverse
+                    name='thumb-down'
+                    color={this.state.disliked ? '#bc477b' : '#bdbdbd'}
+                    size={25}
+                  />}
                 <Text style={{textAlign: 'center', color: "#fff", fontSize: 10}}> {this.state.likeNumber ? this.state.dislikeCount : translate('dislike')} </Text>
               </View>
             </TouchableOpacity>
             { auth().currentUser.uid == this.state.userUid && <TouchableOpacity onPress={async () => { // EditList로 이동
                 if (this.state.changed) {
                   Alert.alert(
-                    translate('Confirm'), //확인
-                    translate('EditScreenComment1'), //변경점을 저장하시겠습니까?
+                    translate('Confirm'), // 확인
+                    translate('EditScreenComment1'), // 변경점을 저장하시겠습니까?
                     [
                         {text: translate('Cancel'), onPress: () => this.goEditList()},
                         {text: translate('OK'), onPress: async () => {

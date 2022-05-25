@@ -868,9 +868,7 @@ export default class AddList extends Component {
                                 { cancelable: false }
                             );
     
-                            if (this.state.edit) {
-                                this.props.route.params.onPop();
-                            }
+                            this.props.route.params.onPop();
                             this.props.navigation.pop();
                         })
                         .catch((e) => {

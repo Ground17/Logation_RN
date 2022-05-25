@@ -30,7 +30,7 @@ import storage from '@react-native-firebase/storage';
 import firestore from '@react-native-firebase/firestore';
 import messaging from '@react-native-firebase/messaging';
 
-async function requestUserPermission() {
+async function requestUserPermission() { // 현재 알림기능을 다 구현하지 않았기에 사용하지 않음
   const authorizationStatus = await messaging().requestPermission();
 
   if (authorizationStatus) {
@@ -78,6 +78,7 @@ export default class Me extends Component {
         ads: !adsFree,
         loading: false,
         initialLoading: true,
+        smallLoading: false, // 팔로우 트랜잭션을 위한 것
         lazyend: false,
         endDate: firestore.Timestamp.fromMillis((new Date()).getTime()),
     }
@@ -182,11 +183,14 @@ export default class Me extends Component {
             return;
         }
 
-        var userRef = await firestore().collection("Users").doc(this.props.route.params.userUid);
-        var meRef = await firestore().collection("Users").doc(auth().currentUser.uid);
-        // var sfDocRef = await userRef.collection("follower").doc(auth().currentUser.uid);
-        var sfDocRefForMe = await meRef.collection("following").doc(this.props.route.params.userUid);
-        return firestore().runTransaction(async transaction => {
+        this.setState({
+            smallLoading: true,
+        });
+
+        var userRef = firestore().collection("Users").doc(this.props.route.params.userUid);
+        var meRef = firestore().collection("Users").doc(auth().currentUser.uid);
+        var sfDocRefForMe = meRef.collection("following").doc(this.props.route.params.userUid);
+        return await firestore().runTransaction(async transaction => {
             const user = await transaction.get(userRef);
             const me = await transaction.get(meRef);
             // const othersFollower = await transaction.get(sfDocRef);
@@ -232,6 +236,14 @@ export default class Me extends Component {
                     Alert.alert(translate("Alert"), "You can unfollow this account after 10 minutes."); // 10분이 지난 후 언팔로우 할 수 있습니다.
                 }
             }
+        }).then(() => {
+            this.setState({
+                smallLoading: false,
+            });
+        }).catch((e) => {
+            this.setState({
+                smallLoading: false,
+            });
         });
     }
 
@@ -605,15 +617,17 @@ export default class Me extends Component {
                     <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000', textAlign: 'center'}}>{translate("MeEmpty")}</Text>
                 </View>
                 }
-                {this.state.other && <TouchableOpacity style={[styles.buttonContainer, styles.loginButton, {position: 'absolute', alignSelf: 'flex-end', top: 10, right: 10, borderRadius:5,}]} onPress={async () => { 
-                    if (!this.state.loading) {
+                { this.state.other && <TouchableOpacity style={[styles.buttonContainer, styles.loginButton, {position: 'absolute', alignSelf: 'flex-end', top: 10, right: 10, borderRadius:5,}]} onPress={async () => { 
+                    if (!this.state.loading && !this.state.smallLoading) {
                         await this.follow()
                             .then(() => console.log('Post likes incremented via a transaction'))
                             .catch(error => console.error(error));
                     }
                 }}>
-                    <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000', padding: 5}}>{this.state.follow ? translate('Unfollow') : translate('Follow') }</Text>
-                </TouchableOpacity>}
+                    {this.state.smallLoading ? 
+                    <ActivityIndicator size="small" color='#01579b' />
+                    : <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000', padding: 5}}>{this.state.follow ? translate('Unfollow') : translate('Follow') }</Text>}
+                </TouchableOpacity> }
             </SafeAreaView>
         );
     }
