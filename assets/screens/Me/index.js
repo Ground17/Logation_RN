@@ -30,6 +30,8 @@ import storage from '@react-native-firebase/storage';
 import firestore from '@react-native-firebase/firestore';
 import messaging from '@react-native-firebase/messaging';
 
+import AsyncStorage from '@react-native-community/async-storage';
+
 async function requestUserPermission() { // 현재 알림기능을 다 구현하지 않았기에 사용하지 않음
   const authorizationStatus = await messaging().requestPermission();
 
@@ -541,6 +543,8 @@ export default class Me extends Component {
                             Share.open(options)
                                 .then((res) => { console.log(res) })
                                 .catch((err) => { err && console.log(err); });
+                                
+                            await AsyncStorage.setItem('badgeShare', 'true');
                             }}>
                             <Icon
                                 name='share'

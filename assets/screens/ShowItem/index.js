@@ -22,7 +22,7 @@ import ImageModal from 'react-native-image-modal';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 
 import Icon from 'react-native-vector-icons/MaterialIcons';
-// import ImagePicker from 'react-native-image-crop-picker';
+import ImagePicker from 'react-native-image-crop-picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 import { ListItem, Avatar, Button, Input, } from 'react-native-elements'
@@ -441,19 +441,17 @@ export default class ShowItem extends Component {
               <TouchableOpacity 
                 style={[styles.buttonContainer, styles.loginButton, {marginTop: 5, height:45, width: "100%", borderRadius:5,}]} onPress={() => { 
                   if (auth().currentUser.uid == this.props.route.params.userUid) {
-                    // ImagePicker.openPicker({
-                    //   width: 1024,
-                    //   height: 1024,
-                    //   cropping: true,
-                    //   mediaType: 'photo',
-                    //   includeExif: true,
-                    // }).then(image => {
-                    //   console.log(image);
-                    //   this.setState({
-                    //     changed: true,
-                    //     url: image.path,
-                    //   });
-                    // });
+                    ImagePicker.openPicker({
+                      mediaType: 'photo',
+                      forceJpg: true,
+                      compressImageMaxWidth: 1080,
+                    }).then(image => {
+                      console.log(image);
+                      this.setState({
+                        changed: true,
+                        url: image.path,
+                      });
+                    });
                   }
               }}>
                 <Text style={styles.loginText}>{translate("EditPhotos")}</Text>

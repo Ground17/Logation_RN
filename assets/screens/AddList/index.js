@@ -700,9 +700,12 @@ export default class AddList extends Component {
                             renderItem={this.renderAvatar}
                         />
                     </View> }
-                    <View style={{marginTop: 5, marginBottom: 10}}>
+                    <View style={{marginTop: 5, marginBottom: 5}}>
                         <View style={{alignSelf:'center', position:'absolute', borderBottomColor:'gray', borderBottomWidth:1, height:'50%', width:'80%'}}/>
                     </View>
+                    <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000', marginBottom: 5}}> 
+                        {translate("AddListComment10")} 
+                    </Text> 
                     <TouchableOpacity style={[styles.buttonContainer, styles.loginButton, {height:45, width: "80%", borderRadius:5,}]} onPress={async () => {
                         if (this.state.title.length < 1 || this.state.subtitle.length < 1) {
                             Alert.alert(

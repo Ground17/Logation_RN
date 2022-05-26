@@ -35,6 +35,8 @@ import MapView, { Polyline, Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import storage from '@react-native-firebase/storage';
 import firestore from '@react-native-firebase/firestore';
 
+import AsyncStorage from '@react-native-community/async-storage';
+
 import { translate, } from '../Utils';
 
 const { width, height } = Dimensions.get("window");
@@ -576,7 +578,7 @@ export default class ShowScreen extends Component {
       await this.refresh();
     }
 
-    callback = () => {
+    callback = async () => {
       if (!showing || this.state.loading || this.state.edit || showIndex >= this.state.list.length) { 
         showing = false;
         showIndex = 0;
@@ -584,6 +586,7 @@ export default class ShowScreen extends Component {
       }
 
       try {
+        await AsyncStorage.setItem('badgePlay', 'true');
         this.state._map.current.animateCamera(
           {
             center: {
@@ -1091,6 +1094,8 @@ export default class ShowScreen extends Component {
               Share.open(options)
                 .then((res) => { console.log(res) })
                 .catch((err) => { err && console.log(err); });
+
+              await AsyncStorage.setItem('badgeShare', 'true');
               }}>
               <View style={{alignItems: 'center', justifyContent: 'space-around', height: "100%", width: TAB_ITEM_WIDTH}}>
                 <Icon

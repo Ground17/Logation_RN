@@ -32,8 +32,6 @@ import Purchase from './assets/screens/Purchase';
 import Language from './assets/screens/Language';
 import { translate, LocalizationProvider, LocalizationContext, TAB_ITEM_WIDTH, } from './assets/screens/Utils';
 
-// import admob, { MaxAdContentRating } from '@react-native-firebase/admob';
-
 import 'react-native-gesture-handler';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -44,6 +42,8 @@ import firestore from '@react-native-firebase/firestore';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
 import i18n from 'i18n-js';
+
+import AsyncStorage from '@react-native-community/async-storage';
 
 const Stack = createStackNavigator();
 
@@ -61,7 +61,7 @@ function Main({ navigation }) {
     this.navigate(event.url);
   }
 
-  navigate = (url) => {
+  navigate = async (url) => {
     if (auth().currentUser.uid == null) {
       Alert.alert(
         translate("Alert"),
@@ -95,16 +95,21 @@ function Main({ navigation }) {
     if (!params['user'] && !params['id']) {
         return;
     }
-    if (params['id']) {
-      navigation.push('ShowScreen', {
-        itemId: params['id'],
-        // onPop: null,
-      });
-    } else if (params['user'] != auth().currentUser.uid) {
-      navigation.push('Me', { // Other
-        other: true,
-        userUid: params['user'],
-      });
+
+    try {
+      await AsyncStorage.setItem('badgeLink', 'true');
+    } finally {
+      if (params['id']) {
+        navigation.push('ShowScreen', {
+          itemId: params['id'],
+          // onPop: null,
+        });
+      } else if (params['user'] != auth().currentUser.uid) {
+        navigation.push('Me', { // Other
+          other: true,
+          userUid: params['user'],
+        });
+      }
     }
   }
 
