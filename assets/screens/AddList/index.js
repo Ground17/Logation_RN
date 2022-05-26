@@ -384,7 +384,7 @@ export default class AddList extends Component {
                             }}
                         />
                     </View>}
-                    <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000', marginTop: 10}}> 
+                    <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000', marginTop: 10, padding: 10}}> 
                         {translate("AddListComment9")} 
                     </Text> 
                     {this.state.data.length > 0 && 
@@ -703,7 +703,7 @@ export default class AddList extends Component {
                     <View style={{marginTop: 5, marginBottom: 5}}>
                         <View style={{alignSelf:'center', position:'absolute', borderBottomColor:'gray', borderBottomWidth:1, height:'50%', width:'80%'}}/>
                     </View>
-                    <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000', marginBottom: 5}}> 
+                    <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000', marginBottom: 5, padding: 10}}> 
                         {translate("AddListComment10")} 
                     </Text> 
                     <TouchableOpacity style={[styles.buttonContainer, styles.loginButton, {height:45, width: "80%", borderRadius:5,}]} onPress={async () => {
@@ -870,8 +870,9 @@ export default class AddList extends Component {
                                 ],
                                 { cancelable: false }
                             );
-    
-                            this.props.route.params.onPop();
+                            if (this.props.route.params.onPop) {
+                                this.props.route.params.onPop();
+                            }
                             this.props.navigation.pop();
                         })
                         .catch((e) => {

@@ -26,6 +26,8 @@ import { BannerAd, TestIds, BannerAdSize } from '@react-native-admob/admob';
 import storage from '@react-native-firebase/storage';
 import firestore from '@react-native-firebase/firestore';
 
+import AsyncStorage from '@react-native-community/async-storage';
+
 import { adsFree, translate, adBannerUnitId } from '../Utils';
 
 import { requestTrackingPermission } from 'react-native-tracking-transparency';
@@ -241,6 +243,8 @@ export default class Home extends Component {
                             uri:
                             item.profileURL,
                         } : require('./../../logo/ic_launcher.png')}
+                        fallback
+                        defaultSource={require('./../../logo/ic_launcher.png')}
                     />
                 </TouchableOpacity>
                 <ListItem.Content>
@@ -270,7 +274,7 @@ export default class Home extends Component {
                                         console.log(e);
                                     });
                             }},
-                            {text: translate("Share"), onPress: () => {
+                            {text: translate("Share"), onPress: async () => {
                                 const url = `https://travelog-4e274.web.app/?id=${item.id}`;
                                 const title = 'URL Content';
                                 const message = 'Please check this out.';
@@ -298,6 +302,8 @@ export default class Home extends Component {
                                 Share.open(options)
                                     .then((res) => { console.log(res) })
                                     .catch((err) => { err && console.log(err); });
+
+                                await AsyncStorage.setItem('badgeShare', 'true');
                             }},
                             {text: translate("Cancel"), onPress: () => console.log('Cancel Pressed')},
                         ],
@@ -305,7 +311,7 @@ export default class Home extends Component {
                     );
                 }}>
                     <Icon
-                        name='more_vert'
+                        name='more-vert'
                         size={24}
                         color={ Appearance.getColorScheme() === 'dark' ? '#ffffff' : '#002f6c' }
                     />

@@ -696,7 +696,7 @@ export default class ShowScreen extends Component {
                   }}
                 >
                   <View style={{alignItems: 'center'}}>
-                    <View style={{width: 10, height: 10, backgroundColor: 'red', borderRadius: 5, marginTop: -5, marginBottom: 10}} />
+                    <View style={{width: 10, height: 10, backgroundColor: 'red', borderRadius: 5, marginBottom: 10}} />
                     <FastImage
                       style={{ height: height * 0.2, width: width * 0.3, borderRadius: 10 }}
                       source={item.url ? {
@@ -1066,7 +1066,7 @@ export default class ShowScreen extends Component {
                   <Text style={{textAlign: 'center', color: "#fff", fontSize: 10}}> {translate("AddPhotos")} </Text>
                 </View>
               </TouchableOpacity> }
-            { !this.state.edit ? <TouchableOpacity onPress={() => {
+            { !this.state.edit ? <TouchableOpacity onPress={async () => {
               const url = 'https://travelog-4e274.web.app/?id=' + this.props.route.params.itemId;
               const title = 'URL Content';
               const message = 'Please check this out.';

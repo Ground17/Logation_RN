@@ -105,12 +105,17 @@ export default class Me extends Component {
         var storageRef = await storage().ref();
         if (!this.state.lazyend) {
             const temp = [];
-            await firestore()
+            let query = firestore()
                 .collection(`Users/${uid}/log`)
-                .where("security", "in", this.state.other ? [0] : [0, 1, 2])
                 .orderBy("date", "desc")
                 .startAfter(this.state.endDate)
-                .limit(10)
+                .limit(10);
+
+            if (this.state.other) {
+                query = query.where("security", "==", 0)
+            }
+            
+            await query
                 .get()
                 .then(async (querySnapshot) => {
                     for (var i = 0; i < querySnapshot.docs.length; i++) {
@@ -449,13 +454,13 @@ export default class Me extends Component {
                         <View style={{flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', marginRight: 10}}>
                             { this.props.route == null ? 
                             <View style={{flexDirection: 'row'}}>
-                                <TouchableOpacity style={{marginRight:5}} onPress={() => { this.props.navigation.push('Notification') }}>
+                                {/* <TouchableOpacity style={{marginRight:5}} onPress={() => { this.props.navigation.push('Notification') }}>
                                     <Icon
                                         name='notifications'
                                         size={24}
                                         color={ Appearance.getColorScheme() === 'dark' ? '#ffffff' : '#002f6c' }
                                     />
-                                </TouchableOpacity>
+                                </TouchableOpacity> */}
                                 <TouchableOpacity style={{marginRight:5}} onPress={() => { this.props.navigation.push('Settings') }}>
                                     <Icon
                                         name='settings'
@@ -515,7 +520,7 @@ export default class Me extends Component {
                                 {this.props.route != null ? this.props.route.params.userUid : auth().currentUser.uid}
                             </Text>
                         </View>
-                        <TouchableOpacity style={{justifyContent: 'center', alignItems: 'center', marginRight:15}} onPress={() => { 
+                        <TouchableOpacity style={{justifyContent: 'center', alignItems: 'center', marginRight:15}} onPress={async () => { 
                             const url = 'https://travelog-4e274.web.app/?user=' + (this.props.route != null ? this.props.route.params.userUid : auth().currentUser.uid);
                             const title = 'URL Content';
                             const message = 'Please check this out.';
@@ -543,7 +548,7 @@ export default class Me extends Component {
                             Share.open(options)
                                 .then((res) => { console.log(res) })
                                 .catch((err) => { err && console.log(err); });
-                                
+
                             await AsyncStorage.setItem('badgeShare', 'true');
                             }}>
                             <Icon
@@ -618,7 +623,7 @@ export default class Me extends Component {
                     refreshing={this.state.loading}
                 />
                 : <View style={{width: "100%", height: "100%", backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff"}}>
-                    <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000', textAlign: 'center'}}>{translate("MeEmpty")}</Text>
+                    <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000', textAlign: 'center'}}>{this.state.initialLoading ? "" : translate("MeEmpty")}</Text>
                 </View>
                 }
                 { this.state.other && <TouchableOpacity style={[styles.buttonContainer, styles.loginButton, {position: 'absolute', alignSelf: 'flex-end', top: 10, right: 10, borderRadius:5,}]} onPress={async () => { 
@@ -628,7 +633,7 @@ export default class Me extends Component {
                             .catch(error => console.error(error));
                     }
                 }}>
-                    {this.state.smallLoading ? 
+                    {this.state.initialLoading ? <View></View> : this.state.smallLoading ? 
                     <ActivityIndicator size="small" color='#01579b' />
                     : <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000', padding: 5}}>{this.state.follow ? translate('Unfollow') : translate('Follow') }</Text>}
                 </TouchableOpacity> }

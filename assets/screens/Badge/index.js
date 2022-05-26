@@ -8,6 +8,8 @@ import {
   Alert,
   Appearance,
   ActivityIndicator,
+  ScrollView,
+  Image,
 } from 'react-native';
 
 import { Divider, Input, Avatar } from 'react-native-elements';
@@ -119,6 +121,8 @@ export default class Badge extends Component {
       });
     }
 
+    console.log(play, share, link);
+
     this.setState({
       play: play,
       share: share,
@@ -133,101 +137,114 @@ export default class Badge extends Component {
         { this.state.loading ? <View style={{width: "100%", height: "100%", alignItems: 'center', justifyContent: 'center', backgroundColor: Appearance.getColorScheme() === 'dark' ? '#121212' : '#fff'}}>
               <ActivityIndicator size="large" color={Appearance.getColorScheme() === 'dark' ? '#01579b' : '#002f6c'} />
         </View> 
-        : <ScrollView horizontal={false} style={styles.list}>
-          <View style={styles.stylegridView}>
-            <TouchableOpacity>
-              <View style={[styles.cellView, {backgroundColor: this.state.log1 ? "#002f6c" : "grey"}]}>
-                <Text style={{color: 'white'}}>{`${translate('Log')}\n1+`}</Text>
+        : <ScrollView contentContainerStyle={styles.viewContainer} style={styles.list} >
+            <View style={styles.cellView}>
+              <View style={[styles.cell, {backgroundColor: this.state.log1 ? "#002f6c" : "grey"}]}>
+                <Text style={{color: 'white', textAlign: 'center'}}>{`${translate('Log')}\n1+`}</Text>
               </View>
-            </TouchableOpacity>
-            <TouchableOpacity>
-              <View style={[styles.cellView, {backgroundColor: this.state.log10 ? "#002f6c" : "grey"}]}>
-                <Text style={{color: 'white'}}>{`${translate('Log')}\n10+`}</Text>
+            </View>
+            <View style={styles.cellView}>
+              <View style={[styles.cell, {backgroundColor: this.state.log10 ? "#002f6c" : "grey"}]}>
+                <Text style={{color: 'white', textAlign: 'center'}}>{`${translate('Log')}\n10+`}</Text>
               </View>
-            </TouchableOpacity>
-            <TouchableOpacity>
-              <View style={[styles.cellView, {backgroundColor: this.state.following1 ? "#002f6c" : "grey"}]}>
-                <Text style={{color: 'white'}}>{`${translate('Followings')}\n1+`}</Text>
+            </View>
+            <View style={styles.cellView}>
+              <View style={[styles.cell, {backgroundColor: this.state.following1 ? "#002f6c" : "grey"}]}>
+                <Text style={{color: 'white', textAlign: 'center'}}>{`${translate('Followings')}\n1+`}</Text>
               </View>
-            </TouchableOpacity>
-            <TouchableOpacity>
-              <View style={[styles.cellView, {backgroundColor: this.state.following10 ? "#002f6c" : "grey"}]}>
-                <Text style={{color: 'white'}}>{`${translate('Followings')}\n10+`}</Text>
+            </View>
+            <View style={styles.cellView}>
+              <View style={[styles.cell, {backgroundColor: this.state.following10 ? "#002f6c" : "grey"}]}>
+                <Text style={{color: 'white', textAlign: 'center'}}>{`${translate('Followings')}\n10+`}</Text>
               </View>
-            </TouchableOpacity>
-            <TouchableOpacity>
-              <View style={[styles.cellView, {backgroundColor: this.state.follower10 ? "#002f6c" : "grey"}]}>
-                <Text style={{color: 'white'}}>{`${translate('Followers')}\n10+`}</Text>
+            </View>
+            <View style={styles.cellView}>
+              <View style={[styles.cell, {backgroundColor: this.state.follower10 ? "#002f6c" : "grey"}]}>
+                <Text style={{color: 'white', textAlign: 'center'}}>{`${translate('Followers')}\n10+`}</Text>
               </View>
-            </TouchableOpacity>
-            <TouchableOpacity>
-              <View style={[styles.cellView, {backgroundColor: this.state.follower100 ? "#002f6c" : "grey"}]}>
-                <Text style={{color: 'white'}}>{`${translate('Followers')}\n100+`}</Text>
+            </View>
+            <View style={styles.cellView}>
+              <View style={[styles.cell, {backgroundColor: this.state.follower100 ? "#002f6c" : "grey"}]}>
+                <Text style={{color: 'white', textAlign: 'center'}}>{`${translate('Followers')}\n100+`}</Text>
               </View>
-            </TouchableOpacity>
-            <TouchableOpacity>
-              <View style={[styles.cellView, {backgroundColor: this.state.view100 ? "#002f6c" : "grey"}]}>
-                <Text style={{color: 'white'}}>{`${translate('Views')}\n100+`}</Text>
+            </View>
+            <View style={styles.cellView}>
+              <View style={[styles.cell, {backgroundColor: this.state.view100 ? "#002f6c" : "grey"}]}>
+                <Text style={{color: 'white', textAlign: 'center'}}>{`${translate('Views')}\n100+`}</Text>
               </View>
-            </TouchableOpacity>
-            <TouchableOpacity>
-              <View style={[styles.cellView, {backgroundColor: this.state.view1000 ? "#002f6c" : "grey"}]}>
-                <Text style={{color: 'white'}}>{`${translate('Views')}\n1000+`}</Text>
+            </View>
+            <View style={styles.cellView}>
+              <View style={[styles.cell, {backgroundColor: this.state.view1000 ? "#002f6c" : "grey"}]}>
+                <Text style={{color: 'white', textAlign: 'center'}}>{`${translate('Views')}\n1000+`}</Text>
               </View>
-            </TouchableOpacity>
-            <TouchableOpacity>
-              <View style={[styles.cellView, {backgroundColor: this.state.profile ? "#002f6c" : "grey"}]}>
-                <Text style={{color: 'white'}}>{`${translate('BadgeProfile')}`}</Text>
+            </View>
+            <View style={styles.cellView}>
+              <View style={[styles.cell, {backgroundColor: this.state.profile ? "#002f6c" : "grey"}]}>
+                <Text style={{color: 'white', textAlign: 'center'}}>{`${translate('BadgeProfile')}`}</Text>
               </View>
-            </TouchableOpacity>
-            <TouchableOpacity>
-              <View style={[styles.cellView, {backgroundColor: this.state.play ? "#002f6c" : "grey"}]}>
-                <Text style={{color: 'white'}}>{`${translate('BadgePlay')}`}</Text>
+            </View>
+            <View style={styles.cellView}>
+              <View style={[styles.cell, {backgroundColor: this.state.play ? "#002f6c" : "grey"}]}>
+                <Text style={{color: 'white', textAlign: 'center'}}>{`${translate('BadgePlay')}`}</Text>
               </View>
-            </TouchableOpacity>
-            <TouchableOpacity>
-              <View style={[styles.cellView, {backgroundColor: this.state.share ? "#002f6c" : "grey"}]}>
-                <Text style={{color: 'white'}}>{`${translate('BadgeShare')}`}</Text>
+            </View>
+            <View style={styles.cellView}>
+              <View style={[styles.cell, {backgroundColor: this.state.share ? "#002f6c" : "grey"}]}>
+                <Text style={{color: 'white', textAlign: 'center'}}>{`${translate('BadgeShare')}`}</Text>
               </View>
-            </TouchableOpacity>
-            <TouchableOpacity>
-              <View style={[styles.cellView, {backgroundColor: this.state.links ? "#002f6c" : "grey"}]}>
-                <Text style={{color: 'white'}}>{`${translate('BadgeLink')}`}</Text>
+            </View>
+            <View style={styles.cellView}>
+              <View style={[styles.cell, {backgroundColor: this.state.link ? "#002f6c" : "grey"}]}>
+                <Text style={{color: 'white', textAlign: 'center'}}>{`${translate('BadgeLink')}`}</Text>
               </View>
-            </TouchableOpacity>
-          </View>
+            </View>
         </ScrollView> }
       </SafeAreaView>
     );
   }
 }
 
+const logo = {
+  uri: 'https://reactnative.dev/img/tiny_logo.png',
+  width: 64,
+  height: 64
+};
+
 const styles = StyleSheet.create({
     container: {
       flex: 1,
       alignItems: 'center',
       backgroundColor: Appearance.getColorScheme() === 'dark' ? "#002f6c" : "#fff",
-      justifyContent: 'space-between',
+      width: "100%",
     },
-    cell: { width: "30%", height: "30%"},
+    cell: { 
+      width: "100%", 
+      height: "100%", 
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderRadius: 20,
+    },
     cellView: { 
-      width: "40%",
-      height: "40%", 
-      borderRadius: "20%",
+      width: "50%",
+      height: "30%", 
+      padding: 20,
       alignItems: 'center',
       justifyContent: 'center',
     },
     list:{
       flex: 1,
       width: "100%",
+      flexDirection: "row",
+      flexWrap: "wrap",
       backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff",
     },
     stylegridView:{
-        flexDirection: "row",
-        flexWrap: "wrap",
-        paddingHorizontal: 16,
-        paddingTop: 10,
-        justifyContent: "space-between",
-        paddingBottom: 80,
+        flex: 1,
+    },
+    viewContainer: {
+      flexGrow: 1,
+      width: "100%",
+      flexDirection: "row",
+      flexWrap: "wrap",
     },
 });

@@ -116,6 +116,10 @@ function Main({ navigation }) {
   useEffect(() => {
     function handleStatusChange(status) {
       console.log(status);
+
+      if (url) {
+        url.remove();
+      }
     }
     
     if (url) {
@@ -145,15 +149,15 @@ function Main({ navigation }) {
   });
 
   const tabList = {
-    0: <Home navigation={navigation}/>,
-    1: <Home navigation={navigation} follow={true}/>,
+    0: <Home navigation={navigation} follow={false} key={0}/>,
+    1: <Home navigation={navigation} follow={true} key={1}/>,
     2: <Badge navigation={navigation}/>,
     3: <Me navigation={navigation}/>,
   };
         
   return (
     <SafeAreaView style={styles.container}>
-      <View style={{width: "100%", height: "93%"}}> 
+      <View style={{width: "100%", height: "93%", flex: 1}}> 
         {tabList[screen]}
       </View>
       <View style={styles.floatingViewStyle}>
@@ -204,7 +208,7 @@ function Main({ navigation }) {
           <View style={{alignItems: 'center', justifyContent: 'space-around', height: "100%", width: TAB_ITEM_WIDTH}}>
             <Icon
               reverse
-              name='account-circle'
+              name='stars'
               color='#bdbdbd'
               size={25}
             />
