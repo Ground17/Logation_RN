@@ -140,19 +140,15 @@ export default class Following extends Component {
           }); 
           return;
         }
-        Alert.alert(
-          translate('MyAccount'),
-          [
-          {text: translate('OK'), onPress: () => console.log('OK Pressed')},
-          ],
-          { cancelable: false }
-        );
+        Alert.alert(translate('MyAccount'));
       }}
     >
       <View style={{flex:1/7, aspectRatio:1}}>
         <FastImage
           style={{flex: 1, borderRadius: 100}}
           source={item.profileURL ? { uri: item.profileURL } : require('./../../logo/ic_launcher.png')}
+          fallback
+          defaultSource={require('./../../logo/ic_launcher.png')}
         />
       </View>
       <ListItem.Content>

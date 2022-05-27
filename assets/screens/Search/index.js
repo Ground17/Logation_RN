@@ -44,6 +44,8 @@ export default class Search extends Component {
             <FastImage
                 style={{flex: 1, borderRadius: 100}}
                 source={this.state.userDetail[index].url ? { uri: this.state.userDetail[index].url } : require('./../../logo/ic_launcher.png')}
+                fallback
+                defaultSource={require('./../../logo/ic_launcher.png')}
             />
         </TouchableOpacity>
     </View>
@@ -148,13 +150,7 @@ export default class Search extends Component {
         return;
       } else if (params['user']) {
         if (params['user'] == auth().currentUser.uid) {
-          Alert.alert(
-            translate('MyAccount'),
-            [
-            {text: translate('OK'), onPress: () => console.log('OK Pressed')},
-            ],
-            { cancelable: false }
-          );
+          Alert.alert(translate('MyAccount'));
         } else {
           this.props.navigation.push('Me', { // Other
             other: true,
@@ -248,19 +244,15 @@ export default class Search extends Component {
           }); 
           return;
         }
-        Alert.alert(
-          translate('MyAccount'),
-          [
-          {text: translate('OK'), onPress: () => console.log('OK Pressed')},
-          ],
-          { cancelable: false }
-        );
+        Alert.alert(translate('MyAccount'));
       }}
     >
       <View style={{flex:1/7, aspectRatio:1}}>
         <FastImage
           style={{flex: 1, borderRadius: 100}}
           source={item.profileURL ? { uri: item.profileURL } : require('./../../logo/ic_launcher.png')}
+          fallback
+          defaultSource={require('./../../logo/ic_launcher.png')}
         />
       </View>
       <ListItem.Content>

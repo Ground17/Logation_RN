@@ -36,6 +36,8 @@ import { adsFree, translate, ProgressBar, adInterstitialUnitId } from '../Utils'
 
 import AsyncStorage from '@react-native-community/async-storage';
 
+import Geolocation from '@react-native-community/geolocation';
+
 const interstitial = InterstitialAd.createAd(adInterstitialUnitId);
 
 const locations = [[37.551161, 126.988228], [35.658405, 139.745300], [40.689306, -74.044361], [51.500700, -0.124607], [48.858369, 2.294480], [-33.856792, 151.214657], [40.431867, 116.570375]];
@@ -132,7 +134,8 @@ export default class AddList extends Component {
                 <FastImage
                     style={{flex: 1, borderRadius: 100}}
                     source={this.state.userDetail[index].url ? { uri: this.state.userDetail[index].url } : require('./../../logo/ic_launcher.png')}
-                    
+                    fallback
+                    defaultSource={require('./../../logo/ic_launcher.png')}
                 />
             </TouchableOpacity>
         </View>
@@ -222,6 +225,85 @@ export default class AddList extends Component {
 
         this.props.navigation.setOptions({ title: this.props.route.params?.edit != null ? translate("EditList") : translate("AddList") });
     }
+
+
+    requestLocationPermission = async (image) => {
+        if (Platform.OS === 'ios') {
+            getOneTimeLocation(image);
+        } else {
+            try {
+                const granted = await PermissionsAndroid.request(
+                    PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+                    {
+                        title: 'Location Access Required',
+                        message: 'This App needs to Access your location',
+                    },
+                );
+                if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+                    //To Check, If Permission is granted
+                    getOneTimeLocation(image);
+                }
+            } catch (err) {
+                Alert.alert(err.toString());
+
+                const now = firestore.Timestamp.fromMillis((new Date()).getTime());
+                let random = Math.floor(Math.random() * locations.length);
+                this.setState({
+                    thumbnail: 0,
+                    data: this.state.data.concat({
+                        date: now,
+                        lat: locations[random][0],
+                        long: locations[random][1],
+                        photo: image.path,
+                        title: '0',
+                        changed: false,
+                    }),
+                });
+            }
+        }
+    };
+
+    getOneTimeLocation = (image) => {
+        Geolocation.getCurrentPosition(
+            //Will give you the current location
+            (position) => {
+                const now = firestore.Timestamp.fromMillis((new Date()).getTime());
+                this.setState({
+                    thumbnail: 0,
+                    data: this.state.data.concat({
+                        date: now,
+                        lat: position.coords.latitude,
+                        long: position.coords.longitude,
+                        photo: image.path,
+                        title: '0',
+                        changed: false,
+                    }),
+                });
+            },
+            (error) => {
+                Alert.alert(error.toString());
+                
+                const now = firestore.Timestamp.fromMillis((new Date()).getTime());
+                let random = Math.floor(Math.random() * locations.length);
+                this.setState({
+                    thumbnail: 0,
+                    data: this.state.data.concat({
+                        date: now,
+                        lat: locations[random][0],
+                        long: locations[random][1],
+                        photo: image.path,
+                        title: '0',
+                        changed: false,
+                    }),
+                });
+            },
+            {
+                enableHighAccuracy: true,
+                timeout: 30000,
+                maximumAge: 1000
+            },
+        );
+    };
     
     render() {
         return(
@@ -388,7 +470,7 @@ export default class AddList extends Component {
                         {translate("AddListComment9")} 
                     </Text> 
                     {this.state.data.length > 0 && 
-                    <View style={{width: "100%", backgroundColor: 'gray'}}>
+                    <View style={{width: "100%", backgroundColor: 'grey', padding: 5}}>
                         <Text style={{textAlign: 'center', color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}> {translate("AddListComment2")} </Text>
                         <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', marginRight: 10}}>
                             <TouchableOpacity style={{marginRight:5}} onPress={() => {
@@ -501,64 +583,9 @@ export default class AddList extends Component {
                                 width: 1080,
                                 height: 1080,
                                 cropping: true,
-                            }).then(image => {
-                                let factor = Platform.OS == 'ios' ? 1000 : 1;
-                                const temp = [];
-                                try {
-                                    console.log(image);
-                                    if (Platform.OS === 'ios') {
-                                        temp.push({
-                                            date: firestore.Timestamp.fromMillis(parseInt(image.modificationDate) * factor),
-                                            lat: image.exif["{GPS}"].LatitudeRef != "S" ? image.exif["{GPS}"].Latitude : -image.exif["{GPS}"].Latitude,
-                                            long: image.exif["{GPS}"].LongitudeRef != "W" ? image.exif["{GPS}"].Longitude : -image.exif["{GPS}"].Longitude,
-                                            photo: image.path,
-                                            title: i.toString(),
-                                            changed: false,
-                                        });
-                                    } else {
-                                        let latitudeStrings = image.exif["GPSLatitude"].split(',');
-                                        let longitudeStrings = image.exif["GPSLongitude"].split(',');
-
-                                        let latitudeD = latitudeStrings[0].split('/');
-                                        let latitudeM = latitudeStrings[1].split('/');
-                                        let latitudeS = latitudeStrings[2].split('/');
-
-                                        let longitudeD = longitudeStrings[0].split('/');
-                                        let longitudeM = longitudeStrings[1].split('/');
-                                        let longitudeS = longitudeStrings[2].split('/');
-
-                                        let latitude = parseInt(latitudeD[0]) / parseInt(latitudeD[1]) + (parseInt(latitudeM[0]) / parseInt(latitudeM[1]) / 60) + (parseInt(latitudeS[0]) / parseInt(latitudeS[1]) / 3600);
-                                        let longitude = parseInt(longitudeD[0]) / parseInt(longitudeD[1]) + (parseInt(longitudeM[0]) / parseInt(longitudeM[1]) / 60) + (parseInt(longitudeS[0]) / parseInt(longitudeS[1]) / 3600);
-
-                                        if (image.exif["GPSLatitudeRef"] == "S") { latitude = -latitude; }
-                                        if (image.exif["GPSLongitudeRef"] == "W") { longitude = -longitude; }
-
-                                        temp.push({
-                                            date: firestore.Timestamp.fromMillis(parseInt(image.modificationDate) * factor),
-                                            lat: latitude,
-                                            long: longitude,
-                                            photo: image.path,
-                                            title: i.toString(),
-                                            changed: false,
-                                        });
-                                    }
-                                } catch (e) { // location data가 없는 것으로 추정
-                                    console.log(e);
-                                    let random = Math.floor(Math.random() * locations.length);
-
-                                    temp.push({
-                                        date: firestore.Timestamp.fromMillis(parseInt(image.modificationDate) * factor),
-                                        lat: locations[random][0],
-                                        long: locations[random][1],
-                                        photo: image.path,
-                                        title: i.toString(),
-                                        changed: false,
-                                    });
-                                } 
-                                this.setState({
-                                    thumbnail: 0,
-                                    data: this.state.data.concat(temp),
-                                });
+                                forceJpg: true,
+                            }).then(async image => {
+                                await requestLocationPermission(image); // add a location in photo (no exif)
                             });
                         }}>
                             <Text style={styles.loginText}>{translate("OpenCamera")}</Text>
@@ -642,10 +669,6 @@ export default class AddList extends Component {
                                         });
                                     } 
                                 } 
-                                this.setState({
-                                    thumbnail: 0,
-                                    data: this.state.data.concat(temp),
-                                });
                             });
                         }}>
                             <Text style={styles.loginText}>{translate("AddPhotos")}</Text>

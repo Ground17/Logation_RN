@@ -16,6 +16,7 @@
     "@react-native-community/async-storage": "^1.11.0",
     "@react-native-community/cli-platform-android": "^6.1.0",
     "@react-native-community/datetimepicker": "^3.5.2",
+    "@react-native-community/geolocation": "^2.1.0",
     "@react-native-community/google-signin": "^5.0.0",
     "@react-native-community/picker": "^1.8.0",
     "@react-native-firebase/app": "^14.9.4",

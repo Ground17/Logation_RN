@@ -229,13 +229,7 @@ export default class Home extends Component {
                         }); 
                         return;
                     }
-                    Alert.alert(
-                        'My account',
-                    [
-                        {text: translate('OK'), onPress: () => console.log('OK Pressed')},
-                    ],
-                        { cancelable: false }
-                    );
+                    Alert.alert(translate('MyAccount'));
                 }}>
                     <FastImage
                         style={{flex: 1, borderRadius: 100}}
