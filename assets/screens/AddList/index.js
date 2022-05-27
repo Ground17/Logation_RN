@@ -229,7 +229,7 @@ export default class AddList extends Component {
 
     requestLocationPermission = async (image) => {
         if (Platform.OS === 'ios') {
-            getOneTimeLocation(image);
+            this.getOneTimeLocation(image);
         } else {
             try {
                 const granted = await PermissionsAndroid.request(
@@ -241,7 +241,7 @@ export default class AddList extends Component {
                 );
                 if (granted === PermissionsAndroid.RESULTS.GRANTED) {
                     //To Check, If Permission is granted
-                    getOneTimeLocation(image);
+                    this.getOneTimeLocation(image);
                 }
             } catch (err) {
                 Alert.alert(err.toString());
@@ -585,7 +585,9 @@ export default class AddList extends Component {
                                 cropping: true,
                                 forceJpg: true,
                             }).then(async image => {
-                                await requestLocationPermission(image); // add a location in photo (no exif)
+                                await this.requestLocationPermission(image); // add a location in photo (no exif)
+                            }).catch(async (e) => {
+                                Alert.alert(translate("CameraError"));
                             });
                         }}>
                             <Text style={styles.loginText}>{translate("OpenCamera")}</Text>
@@ -668,6 +670,12 @@ export default class AddList extends Component {
                                             changed: false,
                                         });
                                     } 
+
+                                    this.setState({
+                                        thumbnail: 0,
+                                        data: this.state.data.concat(temp),
+                                    });
+
                                 } 
                             });
                         }}>

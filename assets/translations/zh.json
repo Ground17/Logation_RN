@@ -49,6 +49,7 @@
     "AddListComment7":"成功上传。",
     "AddPhotos":"增加照片",
     "OpenCamera" : "运行相机",
+    "CameraError" : "相机错误",
     "AddListComment9" : "一次最多可上传8张照片,每个日志最多可上传31张照片。",
     "AddListComment10" : "给别人带来不快的内容可能会在没有预告的情况下被删除。",
     "Report" : "申报",
