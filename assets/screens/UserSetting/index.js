@@ -90,15 +90,15 @@ export default class UserSetting extends Component {
       <SafeAreaView style={styles.container}>
         <View style={{width: "100%", height: "100%", alignItems: 'center', justifyContent: 'space-between', backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff"}}>
           <View style={{width: '100%', alignItems: 'center', justifyContent: 'center', paddingTop: 30}}>
-            <TouchableOpacity style={[styles.buttonContainer, styles.loginButton, {height:45, width: "80%", borderRadius:5, marginBottom: 15}]} onPress={() => { 
-              /// 인앱이 구현되었을시 주석 해제!!!
-              // this.props.navigation.push("Purchase", {
-              //   month: this.state.month,
-              //   year: this.state.year,
-              // });
+            <View></View>
+            {/* <TouchableOpacity style={[styles.buttonContainer, styles.loginButton, {height:45, width: "80%", borderRadius:5, marginBottom: 15}]} onPress={() => { 
+              this.props.navigation.push("Purchase", {
+                month: this.state.month,
+                year: this.state.year,
+              });
             }}>
-              <Text style={styles.loginText}>{/*translate("Purchase") /// 인앱이 구현되었을시 주석 해제!!! */}</Text>
-            </TouchableOpacity>
+              <Text style={styles.loginText}>{translate("Purchase")}</Text>
+            </TouchableOpacity> */}
           
           </View>
           <View style={{width: '100%', alignItems: 'center', justifyContent: 'center', paddingBottom: 30}}>
@@ -106,11 +106,11 @@ export default class UserSetting extends Component {
               <View style={{alignSelf:'center', position:'absolute', borderBottomColor:'gray', borderBottomWidth:1, height:'50%', width:'80%'}}/>
             </View>
             <View style={{width: "80%", flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around'}}>
-              <TouchableOpacity onPress={() => { Linking.openURL('https://travelog-4e274.web.app/policy') }}>
-                <Text style={{color: Appearance.getColorScheme() === 'dark' ? "#fff" : '#002f6c'}}>{translate("Policy")}</Text>
+              <TouchableOpacity onPress={() => { this.props.navigation.push('WebView', {url: 'https://travelog-4e274.web.app/policy'}) }}>
+                <Text style={{color: "deepskyblue"}}>{translate("Policy")}</Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => { Linking.openURL('https://travelog-4e274.web.app/notice') }}>
-                <Text style={{color: Appearance.getColorScheme() === 'dark' ? "#fff" : '#002f6c'}}>{translate("Notice")}</Text>
+              <TouchableOpacity onPress={() => { this.props.navigation.push('WebView', {url: 'https://travelog-4e274.web.app/terms'}) }}>
+                <Text style={{color: "deepskyblue"}}>{translate("Terms")}</Text>
               </TouchableOpacity>
             </View>
             <View style={{marginTop: 5, marginBottom: 5}}>

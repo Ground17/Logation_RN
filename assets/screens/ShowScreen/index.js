@@ -281,62 +281,77 @@ export default class ShowScreen extends Component {
       });
 
       if (this.state.data.length == 0 || force) {
-        await firestore()
+        let documentSnapshot = await firestore()
         .collection("Posts")
         .doc(this.props.route.params.itemId)
-        .get()
-        .then(async (documentSnapshot) => {
-          if (documentSnapshot.exists) {
-            const data = documentSnapshot.data();
-            if (data.hasOwnProperty('data') && data.data.length > 0) {
+        .get();
+        
+        if (documentSnapshot.exists) {
+          const data = documentSnapshot.data();
+          if (data.hasOwnProperty('data') && data.data.length > 0) {
 
-              if (data.security == 2 && data.uid != auth().currentUser.uid && !data.account.includes(auth().currentUser.uid)) { // 비공개 로그
-                Alert.alert(
-                  translate('Alert'), // 알림
-                  translate('ShowScreenComment3'), // 권한이 없습니다.
-                  [
-                      {
-                        text: translate('OK'),
-                        onPress: async () => {
-                          console.log("OK");
-                        }
-                      },
-                  ],
-                  { cancelable: true }
-                );
-
-                this.props.navigation.pop();
-                return;
-              }
-
-              this.setState({
-                data: data.data,
-                viewcode: data.viewcode,
-                link: data.link,
-                lat: data.data[0].lat,
-                long: data.data[0].long,
-                latDelta: 0.922,
-                longDelta: 0.421,
-                category: data.category,
-                modifyDate: data.modifyDate,
-                date: data.date,
-                title: data.title,
-                subtitle: data.subtitle,
-                likeCount: data.likeCount,
-                dislikeCount: data.dislikeCount,
-                viewCount: data.viewCount,
-                likeNumber: data.likeNumber,
-                userUid: data.uid,
-                preUser: data.account,
-                thumbnail: data.thumbnail,
-              });
-            } else {
-              this.setState({
-                data: [],
-              });
+            if (data.security == 2 && data.uid != auth().currentUser.uid && !data.account.includes(auth().currentUser.uid)) { // 비공개 로그
+              Alert.alert(
+                translate('Alert'), // 알림
+                translate('ShowScreenComment3'), // 권한이 없습니다.
+                [
+                    {
+                      text: translate('OK'),
+                      onPress: async () => {
+                        console.log("OK");
+                      }
+                    },
+                ],
+                { cancelable: true }
+              );
+              
+              this.props.navigation.pop();
+              return;
             }
+
+            this.setState({
+              data: data.data,
+              viewcode: data.viewcode,
+              link: data.link,
+              lat: data.data[0].lat,
+              long: data.data[0].long,
+              latDelta: 0.922,
+              longDelta: 0.421,
+              category: data.category,
+              modifyDate: data.modifyDate,
+              date: data.date,
+              title: data.title,
+              subtitle: data.subtitle,
+              likeCount: data.likeCount,
+              dislikeCount: data.dislikeCount,
+              viewCount: data.viewCount,
+              likeNumber: data.likeNumber,
+              userUid: data.uid,
+              preUser: data.account,
+              thumbnail: data.thumbnail,
+            });
+          } else {
+            this.setState({
+              data: [],
+            });
           }
-        });
+        } else {
+          Alert.alert(
+            translate('Alert'), // 알림
+            translate('ShowScreenComment1'), // 유효한 로그가 아닙니다.
+            [
+                {
+                  text: translate('OK'),
+                  onPress: async () => {
+                    console.log("OK");
+                  }
+                },
+            ],
+            { cancelable: true }
+          );
+          this.props.navigation.pop();
+          return;
+        }
       }
 
       if (this.state.data.length == 0) {

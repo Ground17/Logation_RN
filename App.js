@@ -36,6 +36,7 @@ import 'react-native-gesture-handler';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 // import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { WebView } from "react-native-webview";
 
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
@@ -47,6 +48,14 @@ import AsyncStorage from '@react-native-community/async-storage';
 
 const Stack = createStackNavigator();
 
+function WebViewContainer({ navigation, route }) {
+  return (
+    <WebView
+      source={{ uri: route.params?.url }}
+    />
+  );
+};
+
 function Main({ navigation }) {
   const [screen, setScreen] = useState(0);
   const [follow, setFollow] = useState("");
@@ -54,7 +63,7 @@ function Main({ navigation }) {
   const [badge, setBadge] = useState("");
   const [me, setMe] = useState("");
   const { initializeAppLanguage } = useContext(LocalizationContext);
-  const [url, setUrl] = useState(null);
+  const [urlRef, setUrlRef] = useState(null);
 
   handleOpenURL = (event) => {
     console.log(event.url);
@@ -117,23 +126,23 @@ function Main({ navigation }) {
     function handleStatusChange(status) {
       console.log(status);
 
-      if (url) {
-        url.remove();
+      if (urlRef) {
+        urlRef.remove();
       }
     }
     
-    if (url) {
-      url.remove();
+    if (urlRef) {
+      urlRef.remove();
     }
-    setUrl(Linking.addEventListener('url', this.handleOpenURL));
+    setUrlRef(Linking.addEventListener('url', this.handleOpenURL));
     
     Linking.getInitialURL().then(url => {
       this.navigate(url);
     });
 
     return () => {
-      if (url) {
-        url.remove();
+      if (urlRef) {
+        urlRef.remove();
       }
     };
   }, [screen]);
@@ -426,6 +435,15 @@ export default class App extends Component {
               },
             }}/>
             <Stack.Screen name="Other" component={Me}  options={{
+              headerStyle: {
+                backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#01579b',
+              },
+              headerTintColor: '#fff',
+              headerTitleStyle: {
+                fontWeight: 'bold',
+              },
+            }}/>
+            <Stack.Screen name="WebView" component={WebViewContainer}  options={{
               headerStyle: {
                 backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#01579b',
               },

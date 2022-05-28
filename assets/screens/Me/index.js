@@ -314,6 +314,11 @@ export default class Me extends Component {
                 });
                 console.log("follow:", this.state.follow);
             }
+        }).catch(e => {
+            Alert.alert(
+                translate("InvalidValue")
+            );
+            this.props.navigation.pop();
         });
     }
 

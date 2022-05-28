@@ -332,12 +332,18 @@ export default class Login extends Component {
           <View style={{marginTop: 10, marginBottom: 10}}>
               <View style={{alignSelf:'center', position:'absolute', borderBottomColor:'gray', borderBottomWidth:1, height:'50%', width:'80%'}}/>
           </View>
-          <View style={{width: "80%", alignItems: "center"}}>
-            {this.state.ads && <BannerAd
-                size={BannerAdSize.BANNER}
-                unitId={adBannerUnitId}
-            />}
+          <View style={{width: "80%", flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around'}}>
+            <TouchableOpacity onPress={() => { this.props.navigation.push('WebView', {url: 'https://travelog-4e274.web.app/policy'}) }}>
+              <Text style={{color: "deepskyblue"}}>{translate("Policy")}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => { this.props.navigation.push('WebView', {url: 'https://travelog-4e274.web.app/terms'}) }}>
+              <Text style={{color: "deepskyblue"}}>{translate("Terms")}</Text>
+            </TouchableOpacity>
           </View>
+          <View style={{marginTop: 10}}>
+              <View style={{alignSelf:'center', position:'absolute', borderBottomColor:'gray', borderBottomWidth:1, height:'50%', width:'80%'}}/>
+          </View>
+          <Text style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000', padding: 10}}>{translate("LoginComment4")}</Text>
         </View>
         : <View style={{flex: 1, width: "100%", height: "100%", alignItems: 'center', justifyContent: 'center', backgroundColor: Appearance.getColorScheme() === 'dark' ? '#000' : '#fff'}}>
             <ActivityIndicator size="large" color={Appearance.getColorScheme() === 'dark' ? '#01579b' : '#002f6c'} />

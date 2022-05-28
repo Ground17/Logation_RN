@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="shortcut icon" href="favicon.ico">
+    <link rel="apple-touch-icon-precomposed" href="favicon-152.png">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Logation Terms and Conditions</title>
+
+    <style media="screen">
+      .btn {
+        border: 1px solid white;
+        padding: 1px;
+        background: #ffffff;
+      }
+
+      .img-container {
+        text-align: center;
+        display: inline-block;
+      }
+
+      .title {
+        width: 20%;
+        min-width: 150px;
+      }
+
+      select {
+        width: auto;
+        height: auto;
+      }
+
+      pre{
+        padding:10px;
+        overflow: auto;
+        white-space: pre-wrap; /* pre tag내에 word wrap */
+      }
+    </style>
+  </head>
+  <body>
+    <div>
+      <div style="position:fixed;left:0;top:0;height: 50px; display: flex; padding: 15px; justify-content: space-between;align-items: center;background-color: #ffffff;">
+        <div>
+          <a href="/"><img class="title" src="graphicImage.png"></a>
+        </div>
+        <select name="language" id="language" onchange="selectChange(this)">
+          <option value="en">English</option>
+          <option value="ko">한국어</option>
+          <!-- <option value="ja">日本語</option>
+          <option value="zh">中文 (简体)</option>
+          <option value="de">Deutsch</option>
+          <option value="es">español</option>
+          <option value="fr">Français</option>
+          <option value="pt">Português</option> -->
+        </select>
+      </div>
+      <div style="padding-top: 80px; border: 1px; text-align: start; display: block; overflow:hidden; white-space: normal;">
+        <p>
+          <h1 id="title"></h1>
+          <pre id="content0">
+          </pre>
+          <br>
+        </p>
+        <p>
+          <b id="subtitle1"></b>
+          <pre id="content1">
+          </pre>
+          <br>
+        </p>
+      </div>
+    </div>
+    <script type="text/javascript">
+      var languageSet = {
+        ko: {
+          "title": "이용약관",
+          "content0": "사용자 생성 콘텐츠에 대한 이용약관입니다.",
+          "subtitle1": "1. 사용자 생성 콘텐츠",
+          "content1": `가. 타인에게 성적 수치심을 유발하거나, 폭력적이고 자극적이거나, 저작권에 위배되는 컨텐츠는 경고 없이 삭제될 수 있습니다. 또한 지속적으로 위반이 확인될 경우, 계정이 삭제될 수 있습니다.
+
+나. 자신의 민감한 개인정보가 포함된 컨텐츠는 업로드하지 않는 것을 권장합니다.
+
+다. 어플리케이션 이용 중에 선정적인 컨텐츠나 저작권에 위배되는 컨텐츠를 발견하셨다면 신고 기능을 이용해주시기 바랍니다. 혹은 아래 연락처로 알려주시면 조속히 확인 후 처리하겠습니다.
+
+닉네임 : Ground17
+
+직책 : 개인개발자
+
+연락처 : <a href="mailto:ground171717@gmail.com">ground171717@gmail.com</a>`
+        },
+        en: {
+          "title": "Terms and Conditions",
+          "content0": "Terms and conditions for user-generated content.",
+          "subtitle1": "1. User-generated content",
+          "content1": `A. Content that causes sexual shame to others, is violent, provocative, or violates copyright may be deleted without warning. In addition, if violations are identified continuously, the account may be deleted.
+
+B. We recommend that you do not upload content that contains your sensitive personal information.
+
+C. If you find sensational content or content that violates copyright while using the application, please use the reporting function. Or if you let me know the contact information below, I will check it as soon as possible and take care of it.
+
+Nickname: Ground17
+
+Position: Individual developer
+
+Contact: <a href="mailto:ground171717@gmail.com">ground171717@gmail.com</a>`
+        },
+      }
+      
+      function change(language) {
+        var code = language;
+        if (language) {
+          code = language.substring(0, 2);
+          if (!languageSet.hasOwnProperty(code)) {
+            code = 'en';
+          }
+        } else {code = 'en';}
+
+        var select = document.getElementById("language");
+        select.value = code;
+
+        for(key in languageSet[code]) {
+          document.getElementById(key).innerHTML = languageSet[code][key];
+        }
+      }
+    </script>
+    <script type="text/javascript" src="functions.js"></script>
+  </body>
+</html>
