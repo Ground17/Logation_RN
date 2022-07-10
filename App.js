@@ -449,7 +449,7 @@ export default class App extends Component {
               },
               headerTintColor: '#fff',
               headerTitleStyle: {
-                fontWeight: 'bold',
+                fontWeight: 'bold',   
               },
             }}/>
           </Stack.Navigator>
