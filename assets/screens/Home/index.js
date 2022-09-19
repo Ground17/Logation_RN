@@ -118,6 +118,7 @@ export default class Home extends Component {
                             likeNumber: data.likeNumber,
                             viewcode: data.viewcode,
                             viewCount: data.viewCount,
+                            // account: data.account,
                             thumbnail: data.thumbnail,
                         });
                     }
@@ -325,14 +326,14 @@ export default class Home extends Component {
                                 source={require('./../../logo/graphicImage.png')}/>
                         </View>
                         <View style={{flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', marginRight: 10}}>
-                            <TouchableOpacity style={{marginRight:5}} onPress={() => { 
+                            {/* <TouchableOpacity style={{marginRight:5}} onPress={() => { 
                                 this.props.navigation.push('Search') }}>
                                 <Icon
                                     name='search'
                                     size={24}
                                     color={ Appearance.getColorScheme() === 'dark' ? '#ffffff' : '#002f6c' }
                                 />
-                            </TouchableOpacity>
+                            </TouchableOpacity> */}
                             <TouchableOpacity style={{marginRight:10}} onPress={() => { this.refresh(true) }}>
                                 <Icon
                                     name='refresh'
@@ -352,7 +353,7 @@ export default class Home extends Component {
                         />}
                     </View>
                 </View>
-                {this.state.initialLoading ? <View style={{width: "100%", height: "100%", alignItems: 'center', justifyContent: 'center', backgroundColor: Appearance.getColorScheme() === 'dark' ? '#121212' : '#fff'}}>
+                {this.state.initialLoading ? <View style={{width: "100%", height: "93%", alignItems: 'center', justifyContent: 'center', backgroundColor: Appearance.getColorScheme() === 'dark' ? '#121212' : '#fff'}}>
                      <ActivityIndicator size="large" color={Appearance.getColorScheme() === 'dark' ? '#01579b' : '#002f6c'} />
                 </View> 
                 : this.state.list.length > 0 ? <FlatList

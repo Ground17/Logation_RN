@@ -55,11 +55,7 @@ export default class Search extends Component {
     this.setState({ search });
   };
 
-  // async lazy() {
-
-  // }
-
-  async search() {
+  async searching() {
     if (this.state.search.length < 1) {
       return;
     }
@@ -69,20 +65,19 @@ export default class Search extends Component {
     });
 
     var storageRef = await storage().ref();
-
-    if (this.props.route.params) {
+    if (this.props.route) {
       await firestore()
         .collection("Users")
         .where("uid", "in", this.state.following)
         .where("uid", ">=", this.state.search)
         .orderBy("uid", "asc")
-        .limit(2)
+        .limit(1)
         .get()
         .then(async (querySnapshot) => {
           for (var i = 0; i < querySnapshot.docs.length; i++) {
-            console.log('data: ', querySnapshot.docs[i].id, querySnapshot.docs[i].data());
             var data = querySnapshot.docs[i].data();
             var URL = "";
+            console.log('data: ', querySnapshot.docs[i].id, querySnapshot.docs[i].data());
             try {
               // URL = await storageRef.child(`${data.uid}/profile/profile_144x144.jpeg`).getDownloadURL();
               URL = `https://storage.googleapis.com/travelog-4e274.appspot.com/${data.uid}/profile/profile_144x144.jpeg`;
@@ -91,6 +86,7 @@ export default class Search extends Component {
             } finally {
               this.setState({
                 list: this.state.list.concat({ 
+                  user: true,
                   uid : data.uid,
                   displayName : data.displayName,
                   profileURL : URL,
@@ -105,13 +101,13 @@ export default class Search extends Component {
         .where("uid", "in", this.state.following)
         .where("displayName", ">=", this.state.search)
         .orderBy("displayName", "asc")
-        .limit(5)
+        .limit(4)
         .get()
         .then(async (querySnapshot) => {
           for (var i = 0; i < querySnapshot.docs.length; i++) {
-            console.log('data: ', querySnapshot.docs[i].id, querySnapshot.docs[i].data());
             var data = querySnapshot.docs[i].data();
             var URL = "";
+            console.log('data: ', querySnapshot.docs[i].id, querySnapshot.docs[i].data());
             try {
               // var URL = await storageRef.child(`${data.uid}/profile/profile_144x144.jpeg`).getDownloadURL();
               URL = `https://storage.googleapis.com/travelog-4e274.appspot.com/${data.uid}/profile/profile_144x144.jpeg`;
@@ -120,6 +116,7 @@ export default class Search extends Component {
             } finally {
               this.setState({
                 list: this.state.list.concat({ 
+                  user: true,
                   uid : data.uid,
                   displayName : data.displayName,
                   profileURL : URL,
@@ -164,13 +161,13 @@ export default class Search extends Component {
         .collection("Users")
         .where("uid", ">=", this.state.search)
         .orderBy("uid", "asc")
-        .limit(2)
+        .limit(1)
         .get()
         .then(async (querySnapshot) => {
           for (var i = 0; i < querySnapshot.docs.length; i++) {
-            console.log('data: ', querySnapshot.docs[i].id, querySnapshot.docs[i].data());
             var data = querySnapshot.docs[i].data();
             var URL = "";
+            console.log('data: ', querySnapshot.docs[i].id, querySnapshot.docs[i].data());
             try {
               // URL = await storageRef.child(`${data.uid}/profile/profile_144x144.jpeg`).getDownloadURL();
               URL = `https://storage.googleapis.com/travelog-4e274.appspot.com/${data.uid}/profile/profile_144x144.jpeg`;
@@ -179,6 +176,7 @@ export default class Search extends Component {
             } finally {
               this.setState({
                 list: this.state.list.concat({ 
+                  user: true,
                   uid : data.uid,
                   displayName : data.displayName,
                   profileURL : URL,
@@ -192,13 +190,16 @@ export default class Search extends Component {
         .collection("Users")
         .where("displayName", ">=", this.state.search)
         .orderBy("displayName", "asc")
-        .limit(5)
+        .limit(4)
         .get()
         .then(async (querySnapshot) => {
           for (var i = 0; i < querySnapshot.docs.length; i++) {
-            console.log('data: ', querySnapshot.docs[i].id, querySnapshot.docs[i].data());
             var data = querySnapshot.docs[i].data();
             var URL = "";
+            if (this.state.list.length > 0 && this.state.list[0].uid == data.uid) {
+              continue;
+            }
+            console.log('data: ', querySnapshot.docs[i].id, querySnapshot.docs[i].data());
             try {
               // URL = await storageRef.child(`${data.uid}/profile/profile_144x144.jpeg`).getDownloadURL();
               URL = `https://storage.googleapis.com/travelog-4e274.appspot.com/${data.uid}/profile/profile_144x144.jpeg`;
@@ -207,6 +208,7 @@ export default class Search extends Component {
             } finally {
               this.setState({
                 list: this.state.list.concat({ 
+                  user: true,
                   uid : data.uid,
                   displayName : data.displayName,
                   profileURL : URL,
@@ -215,6 +217,68 @@ export default class Search extends Component {
             }
           }
         });
+        
+        var keywords = ["category", "title"];
+        for (var keyword in keywords) {
+          await firestore()
+            .collection("Posts")
+            .orderBy("modifyDate", "desc")
+            // .where(keyword, ">=", this.state.search)
+            .limit(3)
+            .get()
+            .then(async (querySnapshot) => {
+              const temp = [];
+              for (let j = 0; j < querySnapshot.docs.length; j++) {
+                let data = querySnapshot.docs[j].data();
+                let displayName = data.uid;
+                let URL = "";
+                let profileURL = "";
+                try {
+                    const user = await firestore().collection("Users").doc(data.uid).get();
+                    if (user.exists) {
+                        displayName = user.data().displayName;
+                    }
+                    let photo = (data.thumbnail >= 0 && data.thumbnail < data.data.length) ? data.data[data.thumbnail].photo : data.data[0].photo;
+                    photo = photo.substr(0, photo.lastIndexOf('.'));
+                    // URL = await storageRef.child(data.uid + "/" + querySnapshot.docs[j].id + "/" + photo + "_1080x1080.jpeg").getDownloadURL();
+                    // profileURL = await storageRef.child(`${data.uid}/profile/profile_144x144.jpeg`).getDownloadURL() || '';
+                    URL = `https://storage.googleapis.com/travelog-4e274.appspot.com/${data.uid}/${querySnapshot.docs[j].id}/${photo}_1080x1080.jpeg`;
+                    profileURL = `https://storage.googleapis.com/travelog-4e274.appspot.com/${data.uid}/profile/profile_144x144.jpeg`;
+                } catch (e) {
+                    console.log(e);
+                } finally {
+                    temp.push({
+                        user: false,
+                        title: data.title,
+                        subtitle: data.subtitle,
+                        link: data.link,
+                        url: URL, // 썸네일 URL
+                        id: querySnapshot.docs[j].id, // log의 id
+                        uid: data.uid, // log의 소유자
+                        displayName: displayName,
+                        profileURL: profileURL,
+                        date: data.date,
+                        modifyDate: data.modifyDate,
+                        category: data.category,
+                        data: data.data,
+                        likeCount: data.likeCount,
+                        dislikeCount: data.dislikeCount,
+                        likeNumber: data.likeNumber,
+                        viewcode: data.viewcode,
+                        viewCount: data.viewCount,
+                        // account: data.account,
+                        thumbnail: data.thumbnail,
+                    });
+                }
+              }
+
+              if (temp.length > 0) {
+                this.setState({
+                  list: this.state.list.concat(temp),
+                });
+              }
+            });
+        }
     }
   }
 
@@ -232,70 +296,228 @@ export default class Search extends Component {
 
   keyExtractor = (item, index) => index.toString()
 
-  renderItem = ({ item, index }) => (
-    <ListItem
-      containerStyle={{backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff"}}
-      bottomDivider
-      onPress={() => { 
-        if (auth().currentUser.uid != item.uid) {
-          this.props.navigation.push('Me', {
-            other: true,
-            userUid: item.uid,
-          }); 
-          return;
-        }
-        Alert.alert(translate('MyAccount'));
-      }}
-    >
-      <View style={{flex:1/7, aspectRatio:1}}>
-        <FastImage
-          style={{flex: 1, borderRadius: 100}}
-          source={item.profileURL ? { uri: item.profileURL } : require('./../../logo/ic_launcher.png')}
-          fallback
-          defaultSource={require('./../../logo/ic_launcher.png')}
-        />
-      </View>
-      <ListItem.Content>
-        <ListItem.Title style={{fontWeight: 'bold', color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}>
-          {item.displayName ?? ''}
-        </ListItem.Title>
-        <ListItem.Subtitle style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}>
-          {item.uid}
-        </ListItem.Subtitle>
-      </ListItem.Content>
-      {(this.props.route.params && this.props.route.params.add) && <TouchableOpacity style={{marginRight:5}} onPress={() => {
-          if (this.state.users.length < 10 && !this.check(item.uid)) {
-            this.setState({
-              users: this.state.users.concat(item.uid),
-              userDetail: this.state.userDetail.concat({
-                displayName: item.displayName,
-                url: item.profileURL,
-              }),
-            });
-          } else {
-            Alert.alert(
-              translate("Error"),
-              translate("SearchComment2"),
-              [
-              {text: translate("OK"), onPress: () => console.log('OK Pressed')},
-              ],
-              { cancelable: false }
-            );
-          }
-          console.log("users: ", this.state.users);
-        }}>
-            <Icon
-                name='add-circle-outline'
-                size={24}
-                color={ Appearance.getColorScheme() === 'dark' ? '#ffffff' : '#002f6c' }
+  renderItem ({ item, index }) {
+    if (item.user) {
+      return (
+        <ListItem
+          containerStyle={{backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff"}}
+          bottomDivider
+          onPress={() => { 
+            if (auth().currentUser.uid != item.uid) {
+              this.props.navigation.push('Me', {
+                other: true,
+                userUid: item.uid,
+              }); 
+              return;
+            }
+            Alert.alert(translate('MyAccount'));
+          }}
+        >
+          <View style={{flex:1/7, aspectRatio:1}}>
+            <FastImage
+              style={{flex: 1, borderRadius: 100}}
+              source={item.profileURL ? { uri: item.profileURL } : require('./../../logo/ic_launcher.png')}
+              fallback
+              defaultSource={require('./../../logo/ic_launcher.png')}
             />
-        </TouchableOpacity>}
-      
-    </ListItem>
-  )
+          </View>
+          <ListItem.Content>
+            <ListItem.Title style={{fontWeight: 'bold', color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}>
+              {item.displayName ?? ''}
+            </ListItem.Title>
+            <ListItem.Subtitle style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}>
+              {item.uid}
+            </ListItem.Subtitle>
+          </ListItem.Content>
+          {(this.props.route && this.props.route.params.add) && <TouchableOpacity style={{marginRight:5}} onPress={() => {
+              if (this.state.users.length < 10 && !this.check(item.uid)) {
+                this.setState({
+                  users: this.state.users.concat(item.uid),
+                  userDetail: this.state.userDetail.concat({
+                    displayName: item.displayName,
+                    url: item.profileURL,
+                  }),
+                });
+              } else {
+                Alert.alert(
+                  translate("Error"),
+                  translate("SearchComment2"),
+                  [
+                  {text: translate("OK"), onPress: () => console.log('OK Pressed')},
+                  ],
+                  { cancelable: false }
+                );
+              }
+              console.log("users: ", this.state.users);
+            }}>
+                <Icon
+                    name='add-circle-outline'
+                    size={24}
+                    color={ Appearance.getColorScheme() === 'dark' ? '#ffffff' : '#002f6c' }
+                />
+            </TouchableOpacity>}
+          
+        </ListItem>
+      );
+    }
+
+    return (
+      <View style={{ width: "100%", }}>
+        <TouchableOpacity style={{alignItems: 'center'}} onPress={() => { 
+                this.props.navigation.push('ShowScreen', {
+                    itemId: item.id,
+                    title: item.title,
+                    subtitle: item.subtitle,
+                    link: item.link,
+                    url: item.url, // 썸네일 URL
+                    userUid: item.uid, // log의 소유자
+                    displayName: item.displayName,
+                    profileURL: item.profileURL,
+                    date: item.date,
+                    modifyDate: item.modifyDate,
+                    category: item.category,
+                    data: item.data,
+                    likeNumber: item.likeNumber,
+                    likeCount: item.likeCount,
+                    dislikeCount: item.dislikeCount,
+                    viewcode: item.viewcode,
+                    viewCount: item.viewCount,
+                    preUser: item.account,
+                    thumbnail: item.thumbnail,
+                }) 
+            }}>
+            <FastImage
+                style={{ width: "100%", height: 200 }}
+                source={item.url ? {
+                    uri: item.url,
+                    priority: FastImage.priority.high
+                } : require('./../../logo/ic_launcher.png')}
+                resizeMode={FastImage.resizeMode.contain}
+            />
+        </TouchableOpacity>
+        <ListItem
+            containerStyle={{backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff"}}
+            bottomDivider
+            onPress={() => { 
+                this.props.navigation.push('ShowScreen', {
+                    itemId: item.id,
+                    title: item.title,
+                    subtitle: item.subtitle,
+                    link: item.link,
+                    url: item.url, // 썸네일 URL
+                    userUid: item.uid, // log의 소유자
+                    displayName: item.displayName,
+                    profileURL: item.profileURL,
+                    date: item.date,
+                    modifyDate: item.modifyDate,
+                    category: item.category,
+                    data: item.data,
+                    likeNumber: item.likeNumber,
+                    likeCount: item.likeCount,
+                    dislikeCount: item.dislikeCount,
+                    viewcode: item.viewcode,
+                    viewCount: item.viewCount,
+                    preUser: item.account,
+                    thumbnail: item.thumbnail,
+                }) 
+            }}
+        >
+            <TouchableOpacity style={{flex:1/7, aspectRatio:1}} onPress={() => { 
+                if (auth().currentUser.uid != item.uid) {
+                    this.props.navigation.push('Me', {
+                        other: true,
+                        userUid: item.uid,
+                    }); 
+                    return;
+                }
+                Alert.alert(translate('MyAccount'));
+            }}>
+                <FastImage
+                    style={{flex: 1, borderRadius: 100}}
+                    source={item.profileURL ? {
+                        uri:
+                        item.profileURL,
+                    } : require('./../../logo/ic_launcher.png')}
+                    fallback
+                    defaultSource={require('./../../logo/ic_launcher.png')}
+                />
+            </TouchableOpacity>
+            <ListItem.Content>
+            <ListItem.Title style={{ fontWeight: 'bold', width: '100%', color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000' }}>
+                {item.title}
+            </ListItem.Title>
+            <ListItem.Subtitle style={{color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000'}}>
+                {`${item.displayName}`}
+            </ListItem.Subtitle>
+            </ListItem.Content>
+            <TouchableOpacity style={{marginRight:5}} onPress={() => { 
+                Alert.alert(
+                    item.title,
+                    item.displayName,
+                    [
+                        {text: translate("Report"), onPress: async () => {
+                            await firestore()
+                                .doc(`Reports/${item.uid}`)
+                                .get()
+                                .then(async (documentSnapshot) => {
+                                    if (documentSnapshot.exists) {
+                                        await documentSnapshot.ref.update({count: documentSnapshot.data().count + 1});
+                                    } else {
+                                        await documentSnapshot.ref.set({count: 1});
+                                    }
+                                }).catch((e) => {
+                                    console.log(e);
+                                });
+                        }},
+                        {text: translate("Share"), onPress: async () => {
+                            const url = `https://travelog-4e274.web.app/?id=${item.id}`;
+                            const title = 'URL Content';
+                            const message = 'Please check this out.';
+                            const options = Platform.select({
+                                ios: {
+                                    activityItemSources: [
+                                        { // For sharing url with custom title.
+                                            placeholderItem: { type: 'url', content: url },
+                                            item: {
+                                                default: { type: 'url', content: url },
+                                            },
+                                            subject: {
+                                                default: title,
+                                            },
+                                            linkMetadata: { originalUrl: url, url, title },
+                                        },
+                                    ],
+                                },
+                                default: {
+                                    title,
+                                    subject: title,
+                                    message: `${message} ${url}`,
+                                },
+                            });
+                            Share.open(options)
+                                .then((res) => { console.log(res) })
+                                .catch((err) => { err && console.log(err); });
+
+                            await AsyncStorage.setItem('badgeShare', 'true');
+                        }},
+                        {text: translate("Cancel"), onPress: () => console.log('Cancel Pressed')},
+                    ],
+                    { cancelable: true }
+                );
+            }}>
+                <Icon
+                    name='more-vert'
+                    size={24}
+                    color={ Appearance.getColorScheme() === 'dark' ? '#ffffff' : '#002f6c' }
+                />
+            </TouchableOpacity>
+        </ListItem>
+      </View>
+    );
+  }
 
   async componentDidMount() {
-    if (this.props.route.params) { // Me의 follow나 AddList의 add user만 팔로우한 사람 검색
+    if (this.props) { // Me의 follow나 AddList의 add user만 팔로우한 사람 검색
       await firestore()
         .collection("Users")
         .doc(auth().currentUser.uid)
@@ -311,7 +533,7 @@ export default class Search extends Component {
             following: temp,
           });
         });
-      if (this.props.route.params.add) {
+      if (this.props.route && this.props.route.params.add) {
         this.setState({
           users: this.props.route.params.users,
           userDetail: this.props.route.params.userDetail,
@@ -347,7 +569,7 @@ export default class Search extends Component {
             clearIcon={
               <Icon
                 onPress={() => {
-                  this.search();
+                  this.searching();
                 }}
                 name='search'
                 size={30}
@@ -363,7 +585,7 @@ export default class Search extends Component {
                   renderItem={this.renderAvatar}
                   extraData={this.state}
               />
-              {(this.props.route.params && this.props.route.params.add) && <TouchableOpacity style={{marginRight:5}} onPress={() => {
+              {(this.props.route && this.props.route.params.add) && <TouchableOpacity style={{marginRight:5}} onPress={() => {
                 this.props.route.params.updateUser(this.state.users, this.state.userDetail);
                 this.props.navigation.pop();
               }}>
@@ -378,7 +600,7 @@ export default class Search extends Component {
             style={{width: "100%", height: "80%", backgroundColor: Appearance.getColorScheme() === 'dark' ? "#121212" : "#fff"}}
             keyExtractor={this.keyExtractor}
             data={this.state.list}
-            renderItem={this.renderItem}
+            renderItem={this.renderItem.bind(this)}
           />
       </SafeAreaView>
     );

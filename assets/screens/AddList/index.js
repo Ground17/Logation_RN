@@ -607,6 +607,7 @@ export default class AddList extends Component {
                             }).then(images => {
                                 let factor = Platform.OS == 'ios' ? 1000 : 1;
                                 const temp = [];
+                                console.log("length: ", images.length);
                                 for (let i = 0; i < images.length; i++) {
                                     try {
                                         if (this.state.data.length + temp.length >= 8 || this.state.data.length + temp.length + this.state.photoNumber >= 31) {
@@ -670,13 +671,12 @@ export default class AddList extends Component {
                                             changed: false,
                                         });
                                     } 
-
-                                    this.setState({
-                                        thumbnail: 0,
-                                        data: this.state.data.concat(temp),
-                                    });
-
                                 } 
+
+                                this.setState({
+                                    thumbnail: 0,
+                                    data: this.state.data.concat(temp),
+                                });
                             });
                         }}>
                             <Text style={styles.loginText}>{translate("AddPhotos")}</Text>
@@ -712,7 +712,7 @@ export default class AddList extends Component {
                         checked={this.state.likeChecked}
                         onPress={() => this.setState({likeChecked: !this.state.likeChecked})}
                     />
-                    <TouchableOpacity style={[styles.buttonContainer, styles.loginButton, {height:45, width: "80%", borderRadius:5,}]} onPress={async () => {
+                    {/* <TouchableOpacity style={[styles.buttonContainer, styles.loginButton, {height:45, width: "80%", borderRadius:5,}]} onPress={async () => {
                         // follow 창 열기
                         this.props.navigation.push('Search', {
                             add: true,
@@ -730,7 +730,7 @@ export default class AddList extends Component {
                             data={this.state.users}
                             renderItem={this.renderAvatar}
                         />
-                    </View> }
+                    </View> } */}
                     <View style={{marginTop: 5, marginBottom: 5}}>
                         <View style={{alignSelf:'center', position:'absolute', borderBottomColor:'gray', borderBottomWidth:1, height:'50%', width:'80%'}}/>
                     </View>

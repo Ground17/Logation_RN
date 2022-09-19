@@ -7,9 +7,7 @@ It's a React Native Application. And it contains firebase firestore, storage, ho
 
 ## To-do list
 - [ ] perfect notification functions
-- [ ] edit initial screen to see logs not only following users.
 - [ ] make log by using episodes of Infinity Challenge
-- [ ] promotion...
 
 ## App.js (contains function/class component)
 - Main (function component) -> function component that binds initial screen in tabbar form after login. function related to universal link, deep link also added.

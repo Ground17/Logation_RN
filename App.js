@@ -46,6 +46,8 @@ import i18n from 'i18n-js';
 
 import AsyncStorage from '@react-native-community/async-storage';
 
+import codePush from 'react-native-code-push'
+
 const Stack = createStackNavigator();
 
 function WebViewContainer({ navigation, route }) {
@@ -60,7 +62,7 @@ function Main({ navigation }) {
   const [screen, setScreen] = useState(0);
   const [follow, setFollow] = useState("");
   const [feed, setFeed] = useState("");
-  const [badge, setBadge] = useState("");
+  const [search, setSearch] = useState("");
   const [me, setMe] = useState("");
   const { initializeAppLanguage } = useContext(LocalizationContext);
   const [urlRef, setUrlRef] = useState(null);
@@ -153,14 +155,14 @@ function Main({ navigation }) {
     });
     setFollow(translate("Follow"));
     setFeed(translate("Feed"));
-    setBadge(translate("Badge"));
+    setSearch(translate("Search"));
     setMe(translate("MyAccount"));
   });
 
   const tabList = {
     0: <Home navigation={navigation} follow={false} key={0}/>,
     1: <Home navigation={navigation} follow={true} key={1}/>,
-    2: <Badge navigation={navigation}/>,
+    2: <Search navigation={navigation}/>,
     3: <Me navigation={navigation}/>,
   };
         
@@ -217,11 +219,11 @@ function Main({ navigation }) {
           <View style={{alignItems: 'center', justifyContent: 'space-around', height: "100%", width: TAB_ITEM_WIDTH}}>
             <Icon
               reverse
-              name='stars'
+              name='search'
               color='#bdbdbd'
               size={25}
             />
-            <Text style={{textAlign: 'center', color: "#fff", fontSize: 10}}> {badge} </Text>
+            <Text style={{textAlign: 'center', color: "#fff", fontSize: 10}}> {search} </Text>
           </View>
         </TouchableOpacity>
         <TouchableOpacity onPress={async () => { 
@@ -287,177 +289,171 @@ function Main({ navigation }) {
   );
 }
 
-export default class App extends Component {
-  constructor(props) {
-    super(props);
-  }
-  
-  render() {
-    return (
-      <LocalizationProvider>
-        <NavigationContainer>
-          <Stack.Navigator initialRouteName={!auth().currentUser || !auth().currentUser.emailVerified ? 'Login' : 'Main'}>
-            <Stack.Screen options={{headerShown: false}} name="Login" component={Login} />
-            <Stack.Screen name="SignUp" component={SignUp} options={{
-              headerStyle: {
-                backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#01579b',
-              },
-              headerTintColor: '#fff',
-              headerTitleStyle: {
-                fontWeight: 'bold',
-              },
-            }}/>
-            <Stack.Screen name="ResetPassword" component={ResetPassword}  options={{
-              headerStyle: {
-                backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#01579b',
-              },
-              headerTintColor: '#fff',
-              headerTitleStyle: {
-                fontWeight: 'bold',
-              },
-            }}/>
-            <Stack.Screen options={{headerShown: false}} name="Main" component={Main} />
-            <Stack.Screen name="Notification" component={Notification} options={{
-              headerStyle: {
-                backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#01579b',
-              },
-              headerTintColor: '#fff',
-              headerTitleStyle: {
-                fontWeight: 'bold',
-              },
-            }}/>
-            <Stack.Screen name="Me" component={Me} options={{
-              headerStyle: {
-                backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#01579b',
-              },
-              headerTintColor: '#fff',
-              headerTitleStyle: {
-                fontWeight: 'bold',
-              },
-            }}/>
-            <Stack.Screen name="Badge" component={Badge} options={{
-              headerStyle: {
-                backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#01579b',
-              },
-              headerTintColor: '#fff',
-              headerTitleStyle: {
-                fontWeight: 'bold',
-              },
-            }}/>
-            <Stack.Screen name="ShowScreen" component={ShowScreen} options={{
-              headerStyle: {
-                backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#01579b',
-              },
-              headerTintColor: '#fff',
-              headerTitleStyle: {
-                fontWeight: 'bold',
-              },
-            }}/>
-            <Stack.Screen name="ShowItem" component={ShowItem} options={{
-              headerStyle: {
-                backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#01579b',
-              },
-              headerTintColor: '#fff',
-              headerTitleStyle: {
-                fontWeight: 'bold',
-              },
-            }}/>
-            <Stack.Screen name="AddList" component={AddList} options={{
-              headerStyle: {
-                backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#01579b',
-              },
-              headerTintColor: '#fff',
-              headerTitleStyle: {
-                fontWeight: 'bold',
-              },
-            }}/>
-            <Stack.Screen name="EditProfile" component={EditProfile} options={{
-              headerStyle: {
-                backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#01579b',
-              },
-              headerTintColor: '#fff',
-              headerTitleStyle: {
-                fontWeight: 'bold',
-              },
-            }}/>
-            <Stack.Screen name="Settings" component={UserSetting} options={{
-              headerStyle: {
-                backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#01579b',
-              },
-              headerTintColor: '#fff',
-              headerTitleStyle: {
-                fontWeight: 'bold',
-              },
-            }}/>
-            <Stack.Screen name="Following" component={Following} options={{
-              headerStyle: {
-                backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#01579b',
-              },
-              headerTintColor: '#fff',
-              headerTitleStyle: {
-                fontWeight: 'bold',
-              },
-            }}/>
-            <Stack.Screen name="Purchase" component={Purchase} options={{
-              headerStyle: {
-                backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#01579b',
-              },
-              headerTintColor: '#fff',
-              headerTitleStyle: {
-                fontWeight: 'bold',
-              },
-            }}/>
-            <Stack.Screen name="Language" component={Language} options={{
-              headerStyle: {
-                backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#01579b',
-              },
-              headerTintColor: '#fff',
-              headerTitleStyle: {
-                fontWeight: 'bold',
-              },
-            }}/>
-            <Stack.Screen name="ShowDetail" component={ShowDetail} options={{
-              headerStyle: {
-                backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#01579b',
-              },
-              headerTintColor: '#fff',
-              headerTitleStyle: {
-                fontWeight: 'bold',
-              },
-            }}/>
-            <Stack.Screen name="Search" component={Search} options={{
-              headerStyle: {
-                backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#01579b',
-              },
-              headerTintColor: '#fff',
-              headerTitleStyle: {
-                fontWeight: 'bold',
-              },
-            }}/>
-            <Stack.Screen name="Other" component={Me}  options={{
-              headerStyle: {
-                backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#01579b',
-              },
-              headerTintColor: '#fff',
-              headerTitleStyle: {
-                fontWeight: 'bold',
-              },
-            }}/>
-            <Stack.Screen name="WebView" component={WebViewContainer}  options={{
-              headerStyle: {
-                backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#01579b',
-              },
-              headerTintColor: '#fff',
-              headerTitleStyle: {
-                fontWeight: 'bold',   
-              },
-            }}/>
-          </Stack.Navigator>
-        </NavigationContainer>
-      </LocalizationProvider>
-    );
-  }
-};
+const App = () => (
+  <LocalizationProvider>
+    <NavigationContainer>
+      <Stack.Navigator initialRouteName={!auth().currentUser || !auth().currentUser.emailVerified ? 'Login' : 'Main'}>
+        <Stack.Screen options={{headerShown: false}} name="Login" component={Login} />
+        <Stack.Screen name="SignUp" component={SignUp} options={{
+          headerStyle: {
+            backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#01579b',
+          },
+          headerTintColor: '#fff',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+          },
+        }}/>
+        <Stack.Screen name="ResetPassword" component={ResetPassword}  options={{
+          headerStyle: {
+            backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#01579b',
+          },
+          headerTintColor: '#fff',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+          },
+        }}/>
+        <Stack.Screen options={{headerShown: false}} name="Main" component={Main} />
+        <Stack.Screen name="Notification" component={Notification} options={{
+          headerStyle: {
+            backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#01579b',
+          },
+          headerTintColor: '#fff',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+          },
+        }}/>
+        <Stack.Screen name="Me" component={Me} options={{
+          headerStyle: {
+            backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#01579b',
+          },
+          headerTintColor: '#fff',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+          },
+        }}/>
+        <Stack.Screen name="Badge" component={Badge} options={{
+          headerStyle: {
+            backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#01579b',
+          },
+          headerTintColor: '#fff',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+          },
+        }}/>
+        <Stack.Screen name="ShowScreen" component={ShowScreen} options={{
+          headerStyle: {
+            backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#01579b',
+          },
+          headerTintColor: '#fff',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+          },
+        }}/>
+        <Stack.Screen name="ShowItem" component={ShowItem} options={{
+          headerStyle: {
+            backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#01579b',
+          },
+          headerTintColor: '#fff',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+          },
+        }}/>
+        <Stack.Screen name="AddList" component={AddList} options={{
+          headerStyle: {
+            backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#01579b',
+          },
+          headerTintColor: '#fff',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+          },
+        }}/>
+        <Stack.Screen name="EditProfile" component={EditProfile} options={{
+          headerStyle: {
+            backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#01579b',
+          },
+          headerTintColor: '#fff',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+          },
+        }}/>
+        <Stack.Screen name="Settings" component={UserSetting} options={{
+          headerStyle: {
+            backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#01579b',
+          },
+          headerTintColor: '#fff',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+          },
+        }}/>
+        <Stack.Screen name="Following" component={Following} options={{
+          headerStyle: {
+            backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#01579b',
+          },
+          headerTintColor: '#fff',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+          },
+        }}/>
+        <Stack.Screen name="Purchase" component={Purchase} options={{
+          headerStyle: {
+            backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#01579b',
+          },
+          headerTintColor: '#fff',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+          },
+        }}/>
+        <Stack.Screen name="Language" component={Language} options={{
+          headerStyle: {
+            backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#01579b',
+          },
+          headerTintColor: '#fff',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+          },
+        }}/>
+        <Stack.Screen name="ShowDetail" component={ShowDetail} options={{
+          headerStyle: {
+            backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#01579b',
+          },
+          headerTintColor: '#fff',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+          },
+        }}/>
+        <Stack.Screen name="Search" component={Search} options={{
+          headerStyle: {
+            backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#01579b',
+          },
+          headerTintColor: '#fff',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+          },
+        }}/>
+        <Stack.Screen name="Other" component={Me}  options={{
+          headerStyle: {
+            backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#01579b',
+          },
+          headerTintColor: '#fff',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+          },
+        }}/>
+        <Stack.Screen name="WebView" component={WebViewContainer}  options={{
+          headerStyle: {
+            backgroundColor: Appearance.getColorScheme() === 'dark' ? '#002f6c' : '#01579b',
+          },
+          headerTintColor: '#fff',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+          },
+        }}/>
+      </Stack.Navigator>
+    </NavigationContainer>
+  </LocalizationProvider>
+);
+
+export default codePush(App);
 
 const styles = StyleSheet.create({
     container: {
